@@ -22,8 +22,10 @@ public enum UserType {
         if (code == null) {
             throw new RuntimeException();
         }
-        return Stream.of(UserType.values()).filter(type -> code.equals(type.getCode()))
-                .findFirst().orElseThrow();
+        return Stream.of(UserType.values())
+                .filter(type -> code.equals(type.getCode()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No enum UserType constant with code " + code));
     }
 
 }
