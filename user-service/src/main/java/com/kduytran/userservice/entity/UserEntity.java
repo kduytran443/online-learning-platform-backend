@@ -15,7 +15,8 @@ import java.util.UUID;
 public class UserEntity extends BaseEntity {
 
     @Column
-    private Long seq;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private long seq;
 
     @Id
     @Column
@@ -32,9 +33,12 @@ public class UserEntity extends BaseEntity {
     private String email;
 
     @Column
+    private String mobilePhone;
+
+    @Column
     private UserType userType;
 
     @Column
-    private String mobilePhone;
+    private UserStatus userStatus;
 
 }
