@@ -10,3 +10,18 @@ spring:
     password: guest
     queue:
       name: user.queue
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    default-encoding: UTF-8
+    protocol: smtp
+    test-connection: false
+    username: ctuinternshipdemo@gmail.com # This username will be changed to another one in future
+    password: glzmeamehxvtrfcw # This temporary password will be encrypted when the config server is done
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        debug: true
