@@ -34,8 +34,7 @@ public abstract class AbstractEmail {
     private String[] recipientEmails;
     private Map<String, Object> variables;
 
-    @Value("${spring.mail.username}")
-    private String senderEmail;
+    private String senderEmail = "ctuinternshipdemo@gmail.com"; // TODO - refactor it instead of hard code
 
     public AbstractEmail(JavaMailSender emailSender, SpringTemplateEngine templateEngine,
                          String subject, Map<String, Object> variables, String... recipientEmails) {
@@ -95,14 +94,6 @@ public abstract class AbstractEmail {
             errorList.add("Template engine is not set.");
         }
 
-        if (subject == null || subject.isEmpty()) {
-            errorList.add("Email subject is not set.");
-        }
-
-        if (senderEmail == null || senderEmail.isEmpty()) {
-            errorList.add("Sender email is not set.");
-        }
-
         if (recipientEmails == null || recipientEmails.length == 0) {
             errorList.add("Recipient email(s) is not set.");
         }
@@ -113,7 +104,7 @@ public abstract class AbstractEmail {
 
         // Variables map contains all the required attributes
         this.getRequiredAttributeList().stream()
-                .filter(attr -> !variables.containsKey(attr))
+                .filter(attr -> !variables.containsKey(attr) || variables.get(attr) == null)
                 .forEach(attr -> errorList.add("Email is missing required attribute: " + attr));
 
         return errorList;
@@ -121,11 +112,17 @@ public abstract class AbstractEmail {
 
     // Execute method
     public List<String> send() throws MessagingException {
-        List<String> errorList = new ArrayList<>();
-        errorList.addAll(preCheck());
-        errorList.addAll(mainCheck());
-        errorList.addAll(postCheck());
+        List<String> errorList = this.preCheck();
+        if (errorList != null && !errorList.isEmpty()) {
+            return errorList;
+        }
 
+        errorList = this.mainCheck();
+        if (errorList != null && !errorList.isEmpty()) {
+            return errorList;
+        }
+
+        errorList = this.postCheck();
         if (errorList != null && !errorList.isEmpty()) {
             return errorList;
         }
@@ -138,12 +135,12 @@ public abstract class AbstractEmail {
         Context context = new Context();
         context.setVariables(variables);
         String html = templateEngine.process(getTemplate(), context);
-        helper.setText(html);
+        helper.setText(html, true);
 
         LOGGER.info("Sending email with subject {}", this.subject);
         emailSender.send(message);
 
-        return errorList;
+        return errorList == null ? new ArrayList<>() : errorList;
     }
 
 }

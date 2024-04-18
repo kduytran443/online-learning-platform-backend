@@ -48,6 +48,8 @@ public class NotificationServiceImpl implements INotificationService {
             List<String> errors = email.send();
             if (errors.isEmpty()) {
                 LOGGER.info("Sent mail to {} successfully", email);
+            } else {
+                LOGGER.error("Sent mail to {} unsuccessfully", email);
             }
         } catch (MessagingException e) {
             LOGGER.error(e.toString());
