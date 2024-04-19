@@ -5,6 +5,8 @@ import com.kduytran.userservice.dto.ErrorResponseDTO;
 import com.kduytran.userservice.dto.RegistrationDTO;
 import com.kduytran.userservice.dto.ResponseDTO;
 import com.kduytran.userservice.dto.UserDTO;
+import com.kduytran.userservice.dto.msg.RegistrationMessageDTO;
+import com.kduytran.userservice.producer.RabbitMQProducer;
 import com.kduytran.userservice.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @RestController
 @Tag(
         name = "CRUD REST APIs for user microservice"
@@ -32,10 +37,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final IUserService userService;
+    private final RabbitMQProducer rabbitMQProducer;
 
     @Autowired
-    public UserController(IUserService userService) {
+    public UserController(IUserService userService, RabbitMQProducer rabbitMQProducer) {
         this.userService = userService;
+        this.rabbitMQProducer = rabbitMQProducer;
     }
 
     @Operation(
@@ -75,6 +82,16 @@ public class UserController {
     )
     @GetMapping("/{username}")
     public ResponseEntity<UserDTO> fetchUserById(@PathVariable(value = "username") String username) {
+        RegistrationMessageDTO messageDTO = new RegistrationMessageDTO();
+
+        messageDTO.setUsername(username);
+        messageDTO.setUserType("STUDENT");
+        messageDTO.setName("Example Name");
+        messageDTO.setToken(UUID.randomUUID().toString());
+        messageDTO.setEmail("trankhanhduy18@gmail.com");
+        messageDTO.setExpiredDate(LocalDateTime.now().plusDays(1).toString());
+
+        rabbitMQProducer.sendMessage(messageDTO);
         UserDTO userDTO = userService.fetchUser(username);
         return ResponseEntity.ok(userDTO);
     }
