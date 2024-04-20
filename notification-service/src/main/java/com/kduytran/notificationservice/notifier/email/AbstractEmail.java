@@ -3,9 +3,9 @@ package com.kduytran.notificationservice.notifier.email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.thymeleaf.context.Context;
@@ -26,6 +26,7 @@ import java.util.Map;
  * </p>
  */
 @Getter
+@Setter
 public abstract class AbstractEmail {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEmail.class);
     private JavaMailSender emailSender;
