@@ -13,6 +13,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -103,10 +104,16 @@ public abstract class AbstractEmail {
             errorList.add("Email template is not set.");
         }
 
-        // Variables map contains all the required attributes
-        this.getRequiredAttributeList().stream()
-                .filter(attr -> !variables.containsKey(attr) || variables.get(attr) == null)
-                .forEach(attr -> errorList.add("Email is missing required attribute: " + attr));
+        if (this.getRequiredAttributeList() != null && !this.getRequiredAttributeList().isEmpty()) {
+            if (variables == null) {
+                errorList.add("Variables is not set.");
+            } else {
+                // Variables map contains all the required attributes
+                this.getRequiredAttributeList().stream()
+                        .filter(attr -> !variables.containsKey(attr) || variables.get(attr) == null)
+                        .forEach(attr -> errorList.add("Email is missing required attribute: " + attr));
+            }
+        }
 
         return errorList;
     }
@@ -138,10 +145,14 @@ public abstract class AbstractEmail {
         String html = templateEngine.process(getTemplate(), context);
         helper.setText(html, true);
 
-        LOGGER.info("Sending email with subject {}", this.subject);
+        LOGGER.info("Sending email with subject: {}", this.subject == null ? this.getDefaultSubject() : this.subject);
         emailSender.send(message);
 
-        return errorList == null ? new ArrayList<>() : errorList;
+        if (errorList == null) {
+            return Collections.emptyList();
+        }
+
+        return errorList;
     }
 
 }
