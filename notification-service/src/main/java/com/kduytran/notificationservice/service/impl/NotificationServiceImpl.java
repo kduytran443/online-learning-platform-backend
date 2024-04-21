@@ -2,7 +2,7 @@ package com.kduytran.notificationservice.service.impl;
 
 import com.kduytran.notificationservice.dto.RegistrationMessageDTO;
 import com.kduytran.notificationservice.notifier.email.AbstractEmail;
-import com.kduytran.notificationservice.notifier.email.template.RegistrationEmail;
+import com.kduytran.notificationservice.notifier.email.RegistrationEmail;
 import com.kduytran.notificationservice.service.INotificationService;
 import jakarta.mail.MessagingException;
 import org.slf4j.Logger;

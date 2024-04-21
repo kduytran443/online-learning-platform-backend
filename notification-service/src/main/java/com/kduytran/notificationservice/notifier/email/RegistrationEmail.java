@@ -1,6 +1,5 @@
-package com.kduytran.notificationservice.notifier.email.template;
+package com.kduytran.notificationservice.notifier.email;
 
-import com.kduytran.notificationservice.notifier.email.AbstractEmail;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
@@ -78,7 +77,6 @@ public class RegistrationEmail extends AbstractEmail {
     public List<String> postCheck() {
         Map<String, String> variables = this.getVariables().entrySet()
                 .stream()
-                .filter(e -> e.getValue() instanceof String)
                 .collect(Collectors.toMap(e -> e.getKey(),
                         e -> String.valueOf(e.getValue())));
 
@@ -93,6 +91,5 @@ public class RegistrationEmail extends AbstractEmail {
 
         return null;
     }
-
 
 }
