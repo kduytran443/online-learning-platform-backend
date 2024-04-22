@@ -1,4 +1,4 @@
-package com.kduytran.notificationservice.consumer;
+package com.kduytran.notificationservice.event.handler;
 
 import com.kduytran.notificationservice.dto.RegistrationMessageDTO;
 import com.kduytran.notificationservice.service.INotificationService;
@@ -8,12 +8,12 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RabbitMQConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQConsumer.class);
+public class NotificationEventHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationEventHandler.class);
 
     private final INotificationService notificationService;
 
-    public RabbitMQConsumer(INotificationService notificationService) {
+    public NotificationEventHandler(INotificationService notificationService) {
         this.notificationService = notificationService;
     }
 
