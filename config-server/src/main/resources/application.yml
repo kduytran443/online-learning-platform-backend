@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: "config-server"
+  profiles:
+    active: git
+  cloud:
+    config:
+      server:
+        #        native:
+        #          search-locations: "classpath:/config"
+        git:
+          uri: "https://github.com/kduytran443/online-learning-platform-config.git"
+          default-label: main #branch
+          timeout: 5 #maximum waiting seconds
+          clone-on-start: true #clone GITHUB repo into local system during startup
+          force-pull: true
+
+server:
+  port: 8071
