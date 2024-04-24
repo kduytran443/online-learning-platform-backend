@@ -17,7 +17,7 @@ public class NotificationEventHandler {
         this.notificationService = notificationService;
     }
 
-    @RabbitListener(queues = {"${spring.rabbitmq.queue.name}"})
+    @RabbitListener(queues = {"${queue-list.user-registered.queue}"})
     public void consume(RegistrationMessageDTO messageDTO){
         LOGGER.info(String.format("Received message -> %s", messageDTO.getUsername()));
         this.notificationService.sendRegistrationEmail(messageDTO);
