@@ -11,4 +11,12 @@ CREATE TABLE IF NOT EXISTS `userdata` (
     `created_by` varchar(20) NOT NULL,
     `updated_at` date DEFAULT NULL,
     `updated_by` varchar(20) DEFAULT NULL
-    );
+);
+
+CREATE TABLE IF NOT EXISTS `user_verification` (
+    `token` varchar(32) PRIMARY KEY,
+    `expired_date` date NOT NULL,
+    `checked` boolean NOT NULL,
+    `user_id` UUID NOT NULL,
+    foreign key (`user_id`) references `userdata`(`id`)
+);
