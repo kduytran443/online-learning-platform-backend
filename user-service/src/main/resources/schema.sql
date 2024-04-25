@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `userdata` (
 );
 
 CREATE TABLE IF NOT EXISTS `user_verification` (
-    `token` varchar(32) PRIMARY KEY,
+    `token` varchar(36) PRIMARY KEY,
     `expired_date` date NOT NULL,
     `checked` boolean NOT NULL,
     `user_id` UUID NOT NULL,
