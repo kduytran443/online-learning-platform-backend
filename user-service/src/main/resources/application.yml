@@ -1,6 +1,6 @@
 spring:
   application:
-    name: 'user-service'
+    name: 'user'
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
@@ -14,14 +14,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    queue:
-      name: user.queue
-    routing:
-      key: user.routingkey
-    exchange:
-      name: user.exchange
+  config:
+    import: "configserver:http://localhost:8071/"
+
+user:
+  verification:
+    token:
+      expiration:
+        duration: 300
