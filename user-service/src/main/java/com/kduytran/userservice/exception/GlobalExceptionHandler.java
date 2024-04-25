@@ -85,4 +85,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserVerificationNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserVerificationNotFoundException(
+            UserVerificationNotFoundException exception, WebRequest webRequest) {
+        return this.getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(VerificationTokenExpiredException.class)
+    public ResponseEntity<ErrorResponseDTO> handleVerificationTokenExpiredException(
+            VerificationTokenExpiredException exception, WebRequest webRequest) {
+        return this.getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
 }
