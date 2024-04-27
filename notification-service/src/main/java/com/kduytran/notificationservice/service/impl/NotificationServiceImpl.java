@@ -1,5 +1,6 @@
 package com.kduytran.notificationservice.service.impl;
 
+import com.kduytran.notificationservice.constant.AttributeConstant;
 import com.kduytran.notificationservice.dto.RegistrationMessageDTO;
 import com.kduytran.notificationservice.notifier.email.AbstractEmail;
 import com.kduytran.notificationservice.notifier.email.RegistrationEmail;
@@ -33,12 +34,13 @@ public class NotificationServiceImpl implements INotificationService {
     public void sendRegistrationEmail(RegistrationMessageDTO messageDTO) {
         String recipientEmail = messageDTO.getEmail();
         Map<String, Object> variables = new HashMap<>();
-        variables.put("username", messageDTO.getUsername());
-        variables.put("name", messageDTO.getName());
-        variables.put("email", messageDTO.getEmail());
-        variables.put("userType", messageDTO.getUserType());
-        variables.put("token", messageDTO.getToken());
-        variables.put("expiredDate", messageDTO.getExpiredDate());
+        variables.put(AttributeConstant.USERNAME_ATTRIBUTE, messageDTO.getUsername());
+        variables.put(AttributeConstant.NAME_ATTRIBUTE, messageDTO.getName());
+        variables.put(AttributeConstant.EMAIL_ATTRIBUTE, messageDTO.getEmail());
+        variables.put(AttributeConstant.USER_TYPE_ATTRIBUTE, messageDTO.getUserType());
+        variables.put(AttributeConstant.TOKEN_ATTRIBUTE, messageDTO.getToken());
+        variables.put(AttributeConstant.EXPIRED_DATE_ATTRIBUTE, messageDTO.getExpiredDate());
+        variables.put(AttributeConstant.CREATED_AT_ATTRIBUTE, messageDTO.getCreatedAt());
 
         AbstractEmail email = RegistrationEmail.of(
                 mailSender, templateEngine, variables, recipientEmail
