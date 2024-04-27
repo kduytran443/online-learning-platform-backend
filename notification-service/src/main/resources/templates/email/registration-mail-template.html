@@ -41,18 +41,20 @@
 </head>
 <body>
 <div class="container">
-    <h1>Registration Confirmation</h1>
+    <h1>Registration Verification - Online Learning Platform</h1>
     <div class="message">
         <p>Dear <span th:text="${name}"></span>,</p>
         <p>Thank you for registering with us. Your account has been successfully created.</p>
         <p>Your account details:</p>
         <ul>
+            <li><strong>Name:</strong> <span th:text="${name}"></span></li>
             <li><strong>Username:</strong> <span th:text="${username}"></span></li>
             <li><strong>Email:</strong> <span th:text="${email}"></span></li>
             <li><strong>User Type:</strong> <span th:text="${userType}"></span></li>
+            <li><strong>Created At:</strong> <span th:text="${createdAt}"></span></li>
         </ul>
         <p>Please click the button below to verify your email:</p>
-        <a th:href="'http://website-placeholder.com/verify-email?token=' + ${token}" class="button">Verify Email</a>
+        <a th:href="'http://localhost:8080/api/v1/users/verification?token=' + ${token}" class="button">Verify Email</a>
         <p>This link will expire on <span th:text="${expiredDate}"></span>.</p>
     </div>
 </div>

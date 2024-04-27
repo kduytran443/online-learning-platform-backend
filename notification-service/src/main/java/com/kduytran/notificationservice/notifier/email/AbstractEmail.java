@@ -48,6 +48,23 @@ public abstract class AbstractEmail {
     }
 
     /**
+     * Abstract method for pre-processing before sending an email.
+     * Subclasses should implement this to perform tasks such as data initialization
+     * or validation. This method does not return a value and should not throw exceptions.
+     */
+    public abstract void preHandle();
+
+    /**
+     * Abstract method for post-processing after sending an email.
+     * Subclasses should implement this method to perform tasks such as cleanup,
+     * logging, or additional validation after the email has been sent.
+     *
+     * This method does not return a value and should not throw exceptions.
+     * Any errors or issues encountered should be handled within the implementation.
+     */
+    public abstract void postHandle();
+
+    /**
      * Retrieves the default subject for the email.
      *
      * @return the default subject for the email
@@ -120,11 +137,13 @@ public abstract class AbstractEmail {
 
     // Execute method
     public List<String> send() throws MessagingException {
+        this.preHandle();
         List<String> errorList = this.preCheck();
         if (errorList != null && !errorList.isEmpty()) {
             return errorList;
         }
 
+        this.postHandle();
         errorList = this.mainCheck();
         if (errorList != null && !errorList.isEmpty()) {
             return errorList;
