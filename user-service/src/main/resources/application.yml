@@ -16,9 +16,3 @@ spring:
     show-sql: true
   config:
     import: "configserver:http://localhost:8071/"
-
-user:
-  verification:
-    token:
-      expiration:
-        duration: 300
