@@ -23,11 +23,6 @@ public class RegistrationEmail extends AbstractEmail {
         return new RegistrationEmail(emailSender, templateEngine, null, variables, recipientEmails);
     }
 
-    public static RegistrationEmail ofWithCustomSubject(JavaMailSender emailSender, SpringTemplateEngine templateEngine, String subject,
-                                                        Map<String, Object> variables, String... recipientEmails) {
-        return new RegistrationEmail(emailSender, templateEngine, subject, variables, recipientEmails);
-    }
-
     /**
      * Retrieves the default subject for the email.
      *
@@ -84,11 +79,15 @@ public class RegistrationEmail extends AbstractEmail {
      */
     @Override
     public void postHandle() {
-        String formattedDateTimeString = TimeUtils.getFormattedDate(
+        String formattedEpiredTimeString = TimeUtils.getFormattedDate(
                                         this.getVariables().get(AttributeConstant.EXPIRED_DATE_ATTRIBUTE),
                                         TimeUtils.FULL_DATETIME_FORMAT);
+        String formattedCreatedAtString = TimeUtils.getFormattedDate(
+                                        this.getVariables().get(AttributeConstant.CREATED_AT_ATTRIBUTE),
+                                        TimeUtils.FULL_DATETIME_FORMAT);
 
-        this.getVariables().put(AttributeConstant.EXPIRED_DATE_ATTRIBUTE, formattedDateTimeString);
+        this.getVariables().put(AttributeConstant.EXPIRED_DATE_ATTRIBUTE, formattedEpiredTimeString);
+        this.getVariables().put(AttributeConstant.CREATED_AT_ATTRIBUTE, formattedCreatedAtString);
     }
 
     /**
