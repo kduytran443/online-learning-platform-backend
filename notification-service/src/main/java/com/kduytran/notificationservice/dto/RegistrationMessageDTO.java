@@ -23,4 +23,5 @@ public class RegistrationMessageDTO implements Serializable {
     private String userType;
     private String token;
     private String expiredDate;
+    private String createdAt;
 }
