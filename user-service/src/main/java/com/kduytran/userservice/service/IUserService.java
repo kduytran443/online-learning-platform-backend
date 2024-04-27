@@ -63,4 +63,13 @@ public interface IUserService {
      */
     void refreshUserVerification(String userId);
 
+    /**
+     * Deletes all inactive users from the system.
+     * An inactive user is defined as a user who has not logged in for a specified period or
+     * has a status indicating they are no longer active.
+     *
+     * @return the number of users that were deleted from the system.
+     */
+    int deleteAllInActiveUsers();
+
 }
