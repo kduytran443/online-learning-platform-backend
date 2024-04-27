@@ -169,7 +169,8 @@ public class UserServiceImpl implements IUserService {
                 userEntity.getEmail(),
                 userEntity.getUserType().getCode(),
                 userVerification.getToken(),
-                userVerification.getExpiredDate().toString()
+                userVerification.getExpiredDate().toString(),
+                userEntity.getCreatedAt().toString()
         );
 
         logger.debug("Publishing user registered event {}", event);

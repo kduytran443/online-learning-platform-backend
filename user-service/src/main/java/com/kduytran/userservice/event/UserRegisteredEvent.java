@@ -17,4 +17,5 @@ public class UserRegisteredEvent {
     private String userType;
     private String token;
     private String expiredDate;
+    private String createdAt;
 }
