@@ -149,6 +149,18 @@ public class UserServiceImpl implements IUserService {
         userVerificationRepository.save(userVerification);
     }
 
+    /**
+     * Deletes all inactive users from the system.
+     * An inactive user is defined as a user who has not logged in for a specified period or
+     * has a status indicating they are no longer active.
+     *
+     * @return the number of users that were deleted from the system.
+     */
+    @Override
+    public int deleteAllInActiveUsers() {
+        return this.userRepository.deleteAllInActiveUsers();
+    }
+
     private void publishRegisteredUser(UserEntity userEntity, UserVerificationEntity userVerification) {
         UserRegisteredEvent event = UserRegisteredEvent.of(
                 "", // TODO - ADD TRANSACTION ID
