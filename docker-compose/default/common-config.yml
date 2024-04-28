@@ -1,0 +1,25 @@
+services:
+  network-deploy-service:
+    networks:
+      - "khanhduytran"
+
+  microservice-base-config:
+    extends:
+      service: network-deploy-service
+    environment:
+      SPRING_RABBITMQ_HOST: rabbit
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+
+  microservice-config-server-config:
+    extends:
+      service: microservice-base-config
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8071/"
+      SPRING_CLOUD_CONFIG_FAILFAST: false
