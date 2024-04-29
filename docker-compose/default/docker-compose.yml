@@ -1,0 +1,77 @@
+services:
+  rabbit:
+    image: rabbitmq:3.12-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+  config-server:
+    image: khanhduytran/olp-config-server:1.0
+    container_name: config-server-ms
+    ports:
+      - "8071:8071"
+    healthcheck:
+      test: "curl --fail --silent config-server:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 15s
+      retries: 20
+      start_period: 15s
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    extends:
+      service: microservice-base-config
+      file: common-config.yml
+    environment:
+      SPRING_APPLICATION_NAME: "config-server"
+  user-service:
+    image: khanhduytran/olp-user-service:1.0
+    container_name: user-service-ms
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: "curl --fail --silent user-service:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 15s
+      retries: 20
+      start_period: 15s
+    extends:
+      service: microservice-config-server-config
+      file: common-config.yml
+    environment:
+      SPRING_APPLICATION_NAME: "user"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8071/"
+      SPRING_CLOUD_CONFIG_FAILFAST: false
+  notification-service:
+    image: khanhduytran/olp-notification-service:1.0
+    container_name: notification-service-ms
+    ports:
+      - "8090:8090"
+    healthcheck:
+      test: "curl --fail --silent notification-service:8090/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 15s
+      retries: 20
+      start_period: 15s
+    extends:
+      service: microservice-config-server-config
+      file: common-config.yml
+    environment:
+      SPRING_APPLICATION_NAME: "notification"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8071/"
+      SPRING_CLOUD_CONFIG_FAILFAST: false
+
+networks:
+  khanhduytran:
+    driver: bridge
