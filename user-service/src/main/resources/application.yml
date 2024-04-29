@@ -2,17 +2,17 @@ spring:
   application:
     name: 'user'
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ''
+    url: jdbc:postgresql://localhost:5433/user_db
+    driver-class-name: org.postgresql.Driver
+    username: user
+    password: password
   h2:
     console:
       enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
   config:
-    import: "configserver:http://localhost:8071/"
+    import: "optional:configserver:http://localhost:8071/"

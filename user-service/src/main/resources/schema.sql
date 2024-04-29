@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `userdata` (
-    `seq` int AUTO_INCREMENT,
+    `seq` BIGSERIAL,
     `id` UUID PRIMARY KEY,
     `username` varchar(200) NOT NULL,
     `name` varchar(200) NOT NULL,
