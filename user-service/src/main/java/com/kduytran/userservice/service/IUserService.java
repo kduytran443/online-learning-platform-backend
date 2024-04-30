@@ -23,13 +23,15 @@ public interface IUserService {
     void createUser(RegistrationDTO registrationDTO);
 
     /**
-     * Fetches user information based on the provided username.
+     * This method is used to fetch user information based on the given ID.
      *
-     * @param username The username of the user to fetch information for.
-     * @return A UserDTO object containing information about the user.
-     * @throws UserNotFoundException if the user with the specified username is not found.
+     * @param id The ID of the user to retrieve.
+     * @return A UserDTO object containing the user information corresponding to the given ID.
+     *         If no user is found with the provided ID, the method will return null.
+     * @throws IllegalArgumentException If the input (ID) is invalid, such as being null or empty.
+     * @throws UserNotFoundException   If no user is found with the corresponding ID in the system.
      */
-    UserDTO fetchUser(String username);
+    UserDTO fetchUser(String id);
 
     /**
      * Updates the status of a user based on the given user ID and the new status.

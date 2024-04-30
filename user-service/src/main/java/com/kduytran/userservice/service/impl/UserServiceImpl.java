@@ -75,16 +75,18 @@ public class UserServiceImpl implements IUserService {
     }
 
     /**
-     * Fetches user information based on the provided username.
+     * This method is used to fetch user information based on the given ID.
      *
-     * @param username The username of the user to fetch information for.
-     * @return A UserDTO object containing information about the user.
-     * @throws com.kduytran.userservice.exception.UserNotFoundException if the user with the specified username is not found.
+     * @param id The ID of the user to retrieve.
+     * @return A UserDTO object containing the user information corresponding to the given ID.
+     *         If no user is found with the provided ID, the method will return null.
+     * @throws IllegalArgumentException If the input (ID) is invalid, such as being null or empty.
+     * @throws UserNotFoundException   If no user is found with the corresponding ID in the system.
      */
     @Override
-    public UserDTO fetchUser(String username) {
-        UserEntity user = userRepository.findByUsername(username).orElseThrow(
-                () -> new ResourceNotFoundException("User", "username", username)
+    public UserDTO fetchUser(String id) {
+        UserEntity user = userRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", id)
         );
         return UserMapper.convert(user, new UserDTO());
     }
@@ -141,12 +143,14 @@ public class UserServiceImpl implements IUserService {
      * @throws com.kduytran.userservice.exception.UserNotFoundException If no user is found with the specified userId.
      */
     @Override
+    @Transactional
     public void refreshUserVerification(String userId) {
         UserEntity userEntity = userRepository.findByUserStatusAndId(UserStatus.INACTIVE, UUID.fromString(userId)).orElseThrow(
                 () -> new UserNotFoundException("User with the given ID does not exist or is not in INACTIVE status.")
         );
         UserVerificationEntity userVerification = createNewToken(userEntity);
-        userVerificationRepository.save(userVerification);
+        UserVerificationEntity savedUserVerification = userVerificationRepository.save(userVerification);
+        publishRegisteredUser(userEntity, savedUserVerification);
     }
 
     /**
