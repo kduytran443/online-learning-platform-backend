@@ -141,12 +141,14 @@ public class UserServiceImpl implements IUserService {
      * @throws com.kduytran.userservice.exception.UserNotFoundException If no user is found with the specified userId.
      */
     @Override
+    @Transactional
     public void refreshUserVerification(String userId) {
         UserEntity userEntity = userRepository.findByUserStatusAndId(UserStatus.INACTIVE, UUID.fromString(userId)).orElseThrow(
                 () -> new UserNotFoundException("User with the given ID does not exist or is not in INACTIVE status.")
         );
         UserVerificationEntity userVerification = createNewToken(userEntity);
-        userVerificationRepository.save(userVerification);
+        UserVerificationEntity savedUserVerification = userVerificationRepository.save(userVerification);
+        publishRegisteredUser(userEntity, savedUserVerification);
     }
 
     /**
