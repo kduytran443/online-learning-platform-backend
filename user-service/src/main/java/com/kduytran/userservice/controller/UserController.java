@@ -109,10 +109,10 @@ public class UserController {
                     )
             )
     })
-    @GetMapping("/refresh-verification")
+    @PostMapping("/refresh-verification")
     public ResponseEntity<ResponseDTO> refreshUserVerification(@PathParam("userId") String userId) {
         userService.refreshUserVerification(userId);
-        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.REFRESH_VERIFICATION_MESSAGE_201));
     }
 
     @Operation(
