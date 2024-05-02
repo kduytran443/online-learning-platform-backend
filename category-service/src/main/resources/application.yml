@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: category
+  datasource:
+    url: jdbc:postgresql://localhost:5434/category_db
+    driver-class-name: org.postgresql.Driver
+    username: user
+    password: password
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  sql:
+    init:
+      schema-locations: classpath:/schema.sql
+      mode: always
+  config:
+    import: "optional:configserver:http://localhost:8071/"
