@@ -1,0 +1,48 @@
+package com.kduytran.categoryservice.converter;
+
+import com.kduytran.categoryservice.dto.CategoryDTO;
+import com.kduytran.categoryservice.entity.CategoryEntity;
+import com.kduytran.categoryservice.entity.attrconverter.EntityStatus;
+import lombok.experimental.UtilityClass;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@UtilityClass
+public class CategoryConverter {
+
+    public static CategoryDTO convert(CategoryEntity entity, CategoryDTO dto) {
+        if (dto == null) {
+            dto = new CategoryDTO();
+        }
+        dto.setCode(entity.getCode());
+        dto.setId(entity.getId().toString());
+        dto.setDescription(entity.getDescription());
+        dto.setName(entity.getName());
+        dto.setStatus(entity.getStatus().getCode());
+        if (entity.getParentCategory() != null) {
+            dto.setParentCategory(CategoryConverter.convert(entity.getParentCategory(), new CategoryDTO()));
+        }
+        if (entity.getSubCategories() != null) {
+            List<CategoryDTO> subCategoryDTOs = entity.getSubCategories().stream().map(
+                    sub -> CategoryConverter.convert(sub, new CategoryDTO())
+            ).collect(Collectors.toList());
+        }
+        return dto;
+    }
+
+    public static CategoryEntity convert(CategoryDTO dto, CategoryEntity entity) {
+        if (entity == null) {
+            entity = new CategoryEntity();
+        }
+        entity.setCode(dto.getCode());
+        entity.setDescription(dto.getDescription());
+        entity.setName(dto.getName());
+        entity.setStatus(EntityStatus.of(dto.getStatus()));
+        entity.setId(dto.getId() == null ? null : UUID.fromString(dto.getId()));
+        // Set parent entity
+        return entity;
+    }
+
+}
