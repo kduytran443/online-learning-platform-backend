@@ -36,4 +36,18 @@ public class CategoryEntity extends BaseEntity {
     @JoinColumn(columnDefinition = "parent_category_id")
     private CategoryEntity parentCategory;
 
+    /**
+     * Counts the number of parent categories for a given category entity.
+     *
+     * @return The number of parent categories leading up to the root category.
+     */
+    public int getParentCount() {
+        CategoryEntity parent = getParentCategory();
+        int count = 0;
+        while (parent != null) {
+            count++;
+        }
+        return count;
+    }
+
 }
