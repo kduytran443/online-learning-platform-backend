@@ -67,4 +67,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleCategoryAlreadyExistsException(
+            CategoryAlreadyExistsException exception, WebRequest webRequest) {
+        return this.getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(TooManyCategoryParentsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTooManyCategoryParentsException(
+            TooManyCategoryParentsException exception, WebRequest webRequest) {
+        return this.getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
+    }
+
 }
