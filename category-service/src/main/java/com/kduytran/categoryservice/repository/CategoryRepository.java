@@ -1,7 +1,7 @@
 package com.kduytran.categoryservice.repository;
 
 import com.kduytran.categoryservice.entity.CategoryEntity;
-import com.kduytran.categoryservice.entity.attrconverter.EntityStatus;
+import com.kduytran.categoryservice.entity.EntityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

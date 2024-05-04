@@ -3,7 +3,6 @@ package com.kduytran.categoryservice.converter;
 import com.kduytran.categoryservice.dto.CategoryDTO;
 import com.kduytran.categoryservice.dto.CreateCategoryDTO;
 import com.kduytran.categoryservice.entity.CategoryEntity;
-import com.kduytran.categoryservice.entity.attrconverter.EntityStatus;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
