@@ -1,8 +1,8 @@
 package com.kduytran.categoryservice.converter;
 
 import com.kduytran.categoryservice.dto.CategoryDTO;
+import com.kduytran.categoryservice.dto.CreateCategoryDTO;
 import com.kduytran.categoryservice.entity.CategoryEntity;
-import com.kduytran.categoryservice.entity.attrconverter.EntityStatus;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
@@ -14,7 +14,7 @@ public class CategoryConverter {
 
     public static CategoryDTO convert(CategoryEntity entity, CategoryDTO dto) {
         if (dto == null) {
-            dto = new CategoryDTO();
+            return null;
         }
         dto.setCode(entity.getCode());
         dto.setId(entity.getId().toString());
@@ -39,8 +39,20 @@ public class CategoryConverter {
         entity.setCode(dto.getCode());
         entity.setDescription(dto.getDescription());
         entity.setName(dto.getName());
-        entity.setStatus(EntityStatus.of(dto.getStatus()));
-        entity.setId(dto.getId() == null ? null : UUID.fromString(dto.getId()));
+        if (entity.getId() == null) {
+            entity.setId(dto.getId() == null ? null : UUID.fromString(dto.getId()));
+        }
+        // Set parent entity
+        return entity;
+    }
+
+    public static CategoryEntity convert(CreateCategoryDTO dto, CategoryEntity entity) {
+        if (entity == null) {
+            entity = new CategoryEntity();
+        }
+        entity.setCode(dto.getCode());
+        entity.setDescription(dto.getDescription());
+        entity.setName(dto.getName());
         // Set parent entity
         return entity;
     }
