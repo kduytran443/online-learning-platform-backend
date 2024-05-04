@@ -45,11 +45,18 @@ public interface ICategoryService {
     void update(String id, CreateCategoryDTO createCategoryDTO);
 
     /**
-     * Restores a previously deleted or hidden category.
+     * Restores a category and all its parent categories if they were previously deleted or hidden.
      *
      * @param id The unique identifier for the category to be restored.
      */
     void rebound(String id);
+
+    /**
+     * Restores all subcategories of a previously deleted or hidden category.
+     *
+     * @param id The unique identifier for the category whose subcategories are to be restored.
+     */
+    void reboundAllItsSubCategories(String id);
 
     /**
      * Permanently deletes a category by its unique identifier.

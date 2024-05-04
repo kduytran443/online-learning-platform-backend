@@ -4,7 +4,7 @@ import com.kduytran.categoryservice.converter.CategoryConverter;
 import com.kduytran.categoryservice.dto.CategoryDTO;
 import com.kduytran.categoryservice.dto.CreateCategoryDTO;
 import com.kduytran.categoryservice.entity.CategoryEntity;
-import com.kduytran.categoryservice.entity.attrconverter.EntityStatus;
+import com.kduytran.categoryservice.entity.EntityStatus;
 import com.kduytran.categoryservice.exception.CategoryAlreadyExistsException;
 import com.kduytran.categoryservice.exception.CategoryNotFoundException;
 import com.kduytran.categoryservice.exception.TooManyCategoryParentsException;
@@ -13,8 +13,8 @@ import com.kduytran.categoryservice.service.ICategoryService;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +28,9 @@ public class CategoryServiceImpl implements ICategoryService {
 
     private final int MAX_PARENT_COUNT;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository,
-                               @Value("${category.max-parent-count}") String maxParentCount) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.MAX_PARENT_COUNT = Integer.parseInt(maxParentCount);
+        this.MAX_PARENT_COUNT = Integer.parseInt("4");
     }
 
     /**
@@ -67,6 +66,7 @@ public class CategoryServiceImpl implements ICategoryService {
      *                          This includes attributes like name, description, and any other required fields.
      */
     @Override
+    @Transactional
     public void create(@NonNull CreateCategoryDTO createCategoryDTO) {
         boolean existsByIdOrCode = categoryRepository.existsByIdOrCode(null, createCategoryDTO.getCode());
         if (existsByIdOrCode) {
@@ -83,6 +83,7 @@ public class CategoryServiceImpl implements ICategoryService {
             }
             categoryEntity.setParentCategory(parentCategoryEntity);
         }
+        categoryEntity.setStatus(EntityStatus.LIVE);
 
         logger.debug("Creating category name: {}", categoryEntity.getName());
         categoryRepository.save(categoryEntity);
@@ -96,6 +97,7 @@ public class CategoryServiceImpl implements ICategoryService {
      *                          This includes attributes like name, description, and any other modifiable fields.
      */
     @Override
+    @Transactional
     public void update(String id, CreateCategoryDTO createCategoryDTO) {
         CategoryEntity categoryEntity = getLiveEntityById(id);
         CategoryConverter.convert(createCategoryDTO, categoryEntity);
@@ -119,11 +121,12 @@ public class CategoryServiceImpl implements ICategoryService {
      * @param id The unique identifier for the category to be restored.
      */
     @Override
+    @Transactional
     public void rebound(String id) {
         CategoryEntity categoryEntity = getLiveEntityById(id);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
-        addAllCategoryToList(allCategories, categoryEntity);
+        addAllSubCategoriesToList(allCategories, categoryEntity);
 
         allCategories = allCategories.stream().map(item -> {
             item.setStatus(EntityStatus.LIVE);
@@ -141,11 +144,12 @@ public class CategoryServiceImpl implements ICategoryService {
      * @param id The unique identifier for the category to be deleted.
      */
     @Override
+    @Transactional
     public void delete(String id) {
         CategoryEntity categoryEntity = getLiveEntityById(id);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
-        addAllCategoryToList(allCategories, categoryEntity);
+        addAllSubCategoriesToList(allCategories, categoryEntity);
 
         allCategories = allCategories.stream().map(item -> {
             item.setStatus(EntityStatus.DELETED);
@@ -164,11 +168,12 @@ public class CategoryServiceImpl implements ICategoryService {
      * @param id The unique identifier for the category to be hidden.
      */
     @Override
+    @Transactional
     public void hidden(String id) {
         CategoryEntity categoryEntity = getLiveEntityById(id);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
-        addAllCategoryToList(allCategories, categoryEntity);
+        addAllSubCategoriesToList(allCategories, categoryEntity);
 
         allCategories = allCategories.stream().map(item -> {
             item.setStatus(EntityStatus.HIDDEN);
@@ -199,14 +204,14 @@ public class CategoryServiceImpl implements ICategoryService {
      * @param list     The list to which the category and its subcategories will be added.
      * @param category The category from which the subcategories are recursively collected.
      */
-    private void addAllCategoryToList(List<CategoryEntity> list, CategoryEntity category) {
+    private void addAllSubCategoriesToList(List<CategoryEntity> list, CategoryEntity category) {
         if (category == null) {
             return;
         }
         list.add(category);
         for (CategoryEntity subCategory :
                 category.getSubCategories()) {
-            addAllCategoryToList(list, subCategory);
+            addAllSubCategoriesToList(list, subCategory);
         }
     }
 
