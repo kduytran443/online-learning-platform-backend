@@ -1,0 +1,105 @@
+package com.kduytran.categoryservice.controller;
+
+import com.kduytran.categoryservice.constant.ResponseConstant;
+import com.kduytran.categoryservice.dto.CreateCategoryDTO;
+import com.kduytran.categoryservice.dto.ErrorResponseDTO;
+import com.kduytran.categoryservice.dto.ResponseDTO;
+import com.kduytran.categoryservice.service.ICategoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@Tag(
+        name = "CRUD REST APIs for category microservice"
+)
+@RequestMapping(
+        path = "/api/v1/categories",
+        consumes = MediaType.APPLICATION_JSON_VALUE
+)
+@Validated
+public class CategoryController {
+    private final ICategoryService categoryService;
+
+    public CategoryController(ICategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
+
+    @Operation(
+            summary = "Create new Category REST API",
+            description = "REST API to create new Category inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_201,
+                    description = "HTTP Status CREATED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PostMapping
+    public ResponseEntity<ResponseDTO> createCategory(@RequestBody CreateCategoryDTO categoryDTO) {
+        categoryService.create(categoryDTO);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
+    }
+
+    @Operation(
+            summary = "Create new Category REST API",
+            description = "REST API to create new Category inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_201,
+                    description = "HTTP Status CREATED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<ResponseDTO> updateCategory(@RequestBody CreateCategoryDTO categoryDTO, @PathVariable(
+            "categoryId") String categoryId) {
+        categoryService.update(categoryId, categoryDTO);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
+    }
+
+    @Operation(
+            summary = "Create new Category REST API",
+            description = "REST API to hide category and all its child inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_201,
+                    description = "HTTP Status UPDATED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PutMapping("/{categoryId}/hide")
+    public ResponseEntity<ResponseDTO> hideCategory(@PathVariable("categoryId") String categoryId) {
+        categoryService.hidden(categoryId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
+    }
+
+}
