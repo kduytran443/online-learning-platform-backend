@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity(name = "category")
 @Getter @Setter
-public class CategoryEntity {
+public class CategoryEntity extends BaseEntity {
 
     @Id
     @Column
