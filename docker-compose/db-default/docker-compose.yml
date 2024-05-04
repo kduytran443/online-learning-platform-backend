@@ -21,6 +21,18 @@ services:
       - "db_test"
     ports:
       - "5433:5432"  # Expose PostgreSQL on port 5432 for User service database
+  postgres_category_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: category_db
+    volumes:
+      - pg_category_data:/var/lib/postgresql/data
+    networks:
+      - "db_test"
+    ports:
+      - "5434:5432"  # Expose PostgreSQL on port 5432 for User service database
 
 networks:
   db_test:
@@ -31,3 +43,5 @@ volumes:
     name: cloudbeaver
   pg_user_data:
     name: pg_user_data
+  pg_category_data:
+    name: pg_category_data
