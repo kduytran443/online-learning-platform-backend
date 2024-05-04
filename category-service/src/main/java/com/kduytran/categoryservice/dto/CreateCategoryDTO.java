@@ -6,20 +6,13 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @Schema(
-        name = "CategoryDTO",
-        description = "Schema to hold Category information"
+        name = "CreateCategoryDTO",
+        description = "Schema to hold information to create Category"
 )
-public class CategoryDTO {
-    @Schema(
-            description = "Id of category", example = "xxx"
-    )
-    private String id;
+public class CreateCategoryDTO {
 
     @Schema(
             description = "Name of category", example = "Java"
@@ -40,11 +33,9 @@ public class CategoryDTO {
     @Pattern(regexp = "^([a-z0-9](-[a-z0-9]+)*)+$", message = "Code is not in valid format")
     private String code;
 
-    private CategoryDTO parentCategory;
-    private List<CategoryDTO> subCategories;
-    private String status;
-    private String createdBy;
-    private LocalDateTime createdAt;
-    private String updatedBy;
-    private LocalDateTime updatedAt;
+    @Schema(
+            description = "Parent category id of category", example = "xxx"
+    )
+    private String parentCategoryId;
+
 }
