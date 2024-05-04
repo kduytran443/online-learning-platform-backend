@@ -26,7 +26,7 @@ public class CategoryEntity extends BaseEntity {
     @Column
     private String code;
 
-    @Column(name = "status")
+    @Column(name = "category_status")
     private EntityStatus status;
 
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY)
