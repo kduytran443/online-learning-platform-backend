@@ -1,10 +1,12 @@
 package com.kduytran.categoryservice.entity;
 
-import com.kduytran.categoryservice.entity.attrconverter.EntityStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,12 +44,39 @@ public class CategoryEntity extends BaseEntity {
      * @return The number of parent categories leading up to the root category.
      */
     public int getParentCount() {
+        return getAllParents().size();
+    }
+
+    /**
+     * Retrieves a list of all parent categories for the current category, ordered from
+     * the immediate parent to the root parent. This order follows the natural hierarchy
+     * from the current category back to the root.
+     *
+     * @return a list of parent {@link CategoryEntity} objects, ordered from the closest parent
+     *         to the farthest. If there are no parents, the list will be empty.
+     */
+    private List<CategoryEntity> getAllParents() {
+        List<CategoryEntity> allParents = new ArrayList<>();
         CategoryEntity parent = getParentCategory();
-        int count = 0;
         while (parent != null) {
-            count++;
+            allParents.add(parent);
+            parent = parent.getParentCategory();
         }
-        return count;
+        return allParents;
+    }
+
+    /**
+     * Retrieves a list of all parent categories for the current category, ordered from
+     * the root parent to the immediate parent. This order represents the parent hierarchy
+     * in reverse, providing the lineage from the root down to the current category.
+     *
+     * @return a list of parent {@link CategoryEntity} objects, ordered from the farthest
+     *         parent to the closest. If there are no parents, the list will be empty.
+     */
+    private List<CategoryEntity> getAllParentsInReverse() {
+        List<CategoryEntity> allParents = getAllParents();
+        Collections.reverse(allParents);
+        return allParents;
     }
 
 }
