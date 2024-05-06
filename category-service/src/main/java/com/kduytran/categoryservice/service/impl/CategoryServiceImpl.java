@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -126,7 +127,11 @@ public class CategoryServiceImpl implements ICategoryService {
         CategoryEntity categoryEntity = getLiveEntityById(id);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
-        addAllSubCategoriesToList(allCategories, categoryEntity);
+
+        // Just rebound only deleted categories
+        Predicate<CategoryEntity> statusCondition = entity -> entity.getStatus() == EntityStatus.DELETED;
+
+        addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
 
         allCategories = allCategories.stream().map(item -> {
             item.setStatus(EntityStatus.LIVE);
@@ -149,7 +154,11 @@ public class CategoryServiceImpl implements ICategoryService {
         CategoryEntity categoryEntity = getLiveEntityById(id);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
-        addAllSubCategoriesToList(allCategories, categoryEntity);
+
+        // Just delete if the category is not deleted
+        Predicate<CategoryEntity> statusCondition = entity -> entity.getStatus() != EntityStatus.DELETED;
+
+        addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
 
         allCategories = allCategories.stream().map(item -> {
             item.setStatus(EntityStatus.DELETED);
@@ -173,7 +182,11 @@ public class CategoryServiceImpl implements ICategoryService {
         CategoryEntity categoryEntity = getLiveEntityById(id);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
-        addAllSubCategoriesToList(allCategories, categoryEntity);
+
+        // Just delete if the category is not deleted
+        Predicate<CategoryEntity> statusCondition = entity -> entity.getStatus() == EntityStatus.LIVE;
+
+        addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
 
         allCategories = allCategories.stream().map(item -> {
             item.setStatus(EntityStatus.HIDDEN);
@@ -199,19 +212,30 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     /**
-     * Recursively adds a category and all its subcategories to a list.
+     * Adds all subcategories from a given category, along with their nested subcategories, to a specified list.
      *
-     * @param list     The list to which the category and its subcategories will be added.
-     * @param category The category from which the subcategories are recursively collected.
+     * @param list            the list of {@link CategoryEntity} objects to which categories will be added.
+     * @param category        the {@link CategoryEntity} object representing the root category from which
+     *                        subcategories are added.
+     * @param statusCondition a {@link Predicate} to filter the categories before adding them to the list.
+     *                        <p>
+     *                        This method adds the provided category and all its subcategories to the list, provided
+     *                        they meet the specified condition.
+     *                        If the root category is null, the method returns immediately. The method uses recursion
+     *                        to traverse all levels of nested subcategories.
      */
-    private void addAllSubCategoriesToList(List<CategoryEntity> list, CategoryEntity category) {
+    private void addAllSubCategoriesToList(List<CategoryEntity> list, CategoryEntity category,
+                                           Predicate<CategoryEntity> statusCondition) {
         if (category == null) {
             return;
         }
         list.add(category);
-        for (CategoryEntity subCategory :
-                category.getSubCategories()) {
-            addAllSubCategoriesToList(list, subCategory);
+
+        List<CategoryEntity> subCategories =
+                category.getSubCategories().stream().filter(statusCondition).collect(Collectors.toList());
+
+        for (CategoryEntity subCategory : subCategories) {
+            addAllSubCategoriesToList(list, subCategory, statusCondition);
         }
     }
 
