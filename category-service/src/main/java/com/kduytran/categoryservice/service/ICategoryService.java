@@ -52,18 +52,18 @@ public interface ICategoryService {
     void rebound(String id);
 
     /**
-     * Restores all subcategories of a previously deleted or hidden category.
-     *
-     * @param id The unique identifier for the category whose subcategories are to be restored.
-     */
-    void reboundAllItsSubCategories(String id);
-
-    /**
      * Permanently deletes a category by its unique identifier.
      *
      * @param id The unique identifier for the category to be deleted.
      */
     void delete(String id);
+
+    /**
+     * Unhides an item identified by the given ID.
+     *
+     * @param id the identifier of the item to unhide; must not be null or empty.
+     */
+    void unhide(String id);
 
     /**
      * Hides a category, typically to make it inactive or remove it from public view,
