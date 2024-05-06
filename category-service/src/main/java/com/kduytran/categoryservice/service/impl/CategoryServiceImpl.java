@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -133,12 +134,9 @@ public class CategoryServiceImpl implements ICategoryService {
 
         addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
 
-        allCategories = allCategories.stream().map(item -> {
-            item.setStatus(EntityStatus.LIVE);
-            return item;
-        }).collect(Collectors.toList());
+        allCategories = allCategories.stream().map(changeCategoryStatus(EntityStatus.LIVE)).collect(Collectors.toList());
 
-        logger.debug("Deleting category name: {}, and its all related categories", categoryEntity.getName());
+        logger.debug("Rebounding category name: {}, and its all related categories", categoryEntity.getName());
 
         categoryRepository.saveAll(allCategories);
     }
@@ -160,11 +158,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
         addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
 
-        allCategories = allCategories.stream().map(item -> {
-            item.setStatus(EntityStatus.DELETED);
-            return item;
-        }).collect(Collectors.toList());
-
+        allCategories = allCategories.stream().map(changeCategoryStatus(EntityStatus.DELETED))
+                                                                .collect(Collectors.toList());
         logger.debug("Deleting category name: {}, and its all related categories", categoryEntity.getName());
 
         categoryRepository.saveAll(allCategories);
@@ -188,10 +183,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
         addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
 
-        allCategories = allCategories.stream().map(item -> {
-            item.setStatus(EntityStatus.HIDDEN);
-            return item;
-        }).collect(Collectors.toList());
+        allCategories = allCategories.stream().map(changeCategoryStatus(EntityStatus.HIDDEN))
+                                                                .collect(Collectors.toList());
 
         logger.debug("Hiding category name: {}, and its all related categories", categoryEntity.getName());
 
@@ -237,6 +230,13 @@ public class CategoryServiceImpl implements ICategoryService {
         for (CategoryEntity subCategory : subCategories) {
             addAllSubCategoriesToList(list, subCategory, statusCondition);
         }
+    }
+
+    private Function<CategoryEntity, CategoryEntity> changeCategoryStatus(EntityStatus status) {
+        return category -> {
+            category.setStatus(status);
+            return category;
+        };
     }
 
 }
