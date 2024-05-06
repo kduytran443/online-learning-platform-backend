@@ -102,6 +102,29 @@ public class CategoryController {
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
+    @Operation(
+            summary = "Rebound category REST API",
+            description = "REST API to rebound category and all its child inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_200,
+                    description = "HTTP Status UPDATED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PutMapping("/{categoryId}/rebound")
+    public ResponseEntity<ResponseDTO> reboundCategory(@PathVariable("categoryId") String categoryId) {
+        categoryService.rebound(categoryId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
     }
 
 }
