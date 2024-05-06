@@ -99,6 +99,27 @@ public class CategoryController {
     @PutMapping("/{categoryId}/hide")
     public ResponseEntity<ResponseDTO> hideCategory(@PathVariable("categoryId") String categoryId) {
         categoryService.hidden(categoryId);
+
+    @Operation(
+            summary = "Un hide category REST API",
+            description = "REST API to unhide category and all its child inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_200,
+                    description = "HTTP Status UPDATED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PutMapping("/{categoryId}/un-hide")
+    public ResponseEntity<ResponseDTO> unHideCategory(@PathVariable("categoryId") String categoryId) {
+        categoryService.unhide(categoryId);
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
