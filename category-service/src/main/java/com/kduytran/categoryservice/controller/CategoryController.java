@@ -80,12 +80,12 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "Create new Category REST API",
-            description = "REST API to hide category and all its child inside the system"
+            summary = "Hide category temporarily REST API",
+            description = "REST API to hide category and all its child inside the system temporarily"
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = ResponseConstant.STATUS_201,
+                    responseCode = ResponseConstant.STATUS_200,
                     description = "HTTP Status UPDATED"
             ),
             @ApiResponse(
