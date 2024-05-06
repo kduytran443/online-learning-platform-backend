@@ -125,6 +125,27 @@ public class CategoryController {
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
+    @Operation(
+            summary = "Delete category REST API",
+            description = "REST API to delete category and all its child inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_200,
+                    description = "HTTP Status DELETED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<ResponseDTO> deleteCategory(@PathVariable("categoryId") String categoryId) {
+        categoryService.delete(categoryId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
 }
