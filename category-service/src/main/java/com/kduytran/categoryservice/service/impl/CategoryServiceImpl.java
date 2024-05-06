@@ -166,6 +166,29 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     /**
+     * Unhides an item identified by the given ID.
+     *
+     * @param id the identifier of the item to unhide; must not be null or empty.
+     */
+    @Override
+    public void unhide(String id) {
+        CategoryEntity categoryEntity = getLiveEntityById(id);
+
+        List<CategoryEntity> allCategories = new ArrayList<>();
+
+        // Just delete if the category is not deleted
+        Predicate<CategoryEntity> statusCondition = entity -> entity.getStatus() == EntityStatus.HIDDEN;
+
+        addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
+
+        allCategories = allCategories.stream().map(changeCategoryStatus(EntityStatus.HIDDEN))
+                                                                .collect(Collectors.toList());
+        logger.debug("UnHide category name: {}, and its all related categories", categoryEntity.getName());
+
+        categoryRepository.saveAll(allCategories);
+    }
+
+    /**
      * Hides a category, typically to make it inactive or remove it from public view,
      * without permanently deleting it.
      *
