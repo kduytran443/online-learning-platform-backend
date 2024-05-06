@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -43,7 +44,7 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     public CategoryDTO getOneById(@NonNull String id) {
-        CategoryEntity categoryEntity = getLiveEntityById(id);
+        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE);
         return CategoryConverter.convert(categoryEntity, new CategoryDTO());
     }
 
@@ -79,7 +80,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
         // Has parent category
         if (createCategoryDTO.getParentCategoryId() != null) {
-            CategoryEntity parentCategoryEntity = getLiveEntityById(createCategoryDTO.getParentCategoryId());
+            CategoryEntity parentCategoryEntity = getEntityByIdAndStatus(createCategoryDTO.getParentCategoryId(),
+                    EntityStatus.LIVE);
             if (parentCategoryEntity.getParentCount() > MAX_PARENT_COUNT) {
                 throw new TooManyCategoryParentsException("Maximum parent category limit exceeded.");
             }
@@ -101,12 +103,13 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     @Transactional
     public void update(String id, CreateCategoryDTO createCategoryDTO) {
-        CategoryEntity categoryEntity = getLiveEntityById(id);
+        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE, EntityStatus.HIDDEN);
         CategoryConverter.convert(createCategoryDTO, categoryEntity);
 
         // Has parent category
         if (createCategoryDTO.getParentCategoryId() != null) {
-            CategoryEntity parentCategoryEntity = getLiveEntityById(createCategoryDTO.getParentCategoryId());
+            CategoryEntity parentCategoryEntity = getEntityByIdAndStatus(createCategoryDTO.getParentCategoryId(),
+                    EntityStatus.LIVE);
             if (parentCategoryEntity.getParentCount() > MAX_PARENT_COUNT) {
                 throw new TooManyCategoryParentsException("Maximum parent category limit exceeded.");
             }
@@ -125,7 +128,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     @Transactional
     public void rebound(String id) {
-        CategoryEntity categoryEntity = getLiveEntityById(id);
+        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.DELETED);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
 
@@ -149,7 +152,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     @Transactional
     public void delete(String id) {
-        CategoryEntity categoryEntity = getLiveEntityById(id);
+        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE, EntityStatus.HIDDEN);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
 
@@ -168,11 +171,11 @@ public class CategoryServiceImpl implements ICategoryService {
     /**
      * Unhides an item identified by the given ID.
      *
-     * @param id the identifier of the item to unhide; must not be null or empty.
+     * @param id the identifier of the item to unHide; must not be null or empty.
      */
     @Override
     public void unhide(String id) {
-        CategoryEntity categoryEntity = getLiveEntityById(id);
+        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.HIDDEN);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
 
@@ -197,7 +200,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     @Transactional
     public void hide(String id) {
-        CategoryEntity categoryEntity = getLiveEntityById(id);
+        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
 
@@ -214,15 +217,8 @@ public class CategoryServiceImpl implements ICategoryService {
         categoryRepository.saveAll(allCategories);
     }
 
-    /**
-     * Retrieves a live category entity by its unique identifier.
-     *
-     * @param id The unique identifier for the category, which is a non-null string.
-     * @return A CategoryEntity representing the live category with the specified ID.
-     * @throws CategoryNotFoundException If no category with the given ID and live status is found.
-     */
-    private CategoryEntity getLiveEntityById(@NonNull String id) {
-        return categoryRepository.findByIdAndStatus(UUID.fromString(id), EntityStatus.LIVE).orElseThrow(
+    private CategoryEntity getEntityByIdAndStatus(@NonNull String id, EntityStatus... statuses) {
+        return categoryRepository.findByIdAndStatusIn(UUID.fromString(id), List.of(statuses)).orElseThrow(
                 () -> new CategoryNotFoundException("Category were not found")
         );
     }
