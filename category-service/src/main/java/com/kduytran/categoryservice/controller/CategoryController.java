@@ -99,7 +99,9 @@ public class CategoryController {
     @PutMapping("/{categoryId}/hide")
     public ResponseEntity<ResponseDTO> hideCategory(@PathVariable("categoryId") String categoryId) {
         categoryService.hidden(categoryId);
-        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
     }
 
 }
