@@ -71,6 +71,6 @@ public interface ICategoryService {
      *
      * @param id The unique identifier for the category to be hidden.
      */
-    void hidden(String id);
+    void hide(String id);
 
 }

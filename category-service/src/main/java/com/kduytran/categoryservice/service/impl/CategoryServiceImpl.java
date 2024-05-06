@@ -178,7 +178,7 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     @Transactional
-    public void hidden(String id) {
+    public void hide(String id) {
         CategoryEntity categoryEntity = getLiveEntityById(id);
 
         List<CategoryEntity> allCategories = new ArrayList<>();
