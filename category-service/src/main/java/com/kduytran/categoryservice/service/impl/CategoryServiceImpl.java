@@ -7,6 +7,7 @@ import com.kduytran.categoryservice.entity.CategoryEntity;
 import com.kduytran.categoryservice.entity.EntityStatus;
 import com.kduytran.categoryservice.exception.CategoryAlreadyExistsException;
 import com.kduytran.categoryservice.exception.CategoryNotFoundException;
+import com.kduytran.categoryservice.exception.CategoryNotInStatusException;
 import com.kduytran.categoryservice.exception.TooManyCategoryParentsException;
 import com.kduytran.categoryservice.repository.CategoryRepository;
 import com.kduytran.categoryservice.service.ICategoryService;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -128,19 +128,21 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     @Transactional
     public void rebound(String id) {
-        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.DELETED);
+        CategoryEntity categoryEntity = getEntityById(id);
 
-        List<CategoryEntity> allCategories = new ArrayList<>();
+        if (categoryEntity.getStatus() != EntityStatus.DELETED) {
+            throw new CategoryNotInStatusException("Cannot rebound: Category with ID "
+                                                            + id + " is not in DELETE status.");
+        }
+        List<CategoryEntity> allCategories = categoryEntity.getAllParents();
 
-        // Just rebound only deleted categories
-        Predicate<CategoryEntity> statusCondition = entity -> entity.getStatus() == EntityStatus.DELETED;
+        // add current entity
+        allCategories.add(categoryEntity);
 
-        addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
-
-        allCategories = allCategories.stream().map(changeCategoryStatus(EntityStatus.LIVE)).collect(Collectors.toList());
-
+        allCategories = allCategories.stream().filter(entity -> entity.getStatus() == EntityStatus.DELETED)
+                .map(changeCategoryStatus(EntityStatus.LIVE))
+                .collect(Collectors.toList());
         logger.debug("Rebounding category name: {}, and its all related categories", categoryEntity.getName());
-
         categoryRepository.saveAll(allCategories);
     }
 
@@ -152,7 +154,12 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     @Transactional
     public void delete(String id) {
-        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE, EntityStatus.HIDDEN);
+        CategoryEntity categoryEntity = getEntityById(id);
+
+        if (categoryEntity.getStatus() != EntityStatus.LIVE) {
+            throw new CategoryNotInStatusException("Cannot delete: Category with ID "
+                    + id + " is not in LIVE or Hidden status.");
+        }
 
         List<CategoryEntity> allCategories = new ArrayList<>();
 
@@ -175,16 +182,19 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     public void unhide(String id) {
-        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.HIDDEN);
+        CategoryEntity categoryEntity = getEntityById(id);
 
-        List<CategoryEntity> allCategories = new ArrayList<>();
+        if (categoryEntity.getStatus() != EntityStatus.HIDDEN) {
+            throw new CategoryNotInStatusException("Cannot un hide: Category with ID "
+                    + id + " is not in Hidden status.");
+        }
+        List<CategoryEntity> allCategories = categoryEntity.getAllParents();
 
-        // Just delete if the category is not deleted
-        Predicate<CategoryEntity> statusCondition = entity -> entity.getStatus() == EntityStatus.HIDDEN;
+        // add current entity
+        allCategories.add(categoryEntity);
 
-        addAllSubCategoriesToList(allCategories, categoryEntity, statusCondition);
-
-        allCategories = allCategories.stream().map(changeCategoryStatus(EntityStatus.HIDDEN))
+        allCategories = allCategories.stream().filter(entity -> entity.getStatus() == EntityStatus.HIDDEN)
+                                                                .map(changeCategoryStatus(EntityStatus.LIVE))
                                                                 .collect(Collectors.toList());
         logger.debug("UnHide category name: {}, and its all related categories", categoryEntity.getName());
 
@@ -200,7 +210,12 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     @Transactional
     public void hide(String id) {
-        CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE);
+        CategoryEntity categoryEntity = getEntityById(id);
+
+        if (categoryEntity.getStatus() != EntityStatus.LIVE) {
+            throw new CategoryNotInStatusException("Cannot hide: Category with ID "
+                    + id + " is not in Live status.");
+        }
 
         List<CategoryEntity> allCategories = new ArrayList<>();
 
@@ -215,6 +230,12 @@ public class CategoryServiceImpl implements ICategoryService {
         logger.debug("Hiding category name: {}, and its all related categories", categoryEntity.getName());
 
         categoryRepository.saveAll(allCategories);
+    }
+
+    private CategoryEntity getEntityById(@NonNull String id) {
+        return categoryRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new CategoryNotFoundException("Category were not found")
+        );
     }
 
     private CategoryEntity getEntityByIdAndStatus(@NonNull String id, EntityStatus... statuses) {
