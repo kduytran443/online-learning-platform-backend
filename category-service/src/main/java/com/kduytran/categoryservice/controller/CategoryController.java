@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 )
 @RequestMapping(
         path = "/api/v1/categories",
-        consumes = MediaType.APPLICATION_JSON_VALUE
+        produces = MediaType.APPLICATION_JSON_VALUE
 )
 @Validated
 public class CategoryController {
