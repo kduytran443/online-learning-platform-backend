@@ -37,3 +37,24 @@ management:
     health:
       probes:
         enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "category"
+    description: "Category Service"
+    version: "1.0.0"
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: "http://localhost:8070/eureka/"
+
