@@ -20,3 +20,24 @@ spring:
       mode: always
   config:
     import: "optional:configserver:http://localhost:8071/"
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: "http://localhost:8070/eureka"
+
+management:
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "User"
+    description: "User Service"
+    version: "1.0.0"
