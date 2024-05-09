@@ -15,5 +15,20 @@ spring:
           clone-on-start: true #clone GITHUB repo into local system during startup
           force-pull: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 server:
   port: 8071
