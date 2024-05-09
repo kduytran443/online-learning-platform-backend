@@ -1,4 +1,30 @@
 services:
+  postgres_user_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
+    volumes:
+      - pg_user_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    extends:
+      service: network-deploy-service
+      file: common-config.yml
+  postgres_category_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: category_db
+    volumes:
+      - pg_category_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    extends:
+      service: network-deploy-service
+      file: common-config.yml
   rabbit:
     image: rabbitmq:3.12-management
     hostname: rabbitmq
@@ -33,6 +59,20 @@ services:
       file: common-config.yml
     environment:
       SPRING_APPLICATION_NAME: "config-server"
+  eureka-server:
+    image: khanhduytran/olp-eureka-server:1.0
+    container_name: eureka-server
+    ports:
+      - "8070:8070"
+    healthcheck:
+      test: "curl --fail --silent eureka-server:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 15s
+      retries: 20
+      start_period: 15s
+    extends:
+      service: microservice-config-server-config
+      file: common-config.yml
   user-service:
     image: khanhduytran/olp-user-service:1.0
     container_name: user-service-ms
@@ -45,13 +85,13 @@ services:
       retries: 20
       start_period: 15s
     extends:
-      service: microservice-config-server-config
+      service: microservice-eureka-server-config
       file: common-config.yml
     environment:
       SPRING_APPLICATION_NAME: "user"
-      SPRING_PROFILES_ACTIVE: default
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8071/"
-      SPRING_CLOUD_CONFIG_FAILFAST: false
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_user_db:5432/user_db"
+      SPRING_DATASOURCE_USERNAME: "user"
+      SPRING_DATASOURCE_PASSWORD: "password"
   notification-service:
     image: khanhduytran/olp-notification-service:1.0
     container_name: notification-service-ms
@@ -64,14 +104,36 @@ services:
       retries: 20
       start_period: 15s
     extends:
-      service: microservice-config-server-config
+      service: microservice-eureka-server-config
       file: common-config.yml
     environment:
       SPRING_APPLICATION_NAME: "notification"
-      SPRING_PROFILES_ACTIVE: default
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8071/"
-      SPRING_CLOUD_CONFIG_FAILFAST: false
+  category-service:
+    image: khanhduytran/olp-category-service:1.0
+    container_name: category-service-ms
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test: "curl --fail --silent category-service:8100/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 15s
+      retries: 20
+      start_period: 15s
+    extends:
+      service: microservice-eureka-server-config
+      file: common-config.yml
+    environment:
+      SPRING_APPLICATION_NAME: "category"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_category_db:5432/category_db"
+      SPRING_DATASOURCE_USERNAME: "user"
+      SPRING_DATASOURCE_PASSWORD: "password"
 
 networks:
   khanhduytran:
     driver: bridge
+
+volumes:
+  pg_user_data:
+    name: pg_user_data
+  pg_category_data:
+    name: pg_category_data

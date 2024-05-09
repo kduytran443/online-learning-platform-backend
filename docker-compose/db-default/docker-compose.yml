@@ -1,14 +1,4 @@
 services:
-  cloudbeaver:
-    image: dbeaver/cloudbeaver:24.0.0
-    container_name: dbeaver-app
-    restart: always
-    ports:
-      - '8979:8978'
-    networks:
-      - "db_test"
-    volumes:
-      - cloudbeaver:/opt/cloudbeaver/workspace
   postgres_user_db:
     image: postgres:15
     environment:
@@ -39,8 +29,6 @@ networks:
     driver: "bridge"
 
 volumes:
-  cloudbeaver:
-    name: cloudbeaver
   pg_user_data:
     name: pg_user_data
   pg_category_data:
