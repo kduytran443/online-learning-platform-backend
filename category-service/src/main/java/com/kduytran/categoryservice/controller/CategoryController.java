@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 )
 @RequestMapping(
         path = "/api/v1/categories",
-        consumes = MediaType.APPLICATION_JSON_VALUE
+        produces = MediaType.APPLICATION_JSON_VALUE
 )
 @Validated
 public class CategoryController {
@@ -80,12 +80,12 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "Create new Category REST API",
-            description = "REST API to hide category and all its child inside the system"
+            summary = "Hide category temporarily REST API",
+            description = "REST API to hide category and all its child inside the system temporarily"
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = ResponseConstant.STATUS_201,
+                    responseCode = ResponseConstant.STATUS_200,
                     description = "HTTP Status UPDATED"
             ),
             @ApiResponse(
@@ -98,8 +98,77 @@ public class CategoryController {
     })
     @PutMapping("/{categoryId}/hide")
     public ResponseEntity<ResponseDTO> hideCategory(@PathVariable("categoryId") String categoryId) {
-        categoryService.hidden(categoryId);
-        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
+        categoryService.hide(categoryId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
+    @Operation(
+            summary = "Un hide category REST API",
+            description = "REST API to unhide category and all its child inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_200,
+                    description = "HTTP Status UPDATED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PutMapping("/{categoryId}/un-hide")
+    public ResponseEntity<ResponseDTO> unHideCategory(@PathVariable("categoryId") String categoryId) {
+        categoryService.unhide(categoryId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
+    @Operation(
+            summary = "Rebound category REST API",
+            description = "REST API to rebound category and all its child inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_200,
+                    description = "HTTP Status UPDATED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PutMapping("/{categoryId}/rebound")
+    public ResponseEntity<ResponseDTO> reboundCategory(@PathVariable("categoryId") String categoryId) {
+        categoryService.rebound(categoryId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
+    @Operation(
+            summary = "Delete category REST API",
+            description = "REST API to delete category and all its child inside the system"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_200,
+                    description = "HTTP Status DELETED"
+            ),
+            @ApiResponse(
+                    responseCode = ResponseConstant.STATUS_500,
+                    description = "HTTP Status INTERNAL SERVER ERROR",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<ResponseDTO> deleteCategory(@PathVariable("categoryId") String categoryId) {
+        categoryService.delete(categoryId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
 }

@@ -55,7 +55,7 @@ public class CategoryEntity extends BaseEntity {
      * @return a list of parent {@link CategoryEntity} objects, ordered from the closest parent
      *         to the farthest. If there are no parents, the list will be empty.
      */
-    private List<CategoryEntity> getAllParents() {
+    public List<CategoryEntity> getAllParents() {
         List<CategoryEntity> allParents = new ArrayList<>();
         CategoryEntity parent = getParentCategory();
         while (parent != null) {
@@ -73,7 +73,7 @@ public class CategoryEntity extends BaseEntity {
      * @return a list of parent {@link CategoryEntity} objects, ordered from the farthest
      *         parent to the closest. If there are no parents, the list will be empty.
      */
-    private List<CategoryEntity> getAllParentsInReverse() {
+    public List<CategoryEntity> getAllParentsInReverse() {
         List<CategoryEntity> allParents = getAllParents();
         Collections.reverse(allParents);
         return allParents;
