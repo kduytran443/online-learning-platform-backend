@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: "group"
+  datasource:
+    url: "jdbc:http://localhost:3035/group_db"
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  h2:
+    console:
+      enabled: true
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: *
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
