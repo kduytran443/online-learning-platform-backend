@@ -22,7 +22,19 @@ services:
     networks:
       - "db_test"
     ports:
-      - "5434:5432"  # Expose PostgreSQL on port 5432 for User service database
+      - "5434:5432"  # Expose PostgreSQL on port 5432 for category service database
+  postgres_class_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: class_db
+    volumes:
+      - pg_class_data:/var/lib/postgresql/data
+    networks:
+      - "db_test"
+    ports:
+      - "5435:5432"  # Expose PostgreSQL on port 5432 for class service database
 
 networks:
   db_test:
@@ -33,3 +45,5 @@ volumes:
     name: pg_user_data
   pg_category_data:
     name: pg_category_data
+  pg_class_data:
+    name: pg_class_data
