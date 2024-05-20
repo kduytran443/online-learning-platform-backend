@@ -1,5 +1,6 @@
 package com.kduytran.gatewayserver.config;
 
+import com.kduytran.gatewayserver.constant.ServiceConstant;
 import com.kduytran.gatewayserver.utils.PathUtils;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -15,13 +16,13 @@ public class RouteConfig {
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(p -> p
-                        .path(PathUtils.getPathWithContextPath("{versioning:v\\d{1,2}}/categories/**"))
+                        .path(PathUtils.getServicePath(ServiceConstant.CATEGORY_CONTEXT_PATH))
                         .filters(f -> f
-                                .rewritePath(PathUtils.getPathWithContextPath("(?<versioning>v\\d{1,2})/categories/(?<segment>.*)"),
-                                        "/api/${versioning}/categories/${segment}")
+                                .rewritePath(PathUtils.getRewriteSourcePath(ServiceConstant.CATEGORY_CONTEXT_PATH),
+                                        PathUtils.getRewriteDestinationPath(ServiceConstant.CATEGORY_CONTEXT_PATH))
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
                         )
-                        .uri("lb://CATEGORY")
+                        .uri(PathUtils.getUri(ServiceConstant.CATEGORY_NAME))
                 )
                 .build();
     }
