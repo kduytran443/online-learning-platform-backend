@@ -15,9 +15,10 @@ public class RouteConfig {
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(p -> p
-                        .path(PathUtils.getPathWithContextPath("category/**"))
+                        .path(PathUtils.getPathWithContextPath("{versioning:v\\d{1,2}}/categories/**"))
                         .filters(f -> f
-                                .rewritePath(PathUtils.getPathWithContextPath("category/(?<segment>.*)"), "/${segment}")
+                                .rewritePath(PathUtils.getPathWithContextPath("(?<versioning>v\\d{1,2})/categories/(?<segment>.*)"),
+                                        "/api/${versioning}/categories/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
                         )
                         .uri("lb://CATEGORY")
