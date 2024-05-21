@@ -43,8 +43,4 @@ public class CategoryDTO {
     private CategoryDTO parentCategory;
     private List<CategoryDTO> subCategories;
     private String status;
-    private String createdBy;
-    private LocalDateTime createdAt;
-    private String updatedBy;
-    private LocalDateTime updatedAt;
 }

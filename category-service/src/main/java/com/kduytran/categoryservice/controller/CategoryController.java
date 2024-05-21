@@ -1,6 +1,7 @@
 package com.kduytran.categoryservice.controller;
 
 import com.kduytran.categoryservice.constant.ResponseConstant;
+import com.kduytran.categoryservice.dto.CategoryDTO;
 import com.kduytran.categoryservice.dto.CreateCategoryDTO;
 import com.kduytran.categoryservice.dto.ErrorResponseDTO;
 import com.kduytran.categoryservice.dto.ResponseDTO;
@@ -30,6 +31,19 @@ public class CategoryController {
 
     public CategoryController(ICategoryService categoryService) {
         this.categoryService = categoryService;
+    }
+
+    @Operation(
+            summary = "Get category REST API",
+            description = "REST API to category inside the bank"
+    )
+    @ApiResponse(
+            responseCode = ResponseConstant.STATUS_200,
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryDTO> getCategory(@PathVariable("id") String id) {
+        return ResponseEntity.ok(categoryService.getOneById(id));
     }
 
     @Operation(

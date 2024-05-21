@@ -22,11 +22,44 @@ public class CategoryConverter {
         dto.setName(entity.getName());
         dto.setStatus(entity.getStatus().getCode());
         if (entity.getParentCategory() != null) {
-            dto.setParentCategory(CategoryConverter.convert(entity.getParentCategory(), new CategoryDTO()));
+            dto.setParentCategory(CategoryConverter.convertWithoutSubList(entity.getParentCategory(), new CategoryDTO()));
         }
         if (entity.getSubCategories() != null) {
             List<CategoryDTO> subCategoryDTOs = entity.getSubCategories().stream().map(
-                    sub -> CategoryConverter.convert(sub, new CategoryDTO())
+                    sub -> CategoryConverter.convertWithoutParent(sub, new CategoryDTO())
+            ).collect(Collectors.toList());
+            dto.setSubCategories(subCategoryDTOs);
+        }
+        return dto;
+    }
+
+    public static CategoryDTO convertWithoutSubList(CategoryEntity entity, CategoryDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        dto.setCode(entity.getCode());
+        dto.setId(entity.getId().toString());
+        dto.setDescription(entity.getDescription());
+        dto.setName(entity.getName());
+        dto.setStatus(entity.getStatus().getCode());
+        if (entity.getParentCategory() != null) {
+            dto.setParentCategory(CategoryConverter.convertWithoutSubList(entity.getParentCategory(), new CategoryDTO()));
+        }
+        return dto;
+    }
+
+    public static CategoryDTO convertWithoutParent(CategoryEntity entity, CategoryDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        dto.setCode(entity.getCode());
+        dto.setId(entity.getId().toString());
+        dto.setDescription(entity.getDescription());
+        dto.setName(entity.getName());
+        dto.setStatus(entity.getStatus().getCode());
+        if (entity.getSubCategories() != null) {
+            List<CategoryDTO> subCategoryDTOs = entity.getSubCategories().stream().map(
+                    sub -> CategoryConverter.convertWithoutParent(sub, new CategoryDTO())
             ).collect(Collectors.toList());
         }
         return dto;
