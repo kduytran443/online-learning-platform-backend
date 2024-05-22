@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Tag(
         name = "CRUD REST APIs for category microservice"
@@ -44,6 +46,20 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<CategoryDTO> getCategory(@PathVariable("id") String id) {
         return ResponseEntity.ok(categoryService.getOneById(id));
+    }
+
+
+    @Operation(
+            summary = "Get category REST API",
+            description = "REST API to category inside the bank"
+    )
+    @ApiResponse(
+            responseCode = ResponseConstant.STATUS_200,
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/root-list")
+    public ResponseEntity<List<CategoryDTO>> getRootCategories() {
+        return ResponseEntity.ok(categoryService.getRootCategoryList());
     }
 
     @Operation(

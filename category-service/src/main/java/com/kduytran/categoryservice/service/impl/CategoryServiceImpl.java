@@ -37,6 +37,21 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     /**
+     * Retrieves a list of root categories.
+     * <p>
+     * Root categories are the top-level categories in the category hierarchy,
+     * having no parent category. This method returns all such root categories.
+     *
+     * @return A list of CategoryDTO objects representing the root categories.
+     */
+    @Override
+    public List<CategoryDTO> getRootCategoryList() {
+        List<CategoryEntity> categoryEntities =
+                categoryRepository.findAllByParentCategory(null).orElseGet(ArrayList::new);
+        return CategoryConverter.convertWithoutSubList(categoryEntities);
+    }
+
+    /**
      * Fetches a category by its unique identifier.
      *
      * @param id The unique identifier for the category.
