@@ -48,6 +48,18 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getOneById(id));
     }
 
+    @Operation(
+            summary = "Get category REST API",
+            description = "REST API to category inside the bank"
+    )
+    @ApiResponse(
+            responseCode = ResponseConstant.STATUS_200,
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/code/{code}")
+    public ResponseEntity<CategoryDTO> getCategoryByCode(@PathVariable("code") String code) {
+        return ResponseEntity.ok(categoryService.getOneByCode(code));
+    }
 
     @Operation(
             summary = "Get category REST API",
