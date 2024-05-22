@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 public class PathUtils {
 
     public static final String CONTEXT_PATH = "olp";
+    public static final String FRONTEND_PATH = "http://localhost:5173";
 
     public static String getPathWithContextPath(final String path) {
         return String.format("/%s/%s", CONTEXT_PATH, path);
