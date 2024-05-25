@@ -21,6 +21,12 @@ management:
     env:
       enabled: true
 
+logging:
+  level:
+    com:
+      kduytran:
+        gatewayserver: DEBUG
+  
 info:
   app:
     name: "gatewayserver"
