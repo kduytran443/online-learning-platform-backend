@@ -90,4 +90,13 @@ public class CategoryConverter {
         return entity;
     }
 
+    public static List<CategoryDTO> convertWithoutSubList(List<CategoryEntity> entities) {
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream().map(
+                entity -> convertWithoutSubList(entity, new CategoryDTO())
+        ).collect(Collectors.toList());
+    }
+
 }
