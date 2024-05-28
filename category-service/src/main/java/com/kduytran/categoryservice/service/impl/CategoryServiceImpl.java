@@ -33,7 +33,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.MAX_PARENT_COUNT = Integer.parseInt("4");
+        this.MAX_PARENT_COUNT = Integer.parseInt("1");
     }
 
     /**
