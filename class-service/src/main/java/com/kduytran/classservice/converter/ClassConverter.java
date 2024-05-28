@@ -47,6 +47,7 @@ public class ClassConverter {
         dto.setEndAt(entity.getEndAt());
         dto.setStartAt(entity.getStartAt());
         dto.setId(entity.getId().toString());
+        dto.setImage(entity.getImage());
         return dto;
     }
 

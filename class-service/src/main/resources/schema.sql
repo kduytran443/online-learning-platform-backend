@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS class (
     status char(1),
     category_id UUID NOT NULL,
     owner_type char(1),
+    image varchar(200) NOT NULL,
     class_owner_id UUID,
     created_at date NOT NULL,
     created_by varchar(20) NOT NULL,

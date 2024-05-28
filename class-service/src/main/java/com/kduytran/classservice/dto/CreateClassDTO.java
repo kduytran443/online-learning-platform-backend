@@ -17,6 +17,13 @@ public class CreateClassDTO {
     @Pattern(regexp = "^[a-z0-9]+[a-z0-9_]{3,15}$", message = "Name is not valid")
     private String name;
 
+    @Schema(description = "Banner image of the class", example = "https://example.com/images/banner.jpg")
+    @NotBlank(message = "Banner image can not be null or empty")
+    @Pattern(
+            regexp = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\.(jpg|jpeg|png|gif)$",
+            message = "Banner image URL is not valid"
+    )
+    private String image;
 
     @Schema(description = "Start time of the class")
     @NotEmpty(message = "Start time can not be null")

@@ -27,6 +27,9 @@ public class ClassEntity {
     private String name;
 
     @Column
+    private String image;
+
+    @Column
     private LocalDateTime startAt;
 
     @Column
