@@ -61,4 +61,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(EntityStatusNotValidException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityStatusNotValidException(
+            EntityStatusNotValidException exception, WebRequest webRequest) {
+        return this.getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
 }
