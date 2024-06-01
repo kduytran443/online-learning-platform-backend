@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS class (
     name VARCHAR(120) NOT NULL,
     start_at date NOT NULL,
     end_at date,
+    password varchar(512),
     status char(1),
     category_id UUID NOT NULL,
     owner_type char(1),
@@ -19,19 +20,4 @@ CREATE TABLE IF NOT EXISTS class_description (
      content text NOT NULL,
      class_id UUID,
      foreign key (class_id) references class(id)
-);
-
-CREATE TABLE class_fee (
-    id UUID PRIMARY KEY,
-    class_id UUID not null,
-    description varchar(512),
-    fee_type VARCHAR(1) not null,
-    amount DECIMAL(10, 2),
-    start_date DATE,
-    end_date DATE,
-    created_at date NOT NULL,
-    created_by varchar(20) NOT NULL,
-    updated_at date DEFAULT NULL,
-    updated_by varchar(20) DEFAULT NULL
-    FOREIGN KEY (class_id) REFERENCES class(id)
 );

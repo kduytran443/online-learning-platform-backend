@@ -26,6 +26,7 @@ public class ClassConverter {
         // ClassDescription
         entity.setClassOwnerId(UUID.fromString(dto.getOwnerId()));
         entity.setCategoryId(UUID.fromString(dto.getCategoryId()));
+        entity.setImage(dto.getImage());
         entity.setStartAt(TimeUtils.getFormattedDate(dto.getStartAt(), TimeUtils.DATE_FORMAT_YYYY_MM_DD));
         if (dto.getEndAt() != null) {
             entity.setEndAt(TimeUtils.getFormattedDate(dto.getEndAt(), TimeUtils.DATE_FORMAT_YYYY_MM_DD));
