@@ -7,10 +7,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class CreateClassDTO {
+public class UpdateClassDTO {
 
     @Schema(description = "Name of the class")
     @NotBlank(message = "Name can not be null or empty")
@@ -55,8 +53,5 @@ public class CreateClassDTO {
     )
     @NotEmpty(message = "Class owner type cannot be null or empty")
     private String ownerType;
-
-    @Valid
-    private CreateClassDescriptionDTO description;
 
 }
