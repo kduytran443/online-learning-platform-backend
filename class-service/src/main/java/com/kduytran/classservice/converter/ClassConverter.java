@@ -2,7 +2,7 @@ package com.kduytran.classservice.converter;
 
 import com.kduytran.classservice.dto.SimpleClassDTO;
 import com.kduytran.classservice.utils.TimeUtils;
-import com.kduytran.classservice.dto.CreateClassDTO;
+import com.kduytran.classservice.dto.UpdateClassDTO;
 import com.kduytran.classservice.entity.ClassEntity;
 import com.kduytran.classservice.entity.EntityStatus;
 import com.kduytran.classservice.entity.OwnerType;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @UtilityClass
 public class ClassConverter {
 
-    public static ClassEntity convert(CreateClassDTO dto, ClassEntity entity) {
+    public static ClassEntity convert(UpdateClassDTO dto, ClassEntity entity) {
         if (dto == null) {
             return null;
         }
