@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: "pricing"
+
+server:
+  port: 8120
