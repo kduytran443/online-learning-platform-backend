@@ -1,6 +1,5 @@
 package com.kduytran.classservice.entity;
 
-import com.kduytran.classservice.entity.attrconverter.UUIDListConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity(name = "class")
@@ -25,6 +23,12 @@ public class ClassEntity {
 
     @Column
     private String name;
+
+    @Column
+    private String image;
+
+    @Column
+    private String password;
 
     @Column
     private LocalDateTime startAt;

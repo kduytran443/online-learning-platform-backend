@@ -2,7 +2,7 @@ package com.kduytran.classservice.converter;
 
 import com.kduytran.classservice.dto.SimpleClassDTO;
 import com.kduytran.classservice.utils.TimeUtils;
-import com.kduytran.classservice.dto.CreateClassDTO;
+import com.kduytran.classservice.dto.UpdateClassDTO;
 import com.kduytran.classservice.entity.ClassEntity;
 import com.kduytran.classservice.entity.EntityStatus;
 import com.kduytran.classservice.entity.OwnerType;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @UtilityClass
 public class ClassConverter {
 
-    public static ClassEntity convert(CreateClassDTO dto, ClassEntity entity) {
+    public static ClassEntity convert(UpdateClassDTO dto, ClassEntity entity) {
         if (dto == null) {
             return null;
         }
@@ -26,6 +26,7 @@ public class ClassConverter {
         // ClassDescription
         entity.setClassOwnerId(UUID.fromString(dto.getOwnerId()));
         entity.setCategoryId(UUID.fromString(dto.getCategoryId()));
+        entity.setImage(dto.getImage());
         entity.setStartAt(TimeUtils.getFormattedDate(dto.getStartAt(), TimeUtils.DATE_FORMAT_YYYY_MM_DD));
         if (dto.getEndAt() != null) {
             entity.setEndAt(TimeUtils.getFormattedDate(dto.getEndAt(), TimeUtils.DATE_FORMAT_YYYY_MM_DD));
@@ -47,6 +48,7 @@ public class ClassConverter {
         dto.setEndAt(entity.getEndAt());
         dto.setStartAt(entity.getStartAt());
         dto.setId(entity.getId().toString());
+        dto.setImage(entity.getImage());
         return dto;
     }
 

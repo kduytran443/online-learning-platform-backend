@@ -1,15 +1,14 @@
 package com.kduytran.classservice.service.impl;
 
 import com.kduytran.classservice.converter.ClassConverter;
-import com.kduytran.classservice.dto.CreateClassDTO;
-import com.kduytran.classservice.dto.PageableDTO;
-import com.kduytran.classservice.dto.SimpleClassDTO;
-import com.kduytran.classservice.dto.UpdateClassDTO;
+import com.kduytran.classservice.dto.*;
 import com.kduytran.classservice.entity.ClassEntity;
 import com.kduytran.classservice.entity.EntityStatus;
+import com.kduytran.classservice.exception.EntityStatusNotValidException;
 import com.kduytran.classservice.exception.ResourceNotFoundException;
 import com.kduytran.classservice.repository.ClassRepository;
 import com.kduytran.classservice.service.IClassService;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,12 +28,12 @@ public class ClassServiceImpl implements IClassService {
     /**
      * Creates a new class based on the provided data.
      *
-     * @param createClassDTO The DTO (Data Transfer Object) containing the data needed to create a class.
+     * @param updateClassDTO The DTO (Data Transfer Object) containing the data needed to create a class.
      */
     @Override
-    public void create(CreateClassDTO createClassDTO) {
-
-
+    public UUID create(UpdateClassDTO updateClassDTO) {
+        ClassEntity classEntity = ClassConverter.convert(updateClassDTO, new ClassEntity());
+        return classRepository.save(classEntity).getId();
     }
 
     /**
@@ -43,8 +42,12 @@ public class ClassServiceImpl implements IClassService {
      * @param updateClassDTO The DTO containing the updated data for the class.
      */
     @Override
-    public void update(UpdateClassDTO updateClassDTO) {
-
+    public void update(String id, UpdateClassDTO updateClassDTO) {
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        classEntity = ClassConverter.convert(updateClassDTO, classEntity);
+        classRepository.save(classEntity);
     }
 
     /**
@@ -91,7 +94,14 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public void rebound(String id) {
-
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        if (EntityStatus.DELETED != classEntity.getStatus()) {
+            throw new EntityStatusNotValidException(EntityStatus.DELETED.name());
+        }
+        classEntity.setStatus(EntityStatus.LIVE);
+        classRepository.save(classEntity);
     }
 
     /**
@@ -101,17 +111,31 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public void delete(String id) {
-
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        if (EntityStatus.LIVE != classEntity.getStatus()) {
+            throw new EntityStatusNotValidException(EntityStatus.LIVE.name());
+        }
+        classEntity.setStatus(EntityStatus.DELETED);
+        classRepository.save(classEntity);
     }
 
     /**
      * Unhides an item identified by the given ID.
      *
-     * @param id the identifier of the item to unhide; must not be null or empty.
+     * @param id the identifier of the item to unHide; must not be null or empty.
      */
     @Override
-    public void unhide(String id) {
-
+    public void unHide(String id) {
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        if (EntityStatus.HIDDEN != classEntity.getStatus()) {
+            throw new EntityStatusNotValidException(EntityStatus.HIDDEN.name());
+        }
+        classEntity.setStatus(EntityStatus.LIVE);
+        classRepository.save(classEntity);
     }
 
     /**
@@ -122,7 +146,45 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public void hide(String id) {
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        if (EntityStatus.LIVE != classEntity.getStatus()) {
+            throw new EntityStatusNotValidException(EntityStatus.LIVE.name());
+        }
+        classEntity.setStatus(EntityStatus.HIDDEN);
+        classRepository.save(classEntity);
+    }
 
+    /**
+     * Checks if the provided password is valid for the specified user or entity.
+     *
+     * @param id       The unique identifier of the user or entity.
+     * @param checkPasswordDTO The password to be checked.
+     * @return {@code true} if the password is valid, {@code false} otherwise.
+     */
+    @Override
+    public boolean checkPassword(String id, CheckPasswordDTO checkPasswordDTO) {
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        return BCrypt.checkpw(checkPasswordDTO.getPassword(), classEntity.getPassword());
+    }
+
+    /**
+     * Sets a new password for the specified user or entity.
+     *
+     * @param id       The unique identifier of the user or entity.
+     * @param setPasswordDTO The new password to be set.
+     */
+    @Override
+    public void setPassword(String id, SetPasswordDTO setPasswordDTO) {
+        String hashedPassword = BCrypt.hashpw(setPasswordDTO.getPassword(), BCrypt.gensalt());
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        classEntity.setPassword(hashedPassword);
+        classRepository.save(classEntity);
     }
 
 }

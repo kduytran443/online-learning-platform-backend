@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class SimpleClassDTO {
     private String id;
     private String name;
+    private String image;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
     private String status;
