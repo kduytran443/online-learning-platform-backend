@@ -32,14 +32,6 @@ public interface IClassService {
     SimpleClassDTO getSimpleById(String id);
 
     /**
-     * Retrieves a paginated list of simple class DTOs for the specified category ID.
-     *
-     * @param categoryId the ID of the category to fetch classes for
-     * @return a {@link PageableDTO} containing {@link SimpleClassDTO} objects and pagination info
-     */
-    PageableDTO<SimpleClassDTO> getSimpleClassesByCategoryId(String categoryId, int page, int size);
-
-    /**
      * Restores a class and all its parent categories if they were previously deleted or hidden.
      *
      * @param id The unique identifier for the class to be restored.

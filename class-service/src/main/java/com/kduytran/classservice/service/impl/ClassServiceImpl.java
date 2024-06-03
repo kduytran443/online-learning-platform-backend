@@ -9,9 +9,6 @@ import com.kduytran.classservice.exception.ResourceNotFoundException;
 import com.kduytran.classservice.repository.ClassRepository;
 import com.kduytran.classservice.service.IClassService;
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -68,23 +65,6 @@ public class ClassServiceImpl implements IClassService {
         // TODO - call API to category service
         
         return simpleClassDTO;
-    }
-
-    /**
-     * Retrieves a paginated list of simple class DTOs for the specified category ID.
-     *
-     * @param categoryId the ID of the category to fetch classes for
-     * @param page
-     * @param size
-     * @return a {@link PageableDTO} containing {@link SimpleClassDTO} objects and pagination info
-     */
-    @Override
-    public PageableDTO<SimpleClassDTO> getSimpleClassesByCategoryId(String categoryId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ClassEntity> classEntityPage = classRepository.findByCategoryIdAndStatus(
-                categoryId, EntityStatus.LIVE, pageable
-        );
-        return ClassConverter.convert(classEntityPage);
     }
 
     /**
