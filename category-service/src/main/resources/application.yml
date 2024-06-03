@@ -20,12 +20,6 @@ spring:
       mode: always
   config:
     import: "optional:configserver:http://localhost:8071/"
-  cloud:
-    stream:
-      kafka:
-        binder:
-          brokers:
-            - http://localhost:29092
 
 server:
   port: 8100
