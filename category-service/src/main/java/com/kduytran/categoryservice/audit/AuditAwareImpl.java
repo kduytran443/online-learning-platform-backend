@@ -20,7 +20,7 @@ public class AuditAwareImpl implements AuditorAware<String> {
      */
     @Override
     public Optional<String> getCurrentAuditor() {
-        String currentAuditor = request.getHeader("CurrentAuditor");
+        String currentAuditor = request != null ? request.getHeader("CurrentAuditor") : null;
         return Optional.of(currentAuditor == null ? "CATEGORY_MS" : currentAuditor);
     }
 

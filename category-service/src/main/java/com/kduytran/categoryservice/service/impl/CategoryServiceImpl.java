@@ -14,6 +14,10 @@ import com.kduytran.categoryservice.service.ICategoryService;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +37,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.MAX_PARENT_COUNT = Integer.parseInt("4");
+        this.MAX_PARENT_COUNT = Integer.parseInt("2");
     }
 
     /**
@@ -45,6 +49,7 @@ public class CategoryServiceImpl implements ICategoryService {
      * @return A list of CategoryDTO objects representing the root categories.
      */
     @Override
+    @Cacheable(cacheNames = "root-categories")
     public List<CategoryDTO> getRootCategoryList() {
         List<CategoryEntity> categoryEntities =
                 categoryRepository.findAllByParentCategory(null).orElseGet(ArrayList::new);
@@ -58,6 +63,7 @@ public class CategoryServiceImpl implements ICategoryService {
      * @return A CategoryDTO object representing the category, or null if no category with the given id is found.
      */
     @Override
+    @Cacheable(cacheNames = "category", key = "#id")
     public CategoryDTO getOneById(@NonNull String id) {
         CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE);
         return CategoryConverter.convert(categoryEntity, new CategoryDTO());
@@ -70,6 +76,7 @@ public class CategoryServiceImpl implements ICategoryService {
      * @return A CategoryDTO object representing the category, or null if no category with the given code is found.
      */
     @Override
+    @Cacheable(cacheNames = "category", key = "#code")
     public CategoryDTO getOneByCode(@NonNull String code) {
         CategoryEntity categoryEntity = categoryRepository.findByCodeAndStatus(code, EntityStatus.LIVE).orElseThrow(
                 () -> new CategoryNotFoundException("Category were not found")
@@ -82,10 +89,16 @@ public class CategoryServiceImpl implements ICategoryService {
      *
      * @param createCategoryDTO A CreateCategoryDTO object containing the necessary information to create a new category.
      *                          This includes attributes like name, description, and any other required fields.
+     * @return A UUID representing the unique identifier of the newly created category.
      */
     @Override
     @Transactional
-    public void create(@NonNull CreateCategoryDTO createCategoryDTO) {
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "root-categories", allEntries = true)
+            }
+    )
+    public UUID create(@NonNull CreateCategoryDTO createCategoryDTO) {
         boolean existsByIdOrCode = categoryRepository.existsByIdOrCode(null, createCategoryDTO.getCode());
         if (existsByIdOrCode) {
             throw new CategoryAlreadyExistsException("Category is already existed");
@@ -105,7 +118,7 @@ public class CategoryServiceImpl implements ICategoryService {
         categoryEntity.setStatus(EntityStatus.LIVE);
 
         logger.debug("Creating category name: {}", categoryEntity.getName());
-        categoryRepository.save(categoryEntity);
+        return categoryRepository.save(categoryEntity).getId();
     }
 
     /**
@@ -117,6 +130,13 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "root-categories", allEntries = true),
+                    @CacheEvict(cacheNames = "category", key = "#id"),
+                    @CacheEvict(cacheNames = "category", key = "#createCategoryDTO.code")
+            }
+    )
     public void update(String id, CreateCategoryDTO createCategoryDTO) {
         CategoryEntity categoryEntity = getEntityByIdAndStatus(id, EntityStatus.LIVE, EntityStatus.HIDDEN);
         CategoryConverter.convert(createCategoryDTO, categoryEntity);
@@ -142,6 +162,12 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "root-categories", allEntries = true),
+                    @CacheEvict(cacheNames = "category", allEntries = true)
+            }
+    )
     public void rebound(String id) {
         CategoryEntity categoryEntity = getEntityById(id);
 
@@ -168,6 +194,12 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "root-categories", allEntries = true),
+                    @CacheEvict(cacheNames = "category", allEntries = true)
+            }
+    )
     public void delete(String id) {
         CategoryEntity categoryEntity = getEntityById(id);
 
@@ -196,6 +228,13 @@ public class CategoryServiceImpl implements ICategoryService {
      * @param id the identifier of the item to unHide; must not be null or empty.
      */
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "root-categories", allEntries = true),
+                    @CacheEvict(cacheNames = "category", allEntries = true)
+            }
+    )
     public void unhide(String id) {
         CategoryEntity categoryEntity = getEntityById(id);
 
@@ -224,6 +263,12 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "root-categories", allEntries = true),
+                    @CacheEvict(cacheNames = "category", allEntries = true)
+            }
+    )
     public void hide(String id) {
         CategoryEntity categoryEntity = getEntityById(id);
 

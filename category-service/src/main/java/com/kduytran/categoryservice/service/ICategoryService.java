@@ -4,6 +4,7 @@ import com.kduytran.categoryservice.dto.CategoryDTO;
 import com.kduytran.categoryservice.dto.CreateCategoryDTO;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The ICategoryService interface defines a contract for managing categories
@@ -44,8 +45,9 @@ public interface ICategoryService {
      *
      * @param createCategoryDTO A CreateCategoryDTO object containing the necessary information to create a new category.
      *                          This includes attributes like name, description, and any other required fields.
+     * @return A UUID representing the unique identifier of the newly created category.
      */
-    void create(CreateCategoryDTO createCategoryDTO);
+    UUID create(CreateCategoryDTO createCategoryDTO);
 
     /**
      * Updates an existing category with new information.

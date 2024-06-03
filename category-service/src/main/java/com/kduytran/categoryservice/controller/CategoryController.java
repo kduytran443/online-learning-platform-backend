@@ -1,10 +1,7 @@
 package com.kduytran.categoryservice.controller;
 
 import com.kduytran.categoryservice.constant.ResponseConstant;
-import com.kduytran.categoryservice.dto.CategoryDTO;
-import com.kduytran.categoryservice.dto.CreateCategoryDTO;
-import com.kduytran.categoryservice.dto.ErrorResponseDTO;
-import com.kduytran.categoryservice.dto.ResponseDTO;
+import com.kduytran.categoryservice.dto.*;
 import com.kduytran.categoryservice.service.ICategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Tag(
@@ -92,9 +90,9 @@ public class CategoryController {
             )
     })
     @PostMapping
-    public ResponseEntity<ResponseDTO> createCategory(@RequestBody CreateCategoryDTO categoryDTO) {
-        categoryService.create(categoryDTO);
-        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
+    public ResponseEntity<IdResponseDTO> createCategory(@RequestBody CreateCategoryDTO categoryDTO) {
+        UUID id = categoryService.create(categoryDTO);
+        return ResponseEntity.ok(IdResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201, id));
     }
 
     @Operation(
