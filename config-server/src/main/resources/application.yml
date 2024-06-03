@@ -14,6 +14,11 @@ spring:
           timeout: 5 #maximum waiting seconds
           clone-on-start: true #clone GITHUB repo into local system during startup
           force-pull: true
+    bus:
+      enabled: true
+  kafka:
+    bootstrap-servers:
+      - http://localhost:29092
 
 management:
   endpoints:
