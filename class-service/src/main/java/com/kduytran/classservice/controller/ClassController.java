@@ -3,7 +3,6 @@ package com.kduytran.classservice.controller;
 import com.kduytran.classservice.constant.ResponseConstant;
 import com.kduytran.classservice.dto.*;
 import com.kduytran.classservice.service.IClassService;
-import com.kduytran.classservice.service.client.CategoryFeignClient;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,11 +30,9 @@ import java.util.UUID;
 public class ClassController {
 
     private final IClassService classService;
-    private final CategoryFeignClient categoryFeignClient;
 
-    public ClassController(IClassService classService, CategoryFeignClient categoryFeignClient) {
+    public ClassController(IClassService classService) {
         this.classService = classService;
-        this.categoryFeignClient = categoryFeignClient;
     }
 
     @Operation(
