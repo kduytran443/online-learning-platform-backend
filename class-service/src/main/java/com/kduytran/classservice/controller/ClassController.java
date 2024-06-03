@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +28,25 @@ import java.util.UUID;
         produces = { MediaType.APPLICATION_JSON_VALUE }
 )
 @Validated
+@AllArgsConstructor
 public class ClassController {
 
     private final IClassService classService;
+    private final ServiceContactInfoDTO serviceContactInfoDTO;
 
-    public ClassController(IClassService classService) {
-        this.classService = classService;
+    @Operation(
+            summary = "Get contact info",
+            description = "REST API to get contract info of class microservice"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            )
+    })
+    @GetMapping("/contact-info")
+    public ResponseEntity<ServiceContactInfoDTO> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(serviceContactInfoDTO);
     }
 
     @Operation(
