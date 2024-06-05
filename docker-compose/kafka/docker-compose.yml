@@ -8,14 +8,13 @@ services:
     networks:
       - "kafka_test"
 
-  kafka0:
+  kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
     environment:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
-      KAFKA_LISTENERS: "PLAINTEXT://:9092,EXTERNAL://:29092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
@@ -30,13 +29,13 @@ services:
     image: provectuslabs/kafka-ui:latest
     depends_on:
       - zookeeper
-      - kafka0
+      - kafka
     ports:
       - "29091:8080"
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: "local"
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka0:9092,kafka0:29092,localhost:29092,localhost:9092"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092,kafka:29092,localhost:29092,localhost:9092"
       KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper:2181"
     networks:
       - "kafka_test"
