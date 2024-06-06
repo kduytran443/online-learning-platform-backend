@@ -24,6 +24,15 @@ public class RouteConfig {
                         )
                         .uri(PathUtils.getUri(ServiceConstant.CATEGORY_NAME))
                 )
+                .route(p -> p
+                        .path(PathUtils.getServicePath(ServiceConstant.USER_CONTEXT_PATH))
+                        .filters(f -> f
+                                .rewritePath(PathUtils.getRewriteSourcePath(ServiceConstant.USER_CONTEXT_PATH),
+                                        PathUtils.getRewriteDestinationPath(ServiceConstant.USER_CONTEXT_PATH))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri(PathUtils.getUri(ServiceConstant.USER_NAME))
+                )
                 .build();
     }
 
