@@ -9,10 +9,10 @@ import java.util.List;
 @Component
 public class FilterUtility {
 
-    public static final String CORRELATION_ID_KEY = "correlation-id";
+    public static final String TRANSACTION_ID_KEY = "transaction-id";
 
-    public String getCorrelationId(HttpHeaders requestHeaders) {
-        List<String> requestHeaderList = requestHeaders.get(CORRELATION_ID_KEY);
+    public String getTransactionId(HttpHeaders requestHeaders) {
+        List<String> requestHeaderList = requestHeaders.get(TRANSACTION_ID_KEY);
         if (requestHeaderList != null && requestHeaderList.size() > 0) {
             return requestHeaderList.get(0);
         } else {
@@ -24,8 +24,8 @@ public class FilterUtility {
         return exchange.mutate().request(exchange.getRequest().mutate().header(name, value).build()).build();
     }
 
-    public ServerWebExchange setCorrelationId(ServerWebExchange exchange, String correlationId) {
-        return this.setRequestHeader(exchange, CORRELATION_ID_KEY, correlationId);
+    public ServerWebExchange setTransactionId(ServerWebExchange exchange, String transactionId) {
+        return this.setRequestHeader(exchange, TRANSACTION_ID_KEY, transactionId);
     }
 
 }
