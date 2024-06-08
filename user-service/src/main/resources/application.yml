@@ -59,3 +59,8 @@ info:
 
 server:
   port: 8081
+logging:
+  level:
+    com:
+      kduytran:
+        userservice: DEBUG
