@@ -1,6 +1,5 @@
 package com.kduytran.notificationservice.event;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,9 +11,10 @@ import java.io.Serializable;
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
 @ToString
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRegisteredEvent implements Serializable {
+public class UserEvent implements Serializable {
     private String transactionId;
+    private String action;
+    private String id;
     private String username;
     private String name;
     private String email;
