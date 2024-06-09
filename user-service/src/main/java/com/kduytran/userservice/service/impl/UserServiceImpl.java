@@ -166,8 +166,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     private void publishRegisteredUser(UserEntity userEntity, UserVerificationEntity userVerification) {
-        UserRegisteredEvent event = UserRegisteredEvent.of(
-                "", // TODO - ADD TRANSACTION ID
+        UserRegisteredEvent event = new UserRegisteredEvent(
+                userEntity.getId().toString(),
                 userEntity.getUsername(),
                 userEntity.getName(),
                 userEntity.getEmail(),
@@ -176,8 +176,6 @@ public class UserServiceImpl implements IUserService {
                 userVerification.getExpiredDate().toString(),
                 userEntity.getCreatedAt().toString()
         );
-
-        logger.debug("Publishing user registered event {}", event);
         publisher.publishEvent(event);
     }
 
