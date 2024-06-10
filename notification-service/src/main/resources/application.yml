@@ -5,17 +5,8 @@ spring:
     name: "notification"
   kafka:
     bootstrap-servers: localhost:29092
-    producer:
-      bootstrap-servers: localhost:29092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring:
-          json:
-            type:
-              mapping: "userEvent:com.kduytran.notificationservice.event.UserEvent"
-            trusted:
-              packages: "*"
+    consumer:
+      group-id: "notification-consumers"
   mail:
     host: smtp.gmail.com
     port: 587

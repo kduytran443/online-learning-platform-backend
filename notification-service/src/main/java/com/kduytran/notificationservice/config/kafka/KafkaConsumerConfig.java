@@ -1,5 +1,8 @@
 package com.kduytran.notificationservice.config.kafka;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -18,8 +21,13 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConsumerConfig {
 
-    private String servers = "localhost:29092";
-    private String groupId = "notification-consumers";
+    private static Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerConfig.class);
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String servers;
+
+    @Value("${spring.kafka.consumer.group-id}")
+    private String groupId;
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListener() {
@@ -53,7 +61,7 @@ public class KafkaConsumerConfig {
             try {
                 return super.deserialize(topic, data);
             } catch (Exception e) {
-                System.err.println("Deserialize Exception occurred: " + e.getMessage());
+                LOGGER.error("Deserialize Exception occurred: {}", e.getMessage());
                 return null; // Return null to skip the message
             }
         }
