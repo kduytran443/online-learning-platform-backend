@@ -54,4 +54,15 @@ public class UpdateClassDTO {
     @NotEmpty(message = "Class owner type cannot be null or empty")
     private String ownerType;
 
+    @Schema(
+            description = "Information about the Class Owner",
+            example = "This is the name of the class owner."
+    )
+    @NotEmpty(message = "Class owner name cannot be null or empty")
+    @Pattern(
+            regexp = "^[a-z0-9 ]+$",
+            message = "Class owner name must only contain lowercase letters (a-z), digits (0-9), and spaces"
+    )
+    private String ownerName;
+
 }

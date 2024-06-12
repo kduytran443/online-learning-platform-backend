@@ -24,7 +24,8 @@ public class ClassConverter {
         entity.setStatus(EntityStatus.of(dto.getStatus()));
         entity.setOwnerType(OwnerType.of(dto.getOwnerType()));
         // ClassDescription
-        entity.setClassOwnerId(UUID.fromString(dto.getOwnerId()));
+        entity.setOwnerId(UUID.fromString(dto.getOwnerId()));
+        entity.setOwnerName(dto.getOwnerName());
         entity.setCategoryId(UUID.fromString(dto.getCategoryId()));
         entity.setImage(dto.getImage());
         entity.setStartAt(TimeUtils.getFormattedDate(dto.getStartAt(), TimeUtils.DATE_FORMAT_YYYY_MM_DD));
@@ -43,7 +44,9 @@ public class ClassConverter {
         }
         dto.setName(entity.getName());
         dto.setStatus(entity.getStatus().getCode());
-        dto.setClassOwnerId(entity.getClassOwnerId().toString());
+        dto.setOwnerId(entity.getOwnerId().toString());
+        dto.setOwnerName(entity.getOwnerName());
+        dto.setOwnerType(entity.getOwnerType().getCode());
         // Set category
         dto.setEndAt(entity.getEndAt());
         dto.setStartAt(entity.getStartAt());
