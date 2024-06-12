@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: "classquery"
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  kafka:
+    bootstrap-servers: localhost:29092
+
+server:
+  port: 8130
+
+management:
+  info:
+    env:
+      enabled: true
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+
+info:
+  app:
+    name: "class-query"
+    description: "Class query service"
+    version: "1.0.0"
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: "http://localhost:8070/eureka/"
