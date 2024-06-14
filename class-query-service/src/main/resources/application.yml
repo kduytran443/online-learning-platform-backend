@@ -3,6 +3,10 @@ spring:
     name: "classquery"
   config:
     import: "optional:configserver:http://localhost:8071/"
+  elasticsearch:
+    uris: http://localhost:9200
+    connection-timeout: 10s
+    socket-timeout: 10s
   kafka:
     bootstrap-servers: localhost:29092
 
