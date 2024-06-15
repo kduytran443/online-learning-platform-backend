@@ -5,6 +5,8 @@ import com.kduytran.categoryservice.dto.CategoryDTO;
 import com.kduytran.categoryservice.dto.CreateCategoryDTO;
 import com.kduytran.categoryservice.entity.CategoryEntity;
 import com.kduytran.categoryservice.entity.EntityStatus;
+import com.kduytran.categoryservice.event.CategoryCreatedEvent;
+import com.kduytran.categoryservice.event.CategoryDeletedEvent;
 import com.kduytran.categoryservice.exception.CategoryAlreadyExistsException;
 import com.kduytran.categoryservice.exception.CategoryNotFoundException;
 import com.kduytran.categoryservice.exception.CategoryNotInStatusException;
@@ -15,9 +17,9 @@ import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +34,13 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements ICategoryService {
     private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
     private final CategoryRepository categoryRepository;
+    private final ApplicationEventPublisher publisher;
 
     private final int MAX_PARENT_COUNT;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, ApplicationEventPublisher publisher) {
         this.categoryRepository = categoryRepository;
+        this.publisher = publisher;
         this.MAX_PARENT_COUNT = Integer.parseInt("2");
     }
 
@@ -118,7 +122,11 @@ public class CategoryServiceImpl implements ICategoryService {
         categoryEntity.setStatus(EntityStatus.LIVE);
 
         logger.debug("Creating category name: {}", categoryEntity.getName());
-        return categoryRepository.save(categoryEntity).getId();
+
+        CategoryEntity savedEntity = categoryRepository.save(categoryEntity);
+        publishCreatedUser(savedEntity);
+
+        return savedEntity.getId();
     }
 
     /**
@@ -220,6 +228,7 @@ public class CategoryServiceImpl implements ICategoryService {
         logger.debug("Deleting category name: {}, and its all related categories", categoryEntity.getName());
 
         categoryRepository.saveAll(allCategories);
+        publishDeletedUsers(allCategories);
     }
 
     /**
@@ -337,6 +346,34 @@ public class CategoryServiceImpl implements ICategoryService {
             category.setStatus(status);
             return category;
         };
+    }
+
+    private void publishCreatedUser(CategoryEntity categoryEntity) {
+        CategoryCreatedEvent event = new CategoryCreatedEvent();
+        event.setId(categoryEntity.getId().toString());
+        event.setName(categoryEntity.getName());
+        event.setDescription(categoryEntity.getDescription());
+        event.setCode(categoryEntity.getCode());
+        CategoryEntity parent = categoryEntity.getParentCategory();
+        if (parent != null) {
+            event.setParentCategoryId(parent.getId().toString());
+        }
+        publisher.publishEvent(event);
+    }
+
+    private void publishDeletedUsers(List<CategoryEntity> categoryEntities) {
+        for (CategoryEntity categoryEntity : categoryEntities) {
+            CategoryDeletedEvent event = new CategoryDeletedEvent();
+            event.setId(categoryEntity.getId().toString());
+            event.setName(categoryEntity.getName());
+            event.setDescription(categoryEntity.getDescription());
+            event.setCode(categoryEntity.getCode());
+            CategoryEntity parent = categoryEntity.getParentCategory();
+            if (parent != null) {
+                event.setParentCategoryId(parent.getId().toString());
+            }
+            publisher.publishEvent(event);
+        }
     }
 
 }

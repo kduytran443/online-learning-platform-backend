@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,12 +28,27 @@ import java.util.UUID;
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 @Validated
+@AllArgsConstructor
 public class CategoryController {
-    private final ICategoryService categoryService;
 
-    public CategoryController(ICategoryService categoryService) {
-        this.categoryService = categoryService;
+    private final ICategoryService categoryService;
+    private final ServiceContactInfoDTO serviceContactInfoDTO;
+
+    @Operation(
+            summary = "Get contact info",
+            description = "REST API to get contract info of category microservice"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            )
+    })
+    @GetMapping("/contact-info")
+    public ResponseEntity<ServiceContactInfoDTO> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(serviceContactInfoDTO);
     }
+
 
     @Operation(
             summary = "Get category REST API",
