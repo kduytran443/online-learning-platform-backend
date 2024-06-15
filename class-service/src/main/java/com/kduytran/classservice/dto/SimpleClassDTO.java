@@ -17,5 +17,7 @@ public class SimpleClassDTO {
     private LocalDateTime endAt;
     private String status;
     private CategoryDTO category;
-    private String classOwnerId;
+    private String ownerType;
+    private String ownerId;
+    private String ownerName;
 }

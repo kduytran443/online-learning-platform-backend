@@ -45,8 +45,11 @@ public class ClassEntity {
     @Column
     private OwnerType ownerType;
 
-    @Column(name = "class_owner_id")
-    private UUID classOwnerId;
+    @Column(name = "owner_id")
+    private UUID ownerId;
+
+    @Column(name = "owner_name")
+    private String ownerName;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "aClass")
     private ClassDescriptionEntity classDescription;
