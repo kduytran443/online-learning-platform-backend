@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: "notification"
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: "notification-consumers"
   mail:
     host: smtp.gmail.com
     port: 587
@@ -20,3 +24,18 @@ spring:
         debug: true
   config:
     import: "optional:configserver:http://localhost:8071/"
+
+logging:
+  level:
+    com:
+      kduytran:
+        notificationservice: DEBUG
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: "http://localhost:8070/eureka"
