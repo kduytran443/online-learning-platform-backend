@@ -1,0 +1,42 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "name": {
+      "type": "text"
+    },
+    "image": {
+      "type": "keyword"
+    },
+    "startAt": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "endAt": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "status": {
+      "type": "keyword"
+    },
+    "categoryId": {
+      "type": "keyword"
+    },
+    "categoryCode": {
+      "type": "keyword"
+    },
+    "categoryName": {
+      "type": "text"
+    },
+    "ownerType": {
+      "type": "keyword"
+    },
+    "ownerId": {
+      "type": "keyword"
+    },
+    "ownerName": {
+      "type": "text"
+    }
+  }
+}
