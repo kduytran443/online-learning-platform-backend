@@ -7,10 +7,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Mapping;
 
 import java.time.LocalDateTime;
 
-@Document(indexName = "books")
+@Document(indexName = "classes")
+@Mapping(mappingPath = "static/classes.json")
 @Getter @Setter
 public class ClassDocument {
     @Id
@@ -31,6 +33,12 @@ public class ClassDocument {
 
     @Field(type = FieldType.Keyword)
     private String categoryId;
+
+    @Field(type = FieldType.Keyword)
+    private String categoryCode;
+
+    @Field(type = FieldType.Text)
+    private String categoryName;
 
     @Field(type = FieldType.Keyword)
     private String ownerType;
