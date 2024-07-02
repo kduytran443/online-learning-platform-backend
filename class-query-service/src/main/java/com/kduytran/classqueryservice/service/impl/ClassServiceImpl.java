@@ -5,8 +5,10 @@ import co.elastic.clients.elasticsearch._types.FieldSort;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import co.elastic.clients.util.ObjectBuilder;
 import com.kduytran.classqueryservice.constant.IndexConstant;
 import com.kduytran.classqueryservice.converter.ClassConverter;
@@ -26,7 +28,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,65 +100,80 @@ public class ClassServiceImpl implements IClassService {
         final int from = (requestDTO.getPage() - 1) <= 0 ? 0 : (requestDTO.getPage() - 1) * requestDTO.getSize();
         int totalPages = (int) Math.ceil((double) allLiveItems / requestDTO.getSize());
 
-//        MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(
-//                builder -> builder
-//                        .fields(requestDTO.getFields())
-//                        .operator(Operator.And)
-//                        .query(requestDTO.getSearchTerm())
-//        );
-
         Query byStatus = MatchQuery.of(
                 m -> m.field("status")
                         .query("L")
         )._toQuery();
 
+        SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
+                .index(IndexConstant.CLASSES_INDEX)
+                .query(q -> q
+                        .bool(b -> {
+                            // Status must be 'L'
+                            b.must(byStatus);
+
+                            // Handle "multiMatchQuery" if field size is larger than 0
+                            if (requestDTO.getFields() != null && requestDTO.getFields().size() > 0) {
+                                MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(
+                                        builder -> builder
+                                                .fields(requestDTO.getFields())
+                                                .operator(Operator.And)
+                                                .query(requestDTO.getSearchTerm())
+                                );
+                                b.must(mq -> mq.multiMatch(multiMatchQuery));
+                            }
+                            return b;
+                        })
+                )
+                .sort(so -> {
+                    if (!"averageRating".equals(requestDTO.getSortBy())) {
+                        so.field(FieldSort.of(
+                                f -> f.field(requestDTO.getSortBy()).order(requestDTO.getSortOrder())
+                        ));
+                    }
+                    // Sort by averageRating
+                    so.field(FieldSort.of(
+                            f -> f.field("averageRating").order(requestDTO.getSortOrder())
+                    ));
+                    so.field(FieldSort.of(
+                            f -> f.field("numberOfReviews").order(requestDTO.getSortOrder())
+                    ));
+                    return so;
+                })
+                .from(from)
+                .size(requestDTO.getSize());
+
+        if (requestDTO.hasSourceIncludes()) {
+            searchRequestBuilder.source(src -> src
+                    .filter(f -> f
+                            .includes(requestDTO.getSourceIncludes())
+                    )
+            );
+        } else if (requestDTO.hasSourceExcludes()) {
+            searchRequestBuilder.source(src -> src
+                    .filter(f -> f
+                            .excludes(requestDTO.getSourceExcludes())
+                    )
+            );
+        } else if (requestDTO.hasSourceIncludesAndExcludes()) {
+            searchRequestBuilder.source(src -> src
+                    .filter(f -> f
+                            .includes(requestDTO.getSourceIncludes())
+                            .excludes(requestDTO.getSourceExcludes())
+                    )
+            );
+        }
+
         SearchResponse<ClassDocument> response;
         try {
-            response = esClient.search(s -> s
-                            .index(IndexConstant.CLASSES_INDEX)
-                            .query(q -> q
-                                    .bool(b -> {
-                                        // Luôn thêm điều kiện "byStatus"
-                                        b.must(byStatus);
-
-                                        // Thêm điều kiện "multiMatchQuery" nếu fields có kích thước > 0
-                                        if (requestDTO.getFields() != null && requestDTO.getFields().size() > 0) {
-                                            MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(
-                                                    builder -> builder
-                                                            .fields(requestDTO.getFields())
-                                                            .operator(Operator.And)
-                                                            .query(requestDTO.getSearchTerm())
-                                            );
-                                            b.must(mq -> mq.multiMatch(multiMatchQuery));
-                                        }
-                                        return b;
-                                    })
-                            )
-//                            .query(q -> {
-//                                q.multiMatch(multiMatchQuery);
-//                                return q;
-//                            })
-                            .sort(so -> {
-                                if (!"averageRating".equals(requestDTO.getSortBy())) {
-                                    so.field(FieldSort.of(
-                                            f -> f.field(requestDTO.getSortBy()).order(requestDTO.getSortOrder())
-                                    ));
-                                }
-                                so.field(FieldSort.of(
-                                        f -> f.field("averageRating").order(requestDTO.getSortOrder())
-                                ));
-                                so.field(FieldSort.of(
-                                        f -> f.field("numberOfReviews").order(requestDTO.getSortOrder())
-                                ));
-                                return so;
-                            })
-                            .from(from)
-                            .size(requestDTO.getSize()),
+            response = esClient.search(
+                    searchRequestBuilder.build(),
                     ClassDocument.class
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         List<Hit<ClassDocument>> hits = response.hits().hits();
         List<ClassDTO> classDTOS = ClassConverter.convert(hits.stream().map(Hit::source).collect(Collectors.toList()));
 
