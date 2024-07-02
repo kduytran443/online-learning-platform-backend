@@ -33,6 +33,24 @@ public class RouteConfig {
                         )
                         .uri(PathUtils.getUri(ServiceConstant.USER_NAME))
                 )
+                .route(p -> p
+                        .path(PathUtils.getServicePath(ServiceConstant.CLASS_CONTEXT_PATH))
+                        .filters(f -> f
+                                .rewritePath(PathUtils.getRewriteSourcePath(ServiceConstant.CLASS_CONTEXT_PATH),
+                                        PathUtils.getRewriteDestinationPath(ServiceConstant.CLASS_CONTEXT_PATH))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri(PathUtils.getUri(ServiceConstant.CLASS_NAME))
+                )
+                .route(p -> p
+                        .path(PathUtils.getServicePath(ServiceConstant.CLASS_QUERY_CONTEXT_PATH))
+                        .filters(f -> f
+                                .rewritePath(PathUtils.getRewriteSourcePath(ServiceConstant.CLASS_QUERY_CONTEXT_PATH),
+                                        PathUtils.getRewriteDestinationPath(ServiceConstant.CLASS_QUERY_CONTEXT_PATH))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri(PathUtils.getUri(ServiceConstant.CLASS_QUERY_NAME))
+                )
                 .build();
     }
 
