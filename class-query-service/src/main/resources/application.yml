@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "classquery"
+    name: "class-query"
   config:
     import: "optional:configserver:http://localhost:8071/"
   elasticsearch:
