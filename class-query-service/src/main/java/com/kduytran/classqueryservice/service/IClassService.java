@@ -4,7 +4,6 @@ import com.kduytran.classqueryservice.dto.ClassDTO;
 import com.kduytran.classqueryservice.dto.PaginationResponseDTO;
 import com.kduytran.classqueryservice.dto.SearchRequestDTO;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
