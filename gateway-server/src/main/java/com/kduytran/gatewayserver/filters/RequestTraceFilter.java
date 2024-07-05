@@ -24,22 +24,22 @@ public class RequestTraceFilter implements GlobalFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
-        if (isCorrelationIdPresent(requestHeaders)) {
-            logger.debug("correlation-id found in RequestTraceFilter : {}",
-                    filterUtility.getCorrelationId(requestHeaders));
+        if (isTransactionIdPresent(requestHeaders)) {
+            logger.debug("transaction-id found in RequestTraceFilter : {}",
+                    filterUtility.getTransactionId(requestHeaders));
         } else {
-            String correlationID = generateCorrelationId();
-            exchange = filterUtility.setCorrelationId(exchange, correlationID);
-            logger.debug("correlation-id generated in RequestTraceFilter : {}", correlationID);
+            String transactionID = generateTransactionId();
+            exchange = filterUtility.setTransactionId(exchange, transactionID);
+            logger.debug("transaction-id generated in RequestTraceFilter : {}", transactionID);
         }
         return chain.filter(exchange);
     }
 
-    private boolean isCorrelationIdPresent(HttpHeaders requestHeaders) {
-        return filterUtility.getCorrelationId(requestHeaders) != null;
+    private boolean isTransactionIdPresent(HttpHeaders requestHeaders) {
+        return filterUtility.getTransactionId(requestHeaders) != null;
     }
 
-    private String generateCorrelationId() {
+    private String generateTransactionId() {
         return java.util.UUID.randomUUID().toString();
     }
 
