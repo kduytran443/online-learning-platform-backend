@@ -5,16 +5,21 @@ spring:
     import: "optional:configserver:http://localhost:8071/"
   kafka:
     bootstrap-servers: localhost:29092
-    consumer:
+    streams:
+      application-id: class-query-service-app
       bootstrap-servers: localhost:29092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      default:
+        key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        value-serde: com.kduytran.classqueryservice.event.JsonSerde
+      auto-startup: true
       properties:
-        spring:
-          json:
-            trusted:
-              packages: "*"
-            "use.type.headers": false
+        processing.guarantee: exactly_once
+        max.block.ms: 50000
+    consumer:
+      group-id: "class-query-consumers"
+      auto-offset-reset: earliest
+      properties:
+        "spring.json.trusted.packages": "*"
   datasource:
     url: jdbc:postgresql://localhost:5436/class_query_db
     driver-class-name: org.postgresql.Driver
@@ -25,6 +30,13 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  cloud:
+    bus:
+      enabled: true
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:29092
 
 server:
   port: 8130
@@ -57,7 +69,7 @@ info:
 
 logging:
   level:
-    com.kduytran.classqueryservice: "debug"
+    com.kduytran.classqueryservice: debug
 
 eureka:
   instance:
