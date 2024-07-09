@@ -5,21 +5,15 @@ spring:
     import: "optional:configserver:http://localhost:8071/"
   kafka:
     bootstrap-servers: localhost:29092
+    consumer:
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      properties:
+        spring.json.add.type.headers: false
     streams:
       application-id: class-query-service-app
       bootstrap-servers: localhost:29092
-      default:
-        key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-        value-serde: com.kduytran.classqueryservice.event.JsonSerde
-      auto-startup: true
-      properties:
-        processing.guarantee: exactly_once
-        max.block.ms: 50000
-    consumer:
-      group-id: "class-query-consumers"
-      auto-offset-reset: earliest
-      properties:
-        "spring.json.trusted.packages": "*"
   datasource:
     url: jdbc:postgresql://localhost:5436/class_query_db
     driver-class-name: org.postgresql.Driver

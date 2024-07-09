@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.info.License;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.annotation.EnableKafkaStreams;
 
-@SpringBootApplication
-@EnableConfigurationProperties({ ServiceContactInfoDTO.class })
 @OpenAPIDefinition(
 		info = @Info(
 				title = "Class query microservice REST API Documentation",
@@ -25,6 +25,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 				)
 		)
 )
+@SpringBootApplication
+@EnableKafka
+@EnableKafkaStreams
+@EnableConfigurationProperties({ ServiceContactInfoDTO.class })
 public class ClassQueryServiceApplication {
 
 	public static void main(String[] args) {

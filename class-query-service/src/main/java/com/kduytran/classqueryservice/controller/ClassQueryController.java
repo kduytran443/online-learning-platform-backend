@@ -2,6 +2,7 @@ package com.kduytran.classqueryservice.controller;
 
 import com.kduytran.classqueryservice.constant.ResponseConstant;
 import com.kduytran.classqueryservice.dto.*;
+import com.kduytran.classqueryservice.processor.CategoryStreamProcessor;
 import com.kduytran.classqueryservice.service.IClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,6 +33,12 @@ public class ClassQueryController {
 
     private final ServiceContactInfoDTO serviceContactInfoDTO;
     private final IClassService classService;
+    private final CategoryStreamProcessor categoryStreamProcessor;
+
+    @GetMapping("/kafka/category")
+    public ResponseEntity<List<CategoryDTO>> getKafkaCategory() {
+        return ResponseEntity.status(HttpStatus.OK).body(categoryStreamProcessor.findAll());
+    }
 
     @Operation(
             summary = "Get contact info",
