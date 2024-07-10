@@ -8,12 +8,14 @@ spring:
     consumer:
       properties:
         spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
     producer:
       properties:
         spring.json.add.type.headers: false
     streams:
       application-id: class-query-service-app
       bootstrap-servers: localhost:29092
+
   datasource:
     url: jdbc:postgresql://localhost:5436/class_query_db
     driver-class-name: org.postgresql.Driver

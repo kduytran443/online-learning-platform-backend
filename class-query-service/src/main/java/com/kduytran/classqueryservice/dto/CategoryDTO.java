@@ -30,10 +30,4 @@ public class CategoryDTO {
     )
     private String parentCategoryId;
 
-
-    @Schema(
-            description = "Parent category dto of category"
-    )
-    private CategoryDTO parentCategory;
-
 }

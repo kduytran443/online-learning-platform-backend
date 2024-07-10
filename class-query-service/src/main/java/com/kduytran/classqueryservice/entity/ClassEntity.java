@@ -19,6 +19,8 @@ public class ClassEntity {
     @Column
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column
     private String name;
 
     @Column
