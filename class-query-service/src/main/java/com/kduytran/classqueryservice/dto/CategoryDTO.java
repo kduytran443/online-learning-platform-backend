@@ -25,6 +25,15 @@ public class CategoryDTO {
     )
     private String code;
 
+    @Schema(
+            description = "Parent category id of category", example = "coding"
+    )
+    private String parentCategoryId;
+
+
+    @Schema(
+            description = "Parent category dto of category"
+    )
     private CategoryDTO parentCategory;
 
 }

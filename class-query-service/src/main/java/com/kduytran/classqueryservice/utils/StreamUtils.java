@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kduytran.classqueryservice.dto.CategoryDTO;
 import com.kduytran.classqueryservice.event.CategoryEvent;
 import lombok.experimental.UtilityClass;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.state.KeyValueIterator;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +37,13 @@ public class StreamUtils {
 
     public static <T> Stream<T> iterableToStream(Iterable<T> iterable) {
         return StreamSupport.stream(iterable.spliterator(), false);
+    }
+
+    public static <T> Stream<KeyValue<String, T>> toStream(ReadOnlyKeyValueStore<String, T> store) {
+        try (KeyValueIterator<String, T> all = store.all()) {
+            Iterable<KeyValue<String, T>> iterable = () -> all;
+            return StreamSupport.stream(iterable.spliterator(), false).onClose(all::close);
+        }
     }
 
 }

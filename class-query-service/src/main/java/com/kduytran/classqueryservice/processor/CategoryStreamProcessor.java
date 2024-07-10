@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
+import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -24,9 +25,7 @@ import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -39,19 +38,43 @@ public class CategoryStreamProcessor {
     private final StreamsBuilderFactoryBean streamsBuilderFactoryBean;
 
     public List<CategoryDTO> findAll() {
-        ReadOnlyKeyValueStore<String, CategoryDTO> storeData = streamsBuilderFactoryBean.getKafkaStreams()
+        var store = getStore();
+        if (store == null) {
+            return Collections.emptyList();
+        }
+        return StreamUtils.toStream(store).map(value -> value.value).collect(Collectors.toList());
+    }
+
+    // Find category and all its child
+    public List<CategoryDTO> findById(String categoryId) {
+        KafkaStreams kafkaStreams = streamsBuilderFactoryBean.getKafkaStreams();
+        if (kafkaStreams == null) {
+            return Collections.emptyList();
+        }
+        ReadOnlyKeyValueStore<String, CategoryDTO> storeData = kafkaStreams
                 .store(StoreQueryParameters.fromNameAndType(
                         STORE_NAME,
                         QueryableStoreTypes.keyValueStore()
                 ));
-        List<CategoryDTO> categories = new ArrayList<>();
-        try (KeyValueIterator<String, CategoryDTO> all = storeData.all()) {
-            while (all.hasNext()) {
-                KeyValue<String, CategoryDTO> keyValue = all.next();
-                categories.add(keyValue.value);
-            }
+        return StreamUtils.toStream(storeData)
+                .map(value -> value.value)
+                .filter(
+                        categoryDTO -> categoryId.equals(categoryDTO.getParentCategoryId())
+                                || categoryId.equals(categoryDTO.getId())
+                )
+                .collect(Collectors.toList());
+    }
+
+    private ReadOnlyKeyValueStore<String, CategoryDTO> getStore() {
+        KafkaStreams kafkaStreams = streamsBuilderFactoryBean.getKafkaStreams();
+        if (kafkaStreams == null) {
+            return null;
         }
-        return categories;
+        return kafkaStreams
+                .store(StoreQueryParameters.fromNameAndType(
+                        STORE_NAME,
+                        QueryableStoreTypes.keyValueStore()
+                ));
     }
 
     @PostConstruct
