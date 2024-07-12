@@ -2,8 +2,6 @@ package com.kduytran.classqueryservice.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kduytran.classqueryservice.dto.CategoryDTO;
-import com.kduytran.classqueryservice.event.CategoryEvent;
 import lombok.experimental.UtilityClass;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.KeyValueIterator;
@@ -11,7 +9,9 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -20,6 +20,20 @@ public class StreamUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtils.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static <T> List<T> findAllFromStore(ReadOnlyKeyValueStore<String, T> store) {
+        if (store == null) {
+            return Collections.emptyList();
+        }
+        List<T> list = new ArrayList<>();
+        try(var keyValueIterator = store.all()) {
+            while (keyValueIterator.hasNext()) {
+                var pair = keyValueIterator.next();
+                list.add(pair.value);
+            }
+        }
+        return list;
+    }
 
     public static <T> T mapValue(String value, Class<T> tClass) {
         try {

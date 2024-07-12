@@ -31,46 +31,18 @@ public class CategoryStreamProcessor {
     private final StreamsBuilderFactoryBean streamsBuilderFactoryBean;
 
     public List<CategoryDTO> findAll() {
-        ReadOnlyKeyValueStore<String, CategoryDTO> storeData = streamsBuilderFactoryBean.getKafkaStreams()
-                .store(StoreQueryParameters.fromNameAndType(
-                        STORE_NAME,
-                        QueryableStoreTypes.keyValueStore()
-                ));
-        List<CategoryDTO> categories = new ArrayList<>();
-        try (KeyValueIterator<String, CategoryDTO> all = storeData.all()) {
-            while (all.hasNext()) {
-                KeyValue<String, CategoryDTO> keyValue = all.next();
-                categories.add(keyValue.value);
-            }
-        }
-        return categories;
-    }
-    public CategoryDTO findOneById(String id) {
-        ReadOnlyKeyValueStore<String, CategoryDTO> storeData = streamsBuilderFactoryBean.getKafkaStreams()
-                .store(StoreQueryParameters.fromNameAndType(
-                        STORE_NAME,
-                        QueryableStoreTypes.keyValueStore()
-                ));
-        return storeData.get(id);
+        return StreamUtils.findAllFromStore(getStore());
     }
 
-    // Find category and all its child
-    public List<CategoryDTO> findAllById(String categoryId) {
+    public CategoryDTO findOneById(String id) {
         var store = getStore();
         if (store == null) {
-            return Collections.emptyList();
+            return null;
         }
-
-        CategoryDTO rootCategory = store.get(categoryId);
-        List<CategoryDTO> allCategories = findAll().stream()
-                .filter(category -> categoryId.equals(category.getParentCategoryId()))
-                .collect(Collectors.toList());
-        allCategories.add(rootCategory);
-
-        return allCategories;
+        return store.get(id);
     }
 
-    private ReadOnlyKeyValueStore<String, CategoryDTO> getStore() {
+    public ReadOnlyKeyValueStore<String, CategoryDTO> getStore() {
         KafkaStreams kafkaStreams = streamsBuilderFactoryBean.getKafkaStreams();
         if (kafkaStreams == null) {
             return null;
