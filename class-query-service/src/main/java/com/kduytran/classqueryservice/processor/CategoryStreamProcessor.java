@@ -15,6 +15,8 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.*;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class CategoryStreamProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryStreamProcessor.class);
     public static final String STORE_NAME = "category-store";
     private final StreamsBuilder streamsBuilder;
     private final ModelMapper modelMapper;
@@ -60,7 +63,11 @@ public class CategoryStreamProcessor {
                         Consumed.with(Serdes.String(), Serdes.String()))
                 .mapValues(value -> StreamUtils.mapValue(value, CategoryEvent.class))
                 .peek((key, value)
-                        -> System.out.println(String.format("Successful - %s: %s", value.getCode(), value.getName())));
+                        -> LOGGER.info(String.format("Processed category event: Action = %s, Code = %s, Name = %s",
+                                        value.getAction(),
+                                        value.getCode(),
+                                        value.getName()))
+                );
         categoryKStream
                 .mapValues(value -> modelMapper.map(value, CategoryDTO.class))
                 .toTable(

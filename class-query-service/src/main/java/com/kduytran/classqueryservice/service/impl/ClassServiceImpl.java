@@ -1,11 +1,13 @@
 package com.kduytran.classqueryservice.service.impl;
 
+import com.kduytran.classqueryservice.constant.CommonConstants;
 import com.kduytran.classqueryservice.converter.ClassConverter;
 import com.kduytran.classqueryservice.dto.CategoryDTO;
 import com.kduytran.classqueryservice.dto.ClassDTO;
 import com.kduytran.classqueryservice.dto.PaginationResponseDTO;
 import com.kduytran.classqueryservice.dto.SearchRequestDTO;
 import com.kduytran.classqueryservice.entity.ClassEntity;
+import com.kduytran.classqueryservice.exception.ClassAlreadyExistsException;
 import com.kduytran.classqueryservice.exception.ResourceNotFoundException;
 import com.kduytran.classqueryservice.processor.CategoryStreamProcessor;
 import com.kduytran.classqueryservice.repository.ClassRepository;
@@ -37,12 +39,15 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public UUID create(ClassDTO dto) {
+        boolean alreadyExists = classRepository.existsById(UUID.fromString(dto.getId()));
+        if (alreadyExists) {
+            throw new ClassAlreadyExistsException(dto.getId());
+        }
+
         ClassEntity classEntity = ClassConverter.convert(dto, new ClassEntity());
         classEntity.setId(UUID.fromString(dto.getId()));
-        classEntity.setAverageRating(0d);
-        classEntity.setNumberOfReviews(0L);
-
-        // TODO: Throw error when already existed
+        classEntity.setAverageRating(CommonConstants.DEFAULT_AVERAGE_RATING);
+        classEntity.setNumberOfReviews(CommonConstants.DEFAULT_NUMBER_OF_REVIEWS);
 
         return classRepository.save(classEntity).getId();
     }
@@ -58,7 +63,7 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public void update(String id, ClassDTO dto) {
-        ClassEntity classEntity = classRepository.findById(id).orElseThrow(
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("class", "id", id)
         );
         classRepository.save(ClassConverter.convert(dto, classEntity));
@@ -71,6 +76,11 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public void delete(String id) {
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        classEntity.setStatus("D");
+        classRepository.save(classEntity);
     }
 
     /**
@@ -81,7 +91,6 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public PaginationResponseDTO<ClassDTO> search(SearchRequestDTO requestDTO) {
-
         return null;
     }
 
@@ -97,13 +106,10 @@ public class ClassServiceImpl implements IClassService {
 
     private ClassDTO convert(ClassEntity entity, Map<String, CategoryDTO> cacheMap) {
         ClassDTO dto = ClassConverter.convert(entity, new ClassDTO());
-
-        CategoryDTO categoryDTO = cacheMap.computeIfAbsent(
-                dto.getCategoryId(), id -> categoryStreamProcessor.findOneById(id)
-        );
+        CategoryDTO categoryDTO = categoryStreamProcessor.getStore().get(dto.getCategoryId());
         if (categoryDTO == null) {
-            dto.setCategoryCode("<< UNKNOWN >>");
-            dto.setCategoryName("<< UNKNOWN >>");
+            dto.setCategoryCode(CommonConstants.UNKNOWN);
+            dto.setCategoryName(CommonConstants.UNKNOWN);
         } else {
             dto.setCategoryCode(categoryDTO.getCode());
             dto.setCategoryName(categoryDTO.getName());
