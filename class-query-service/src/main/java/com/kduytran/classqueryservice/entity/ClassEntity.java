@@ -17,7 +17,6 @@ public class ClassEntity {
 
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column
