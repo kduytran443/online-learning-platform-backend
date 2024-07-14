@@ -3,35 +3,28 @@ package com.kduytran.classqueryservice.processor;
 import com.kduytran.classqueryservice.constant.KafkaConstant;
 import com.kduytran.classqueryservice.dto.CategoryDTO;
 import com.kduytran.classqueryservice.event.CategoryEvent;
+import com.kduytran.classqueryservice.utils.LogUtils;
 import com.kduytran.classqueryservice.utils.StreamUtils;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.*;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class CategoryStreamProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryStreamProcessor.class);
-    public static final String STORE_NAME = "category-store";
+public class CategoryStreamsProcessor extends AbstractStreamsProcessor<CategoryDTO> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryStreamsProcessor.class);
     private final StreamsBuilder streamsBuilder;
     private final ModelMapper modelMapper;
-    private final StreamsBuilderFactoryBean streamsBuilderFactoryBean;
 
     public List<CategoryDTO> findAll() {
         return StreamUtils.findAllFromStore(getStore());
@@ -45,33 +38,21 @@ public class CategoryStreamProcessor {
         return store.get(id);
     }
 
-    public ReadOnlyKeyValueStore<String, CategoryDTO> getStore() {
-        KafkaStreams kafkaStreams = streamsBuilderFactoryBean.getKafkaStreams();
-        if (kafkaStreams == null) {
-            return null;
-        }
-        return kafkaStreams
-                .store(StoreQueryParameters.fromNameAndType(
-                        STORE_NAME,
-                        QueryableStoreTypes.keyValueStore()
-                ));
+    @Override
+    public String getStoreName() {
+        return "category-store";
     }
 
-    @PostConstruct
-    private void stream() {
+    @Override
+    protected void handleStream() {
         KStream<String, CategoryEvent> categoryKStream = streamsBuilder.stream(KafkaConstant.TOPIC_CATEGORIES,
                         Consumed.with(Serdes.String(), Serdes.String()))
                 .mapValues(value -> StreamUtils.mapValue(value, CategoryEvent.class))
-                .peek((key, value)
-                        -> LOGGER.info(String.format("Processed category event: Action = %s, Code = %s, Name = %s",
-                                        value.getAction(),
-                                        value.getCode(),
-                                        value.getName()))
-                );
+                .peek((key, value) -> LogUtils.logEvent(LOGGER, value));
         categoryKStream
                 .mapValues(value -> modelMapper.map(value, CategoryDTO.class))
                 .toTable(
-                        Materialized.<String, CategoryDTO, KeyValueStore<Bytes, byte[]>>as(STORE_NAME)
+                        Materialized.<String, CategoryDTO, KeyValueStore<Bytes, byte[]>>as(getStoreName())
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(new JsonSerde<>(CategoryDTO.class))
                 );

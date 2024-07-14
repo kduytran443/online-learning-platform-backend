@@ -2,6 +2,7 @@ package com.kduytran.classqueryservice.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.experimental.UtilityClass;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.KeyValueIterator;
@@ -19,7 +20,12 @@ import java.util.stream.StreamSupport;
 public class StreamUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtils.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    public static <T> void logEvent(Logger logger, T obj) {
+        logger.info(String.format("Processed %s: Action = %s, Code = %s, Name = %s"));
+    }
+
 
     public static <T> List<T> findAllFromStore(ReadOnlyKeyValueStore<String, T> store) {
         if (store == null) {
