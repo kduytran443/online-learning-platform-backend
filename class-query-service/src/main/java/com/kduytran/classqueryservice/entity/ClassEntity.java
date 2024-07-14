@@ -52,4 +52,7 @@ public class ClassEntity {
     @Column
     private Long numberOfReviews;
 
+    @Column
+    private Double weightedRating;
+
 }

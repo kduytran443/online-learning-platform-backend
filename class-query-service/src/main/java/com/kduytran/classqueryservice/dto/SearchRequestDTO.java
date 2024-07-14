@@ -15,9 +15,19 @@ public class SearchRequestDTO {
     private String sortBy;
     private Sort.Direction direction;
     private List<String> categories;
+    private Double minAverageRating;
+    private Double maxAverageRating;
 
     public Sort.Direction getDirection() {
         return direction != null ? direction : DEFAULT_SORT_DIRECTION;
+    }
+
+    public double getMinAverageRating() {
+        return minAverageRating != null ? minAverageRating : 0;
+    }
+
+    public double getMaxAverageRating() {
+        return maxAverageRating != null ? maxAverageRating : 5;
     }
 
 }

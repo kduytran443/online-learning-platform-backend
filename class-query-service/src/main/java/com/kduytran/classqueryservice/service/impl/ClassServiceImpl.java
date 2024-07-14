@@ -9,11 +9,15 @@ import com.kduytran.classqueryservice.dto.SearchRequestDTO;
 import com.kduytran.classqueryservice.entity.ClassEntity;
 import com.kduytran.classqueryservice.exception.ClassAlreadyExistsException;
 import com.kduytran.classqueryservice.exception.ResourceNotFoundException;
-import com.kduytran.classqueryservice.processor.CategoryStreamProcessor;
+import com.kduytran.classqueryservice.processor.CategoryStreamsProcessor;
 import com.kduytran.classqueryservice.repository.ClassRepository;
 import com.kduytran.classqueryservice.service.IClassService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,7 +33,7 @@ public class ClassServiceImpl implements IClassService {
 
     private final ClassRepository classRepository;
     private final ModelMapper modelMapper;
-    private final CategoryStreamProcessor categoryStreamProcessor;
+    private final CategoryStreamsProcessor categoryStreamsProcessor;
 
     /**
      * Creates a new class based on the provided DTO.
@@ -48,6 +52,7 @@ public class ClassServiceImpl implements IClassService {
         classEntity.setId(UUID.fromString(dto.getId()));
         classEntity.setAverageRating(CommonConstants.DEFAULT_AVERAGE_RATING);
         classEntity.setNumberOfReviews(CommonConstants.DEFAULT_NUMBER_OF_REVIEWS);
+        classEntity.setWeightedRating(CommonConstants.DEFAULT_WEIGHTED_RATING);
 
         return classRepository.save(classEntity).getId();
     }
@@ -83,6 +88,41 @@ public class ClassServiceImpl implements IClassService {
         classRepository.save(classEntity);
     }
 
+    @Override
+    public PaginationResponseDTO<ClassDTO> searchByCategory(SearchRequestDTO requestDTO) {
+        Sort sort = Sort.by(
+                Sort.Order.desc("weightedRating")
+        );
+
+        if (requestDTO.getSortBy() != null) {
+            Sort.by(
+                    Sort.Order.desc(requestDTO.getSortBy()),
+                    Sort.Order.desc("weightedRating")
+            );
+        }
+
+        Pageable pageable = PageRequest.of(
+                requestDTO.getPage() - 1,
+                requestDTO.getSize() > 0 ? requestDTO.getSize() : SearchRequestDTO.DEFAULT_SIZE, sort
+        );
+
+        Page<ClassEntity> entityPage = classRepository.
+                findByStatusAndEndAtIsAfterAndAverageRatingBetweenAndCategoryIdIn(
+                        "L", LocalDateTime.now(),
+                        requestDTO.getMinAverageRating(),
+                        requestDTO.getMaxAverageRating(),
+                        requestDTO.getCategories(),
+                        pageable
+                );
+        PaginationResponseDTO<ClassDTO> responseDTO = new PaginationResponseDTO<>();
+        responseDTO.setSize(requestDTO.getSize());
+        responseDTO.setPage(entityPage.getNumber() + 1);
+        responseDTO.setTotalElements(entityPage.getTotalElements());
+        responseDTO.setTotalPages(entityPage.getTotalPages());
+        responseDTO.setItems(entityPage.get().map(entity -> convert(entity)).collect(Collectors.toList()));
+        return responseDTO;
+    }
+
     /**
      * Searches for classes based on the provided search request DTO and returns a paginated response.
      *
@@ -97,16 +137,12 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public List<ClassDTO> getAllLiveStatus() {
         List<ClassEntity> list = classRepository.findAllByStatusAndEndAtIsAfter("L", LocalDateTime.now());
-        Map<String, CategoryDTO> categoryCacheMap = new HashMap<>();
-
-        return list.stream().map(
-                entity -> convert(entity, categoryCacheMap)
-        ).collect(Collectors.toList());
+        return list.stream().map(entity -> convert(entity)).collect(Collectors.toList());
     }
 
-    private ClassDTO convert(ClassEntity entity, Map<String, CategoryDTO> cacheMap) {
+    private ClassDTO convert(ClassEntity entity) {
         ClassDTO dto = ClassConverter.convert(entity, new ClassDTO());
-        CategoryDTO categoryDTO = categoryStreamProcessor.getStore().get(dto.getCategoryId());
+        CategoryDTO categoryDTO = categoryStreamsProcessor.getStore().get(dto.getCategoryId());
         if (categoryDTO == null) {
             dto.setCategoryCode(CommonConstants.UNKNOWN);
             dto.setCategoryName(CommonConstants.UNKNOWN);
