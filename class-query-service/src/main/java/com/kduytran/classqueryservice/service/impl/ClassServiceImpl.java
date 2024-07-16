@@ -96,12 +96,12 @@ public class ClassServiceImpl implements IClassService {
 
         if (requestDTO.getSortBy() != null) {
             if (Sort.Direction.DESC.equals(requestDTO.getDirection())) {
-                Sort.by(
+                sort = Sort.by(
                         Sort.Order.desc(requestDTO.getSortBy()),
                         Sort.Order.desc("weightedRating")
                 );
             } else {
-                Sort.by(
+                sort = Sort.by(
                         Sort.Order.asc(requestDTO.getSortBy()),
                         Sort.Order.desc("weightedRating")
                 );
