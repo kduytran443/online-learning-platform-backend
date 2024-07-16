@@ -95,10 +95,17 @@ public class ClassServiceImpl implements IClassService {
         );
 
         if (requestDTO.getSortBy() != null) {
-            Sort.by(
-                    Sort.Order.desc(requestDTO.getSortBy()),
-                    Sort.Order.desc("weightedRating")
-            );
+            if (Sort.Direction.ASC.equals(requestDTO.getDirection())) {
+                Sort.by(
+                        Sort.Order.asc(requestDTO.getSortBy()),
+                        Sort.Order.desc("weightedRating")
+                );
+            } else {
+                Sort.by(
+                        Sort.Order.desc(requestDTO.getSortBy()),
+                        Sort.Order.desc("weightedRating")
+                );
+            }
         }
 
         Pageable pageable = PageRequest.of(
