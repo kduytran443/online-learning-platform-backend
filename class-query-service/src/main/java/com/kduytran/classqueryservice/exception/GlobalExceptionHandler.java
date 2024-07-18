@@ -24,6 +24,13 @@ public class GlobalExceptionHandler {
         return getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ClassAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleClassAlreadyExistsException(
+            ClassAlreadyExistsException exception,
+            WebRequest webRequest) {
+        return getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<ErrorResponseDTO> getErrorResponseEntity(
             Exception exception, WebRequest webRequest, HttpStatus httpStatus) {
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(

@@ -3,12 +3,36 @@ spring:
     name: "class-query"
   config:
     import: "optional:configserver:http://localhost:8071/"
-  elasticsearch:
-    uris: http://localhost:9200
-    connection-timeout: 10s
-    socket-timeout: 10s
   kafka:
     bootstrap-servers: localhost:29092
+    consumer:
+      properties:
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+    producer:
+      properties:
+        spring.json.add.type.headers: false
+    streams:
+      application-id: class-query-service-app
+      bootstrap-servers: localhost:29092
+
+  datasource:
+    url: jdbc:postgresql://localhost:5436/class_query_db
+    driver-class-name: org.postgresql.Driver
+    username: user
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  cloud:
+    bus:
+      enabled: true
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:29092
 
 server:
   port: 8130
@@ -38,6 +62,10 @@ info:
     name: "class-query"
     description: "Class query service"
     version: "1.0.0"
+
+logging:
+  level:
+    com.kduytran.classqueryservice: debug
 
 eureka:
   instance:

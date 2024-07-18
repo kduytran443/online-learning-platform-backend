@@ -1,32 +1,29 @@
 package com.kduytran.classqueryservice.service.impl;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.FieldSort;
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.*;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.elasticsearch.core.search.SourceConfig;
-import co.elastic.clients.util.ObjectBuilder;
-import com.kduytran.classqueryservice.constant.IndexConstant;
+import com.kduytran.classqueryservice.constant.CommonConstants;
 import com.kduytran.classqueryservice.converter.ClassConverter;
-import com.kduytran.classqueryservice.document.ClassDocument;
+import com.kduytran.classqueryservice.dto.CategoryDTO;
 import com.kduytran.classqueryservice.dto.ClassDTO;
 import com.kduytran.classqueryservice.dto.PaginationResponseDTO;
 import com.kduytran.classqueryservice.dto.SearchRequestDTO;
+import com.kduytran.classqueryservice.entity.ClassEntity;
+import com.kduytran.classqueryservice.exception.ClassAlreadyExistsException;
 import com.kduytran.classqueryservice.exception.ResourceNotFoundException;
+import com.kduytran.classqueryservice.processor.CategoryStreamsProcessor;
 import com.kduytran.classqueryservice.repository.ClassRepository;
 import com.kduytran.classqueryservice.service.IClassService;
-import jakarta.json.JsonException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.Arrays;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,7 +33,7 @@ public class ClassServiceImpl implements IClassService {
 
     private final ClassRepository classRepository;
     private final ModelMapper modelMapper;
-    private final ElasticsearchClient esClient;
+    private final CategoryStreamsProcessor categoryStreamsProcessor;
 
     /**
      * Creates a new class based on the provided DTO.
@@ -46,15 +43,22 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public UUID create(ClassDTO dto) {
-        ClassDocument document = classRepository.save(modelMapper.map(dto, ClassDocument.class));
-        return UUID.fromString(document.getId());
+        boolean alreadyExists = classRepository.existsById(UUID.fromString(dto.getId()));
+        if (alreadyExists) {
+            throw new ClassAlreadyExistsException(dto.getId());
+        }
+
+        ClassEntity classEntity = ClassConverter.convert(dto, new ClassEntity());
+        classEntity.setId(UUID.fromString(dto.getId()));
+        classEntity.setAverageRating(CommonConstants.DEFAULT_AVERAGE_RATING);
+        classEntity.setNumberOfReviews(CommonConstants.DEFAULT_NUMBER_OF_REVIEWS);
+        classEntity.setWeightedRating(CommonConstants.DEFAULT_WEIGHTED_RATING);
+
+        return classRepository.save(classEntity).getId();
     }
 
     @Override
     public void createBulk(ClassDTO[] dtos) {
-        Iterable<ClassDocument> documentIterable = Arrays.stream(dtos)
-                .map(dto -> modelMapper.map(dto, ClassDocument.class)).collect(Collectors.toList());
-        classRepository.saveAll(documentIterable);
     }
 
     /**
@@ -64,11 +68,10 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public void update(String id, ClassDTO dto) {
-        ClassDocument document = classRepository.findById(id).orElseThrow(
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("class", "id", id)
         );
-        document = ClassConverter.convert(dto, document);
-        classRepository.save(document);
+        classRepository.save(ClassConverter.convert(dto, classEntity));
     }
 
     /**
@@ -78,14 +81,54 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public void delete(String id) {
-        ClassDocument document = classRepository.findById(id).orElseThrow(
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("class", "id", id)
         );
-        document.setStatus("D");
-        classRepository.save(document);
+        classEntity.setStatus("D");
+        classRepository.save(classEntity);
     }
 
+    @Override
+    public PaginationResponseDTO<ClassDTO> searchByCategory(SearchRequestDTO requestDTO) {
+        Sort sort = Sort.by(
+                Sort.Order.desc("weightedRating")
+        );
 
+        if (requestDTO.getSortBy() != null) {
+            if (Sort.Direction.DESC.equals(requestDTO.getDirection())) {
+                sort = Sort.by(
+                        Sort.Order.desc(requestDTO.getSortBy()),
+                        Sort.Order.desc("weightedRating")
+                );
+            } else {
+                sort = Sort.by(
+                        Sort.Order.asc(requestDTO.getSortBy()),
+                        Sort.Order.desc("weightedRating")
+                );
+            }
+        }
+
+        Pageable pageable = PageRequest.of(
+                requestDTO.getPage() - 1,
+                requestDTO.getSize() > 0 ? requestDTO.getSize() : SearchRequestDTO.DEFAULT_SIZE, sort
+        );
+
+        Page<ClassEntity> entityPage = classRepository.
+                findByStatusAndEndAtIsAfterAndAverageRatingBetweenAndCategoryIdIn(
+                        "L", LocalDateTime.now(),
+                        requestDTO.getMinAverageRating(),
+                        requestDTO.getMaxAverageRating(),
+                        requestDTO.getCategories(),
+                        pageable
+                );
+        PaginationResponseDTO<ClassDTO> responseDTO = new PaginationResponseDTO<>();
+        responseDTO.setSize(requestDTO.getSize());
+        responseDTO.setPage(entityPage.getNumber() + 1);
+        responseDTO.setTotalElements(entityPage.getTotalElements());
+        responseDTO.setTotalPages(entityPage.getTotalPages());
+        responseDTO.setItems(entityPage.get().map(entity -> convert(entity)).collect(Collectors.toList()));
+        return responseDTO;
+    }
 
     /**
      * Searches for classes based on the provided search request DTO and returns a paginated response.
@@ -95,100 +138,25 @@ public class ClassServiceImpl implements IClassService {
      */
     @Override
     public PaginationResponseDTO<ClassDTO> search(SearchRequestDTO requestDTO) {
-        long allLiveItems = classRepository.countByStatus("L");
-
-        final int from = (requestDTO.getPage() - 1) <= 0 ? 0 : (requestDTO.getPage() - 1) * requestDTO.getSize();
-        int totalPages = (int) Math.ceil((double) allLiveItems / requestDTO.getSize());
-
-        Query byStatus = MatchQuery.of(
-                m -> m.field("status")
-                        .query("L")
-        )._toQuery();
-
-        SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
-                .index(IndexConstant.CLASSES_INDEX)
-                .query(q -> q
-                        .bool(b -> {
-                            // Status must be 'L'
-                            b.must(byStatus);
-
-                            // Handle "multiMatchQuery" if field size is larger than 0
-                            if (requestDTO.getFields() != null && requestDTO.getFields().size() > 0) {
-                                MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(
-                                        builder -> builder
-                                                .fields(requestDTO.getFields())
-                                                .operator(Operator.And)
-                                                .query(requestDTO.getSearchTerm())
-                                );
-                                b.must(mq -> mq.multiMatch(multiMatchQuery));
-                            }
-                            return b;
-                        })
-                )
-                .sort(so -> {
-                    if (!"averageRating".equals(requestDTO.getSortBy())) {
-                        so.field(FieldSort.of(
-                                f -> f.field(requestDTO.getSortBy()).order(requestDTO.getSortOrder())
-                        ));
-                    }
-                    // Sort by averageRating
-                    so.field(FieldSort.of(
-                            f -> f.field("averageRating").order(requestDTO.getSortOrder())
-                    ));
-                    so.field(FieldSort.of(
-                            f -> f.field("numberOfReviews").order(requestDTO.getSortOrder())
-                    ));
-                    return so;
-                })
-                .from(from)
-                .size(requestDTO.getSize());
-
-        if (requestDTO.hasSourceIncludes()) {
-            searchRequestBuilder.source(src -> src
-                    .filter(f -> f
-                            .includes(requestDTO.getSourceIncludes())
-                    )
-            );
-        } else if (requestDTO.hasSourceExcludes()) {
-            searchRequestBuilder.source(src -> src
-                    .filter(f -> f
-                            .excludes(requestDTO.getSourceExcludes())
-                    )
-            );
-        } else if (requestDTO.hasSourceIncludesAndExcludes()) {
-            searchRequestBuilder.source(src -> src
-                    .filter(f -> f
-                            .includes(requestDTO.getSourceIncludes())
-                            .excludes(requestDTO.getSourceExcludes())
-                    )
-            );
-        }
-
-        SearchResponse<ClassDocument> response;
-        try {
-            response = esClient.search(
-                    searchRequestBuilder.build(),
-                    ClassDocument.class
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        List<Hit<ClassDocument>> hits = response.hits().hits();
-        List<ClassDTO> classDTOS = ClassConverter.convert(hits.stream().map(Hit::source).collect(Collectors.toList()));
-
-        return new PaginationResponseDTO<>(
-            requestDTO.getPage(),
-                requestDTO.getSize(),
-                allLiveItems,
-                totalPages,
-                classDTOS
-        );
+        return null;
     }
 
     @Override
     public List<ClassDTO> getAllLiveStatus() {
-        return ClassConverter.convert(classRepository.findAll());
+        List<ClassEntity> list = classRepository.findAllByStatusAndEndAtIsAfter("L", LocalDateTime.now());
+        return list.stream().map(entity -> convert(entity)).collect(Collectors.toList());
     }
 
+    private ClassDTO convert(ClassEntity entity) {
+        ClassDTO dto = ClassConverter.convert(entity, new ClassDTO());
+        CategoryDTO categoryDTO = categoryStreamsProcessor.getStore().get(dto.getCategoryId());
+        if (categoryDTO == null) {
+            dto.setCategoryCode(CommonConstants.UNKNOWN);
+            dto.setCategoryName(CommonConstants.UNKNOWN);
+        } else {
+            dto.setCategoryCode(categoryDTO.getCode());
+            dto.setCategoryName(categoryDTO.getName());
+        }
+        return dto;
+    }
 }

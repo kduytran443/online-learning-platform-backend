@@ -1,9 +1,13 @@
 package com.kduytran.classqueryservice.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CategoryDTO {
 
     @Schema(
@@ -21,6 +25,9 @@ public class CategoryDTO {
     )
     private String code;
 
-    private CategoryDTO parentCategory;
+    @Schema(
+            description = "Parent category id of category", example = "coding"
+    )
+    private String parentCategoryId;
 
 }

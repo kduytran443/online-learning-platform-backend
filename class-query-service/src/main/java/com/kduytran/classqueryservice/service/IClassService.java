@@ -4,7 +4,6 @@ import com.kduytran.classqueryservice.dto.ClassDTO;
 import com.kduytran.classqueryservice.dto.PaginationResponseDTO;
 import com.kduytran.classqueryservice.dto.SearchRequestDTO;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,12 +35,8 @@ public interface IClassService {
      */
     void delete(String id);
 
-    /**
-     * Searches for classes based on the provided search request DTO and returns a paginated response.
-     *
-     * @param requestDTO The DTO containing search criteria and pagination details.
-     * @return A {@link PaginationResponseDTO} containing a list of {@link ClassDTO} objects.
-     */
+    PaginationResponseDTO<ClassDTO> searchByCategory(SearchRequestDTO requestDTO);
+
     PaginationResponseDTO<ClassDTO> search(SearchRequestDTO requestDTO);
     List<ClassDTO> getAllLiveStatus();
 

@@ -1,43 +1,33 @@
 package com.kduytran.classqueryservice.dto;
 
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import lombok.Data;
+import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class SearchRequestDTO {
-    private static final int DEFAULT_SIZE = 100;
-    private static final SortOrder DEFAULT_SORT_ORDER = SortOrder.Desc;
+    public static final int DEFAULT_SIZE = 8;
+    public static final Sort.Direction DEFAULT_SORT_DIRECTION = Sort.Direction.DESC;
     private int page;
     private int size;
-    private List<String> fields = new ArrayList<>();
     private String searchTerm;
     private String sortBy;
-    private SortOrder sortOrder;
-    private List<String> sourceIncludes = new ArrayList<>();
-    private List<String> sourceExcludes = new ArrayList<>();
-    private List<String> categories = new ArrayList<>();
+    private Sort.Direction direction;
+    private List<String> categories;
+    private Double minAverageRating;
+    private Double maxAverageRating;
 
-    public int getSize() {
-        return size != 0 ? size : DEFAULT_SIZE;
+    public Sort.Direction getDirection() {
+        return direction != null ? direction : DEFAULT_SORT_DIRECTION;
     }
 
-    public SortOrder getSortOrder() {
-        return sortOrder != null ? sortOrder : DEFAULT_SORT_ORDER;
+    public double getMinAverageRating() {
+        return minAverageRating != null ? minAverageRating : 0;
     }
 
-    public boolean hasSourceIncludes() {
-        return sourceIncludes != null && !sourceIncludes.isEmpty();
-    }
-
-    public boolean hasSourceExcludes() {
-        return sourceExcludes != null && !sourceExcludes.isEmpty();
-    }
-
-    public boolean hasSourceIncludesAndExcludes() {
-        return hasSourceIncludes() && hasSourceExcludes();
+    public double getMaxAverageRating() {
+        return maxAverageRating != null ? maxAverageRating : 5;
     }
 
 }

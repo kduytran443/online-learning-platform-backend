@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "ClassDTO represents a class with its associated metadata.")
@@ -25,10 +25,12 @@ public class ClassDTO {
     private String image;
 
     @Schema(description = "Date and time when the class starts.", example = "2024-07-01T10:00:00")
-    private Date startAt;
+    private LocalDateTime startAt;
 
     @Schema(description = "Date and time when the class ends.", example = "2024-07-01T12:00:00")
-    private Date endAt;
+    private LocalDateTime endAt;
+
+    private LocalDateTime createAt;
 
     @Pattern(regexp = "^(L|D|H)$", message = "Status must be 'L', 'D', or 'H'.")
     @Schema(description = "Status of the class. 'L' for Live, 'D' for Draft, 'H' for Hidden.", example = "L")
