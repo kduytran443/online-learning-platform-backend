@@ -135,6 +135,20 @@ public class ClassServiceImpl implements IClassService {
         return list.stream().map(entity -> convert(entity)).collect(Collectors.toList());
     }
 
+    @Override
+    public ClassDTO getClassDetails(String id) {
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        return convertDetails(classEntity);
+    }
+
+    private ClassDTO convertDetails(ClassEntity entity) {
+        ClassDTO classDTO = convert(entity);
+        classDTO.setCategories(categoryStreamsProcessor.findAllById(classDTO.getCategoryId()));
+        return classDTO;
+    }
+
     private ClassDTO convert(ClassEntity entity) {
         ClassDTO dto = ClassConverter.convert(entity, new ClassDTO());
         CategoryDTO categoryDTO = categoryStreamsProcessor.getStore().get(dto.getCategoryId());

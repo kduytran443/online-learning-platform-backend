@@ -94,4 +94,9 @@ public class ClassQueryController {
         return ResponseEntity.ok(classService.searchByCategory(dto));
     }
 
+    @GetMapping("/details/{id}")
+    public ResponseEntity<ClassDTO> getClassDetails(@PathVariable String id) {
+        return ResponseEntity.ok(classService.getClassDetails(id));
+    }
+
 }
