@@ -30,12 +30,31 @@ public class CategoryStreamsProcessor extends AbstractStreamsProcessor<CategoryD
         return StreamUtils.findAllFromStore(getStore());
     }
 
-    public CategoryDTO findOneById(String id) {
+    public List<CategoryDTO> findAllById(String id) {
         var store = getStore();
         if (store == null) {
-            return null;
+            return Collections.emptyList();
         }
-        return store.get(id);
+        List<CategoryDTO> list = new ArrayList<>();
+        Set<String> visitedIds = new HashSet<>();
+        CategoryDTO categoryDTO = store.get(id);
+        if (categoryDTO == null) {
+            return Collections.emptyList();
+        }
+        list.add(categoryDTO);
+        while (categoryDTO != null && categoryDTO.getParentCategoryId() != null) {
+            if (visitedIds.contains(categoryDTO.getParentCategoryId())) {
+                LOGGER.error("Circular reference detected for category ID: " + categoryDTO.getId());
+                break;
+            }
+            visitedIds.add(categoryDTO.getId());
+            categoryDTO = store.get(categoryDTO.getParentCategoryId());
+            if (categoryDTO != null) {
+                list.add(categoryDTO);
+            }
+        }
+        Collections.reverse(list);
+        return list;
     }
 
     @Override
