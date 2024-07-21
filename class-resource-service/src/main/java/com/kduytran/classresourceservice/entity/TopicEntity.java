@@ -29,6 +29,9 @@ public class TopicEntity extends BaseEntity {
     @Column
     private UUID ownerId;
 
+    @Column
+    private UUID classId;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "topic")
     private List<LessonEntity> lessons;
 

@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "lesson")
+@Table(name = "assignment")
 @Getter @Setter
 public class AssignmentEntity extends BaseEntity {
 
