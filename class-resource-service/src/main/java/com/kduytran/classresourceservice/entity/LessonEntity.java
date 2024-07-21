@@ -20,9 +20,6 @@ public class LessonEntity extends BaseEntity {
     private Integer seq;
 
     @Column
-    private UUID ownerId;
-
-    @Column
     private String name;
 
     @Column

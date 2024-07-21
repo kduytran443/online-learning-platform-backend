@@ -27,9 +27,6 @@ public class TopicEntity extends BaseEntity {
     private EntityStatus status;
 
     @Column
-    private UUID ownerId;
-
-    @Column
     private UUID classId;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "topic")

@@ -11,6 +11,7 @@ import java.util.UUID;
 @Repository
 public interface TopicRepository extends JpaRepository<TopicEntity, UUID> {
 
-    List<TopicEntity> findAllByClassIdAndStatusInOrderBySeq(EntityStatus status, UUID classId);
+    List<TopicEntity> findAllByClassIdAndStatusInOrderBySeqSeqAsc(EntityStatus status, UUID classId);
+    List<TopicEntity> findAllByClassId(UUID classId);
 
 }

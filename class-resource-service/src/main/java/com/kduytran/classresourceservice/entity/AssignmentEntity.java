@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -18,9 +19,6 @@ public class AssignmentEntity extends BaseEntity {
 
     @Column
     private Integer seq;
-
-    @Column
-    private UUID ownerId;
 
     @Column
     private String name;
@@ -40,5 +38,11 @@ public class AssignmentEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id")
     private TopicEntity topic;
+
+    @Column
+    private LocalDateTime startTime;
+
+    @Column
+    private LocalDateTime endTime;
 
 }
