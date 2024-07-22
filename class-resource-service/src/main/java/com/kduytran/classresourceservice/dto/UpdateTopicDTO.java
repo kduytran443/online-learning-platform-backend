@@ -30,4 +30,5 @@ public class UpdateTopicDTO {
     @NotEmpty(message = "Class id of topic cannot be null or empty")
     private String classId;
 
+    private Integer seq;
 }
