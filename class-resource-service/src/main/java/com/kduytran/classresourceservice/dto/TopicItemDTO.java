@@ -11,9 +11,4 @@ public class TopicItemDTO {
     private UUID id;
     private Integer seq;
     private String name;
-    private String type;
-    private LocalDateTime createdAt;
-    private LocalDateTime startTime;
-    private AssignmentType assignmentType;
-    private Double coefficient;
 }

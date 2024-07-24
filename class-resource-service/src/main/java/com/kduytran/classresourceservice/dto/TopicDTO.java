@@ -28,6 +28,6 @@ public class TopicDTO {
     )
     private String classId;
 
-    private List<TopicItemDTO> topicItems;
+    private List<LessonDTO> lessons;
 
 }

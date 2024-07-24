@@ -1,15 +1,14 @@
 package com.kduytran.classresourceservice.service.impl;
 
 import com.kduytran.classresourceservice.converter.TopicConverter;
-import com.kduytran.classresourceservice.dto.CreateTopicDTO;
-import com.kduytran.classresourceservice.dto.TopicDTO;
-import com.kduytran.classresourceservice.dto.UpdateTopicDTO;
+import com.kduytran.classresourceservice.dto.*;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.entity.TopicEntity;
 import com.kduytran.classresourceservice.exception.CannotMoveException;
 import com.kduytran.classresourceservice.exception.ResourceNotFoundException;
 import com.kduytran.classresourceservice.exception.TopicLengthNotValidException;
 import com.kduytran.classresourceservice.repository.TopicRepository;
+import com.kduytran.classresourceservice.service.ILessonService;
 import com.kduytran.classresourceservice.service.ITopicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ import java.util.stream.Collectors;
 public class TopicServiceImpl implements ITopicService {
 
     private final TopicRepository topicRepository;
+    private final ILessonService lessonService;
 
     @Override
     public UUID create(CreateTopicDTO dto) {
@@ -127,13 +127,13 @@ public class TopicServiceImpl implements ITopicService {
                 statuses.isEmpty() ? List.of(EntityStatus.LIVE) : statuses
         );
         return topicEntities.stream().map(topic -> TopicConverter
-                .convert(topic, new TopicDTO())).map(this::setDetails).collect(Collectors.toList());
+                .convert(topic, new TopicDTO())).map(this::setLessons).collect(Collectors.toList());
     }
 
     @Override
     public TopicDTO getTopicDetailsById(String id) {
         TopicDTO topicDTO = getTopicById(id);
-        setDetails(topicDTO);
+        setLessons(topicDTO);
         return topicDTO;
     }
 
@@ -145,8 +145,10 @@ public class TopicServiceImpl implements ITopicService {
         return TopicConverter.convert(topicEntity, new TopicDTO());
     }
 
-    private TopicDTO setDetails(TopicDTO topicDTO) {
-//        topicDTO.setTopicItems();
+    private TopicDTO setLessons(TopicDTO topicDTO) {
+        List<LessonDTO> lessonDTOs = lessonService.findAllByTopicId(topicDTO.getId(),
+                List.of(EntityStatus.LIVE, EntityStatus.HIDDEN));
+        topicDTO.setLessons(lessonDTOs);
         return topicDTO;
     }
 

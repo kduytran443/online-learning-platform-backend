@@ -2,6 +2,7 @@ package com.kduytran.classresourceservice.converter;
 
 import com.kduytran.classresourceservice.dto.CreateTopicDTO;
 import com.kduytran.classresourceservice.dto.TopicDTO;
+import com.kduytran.classresourceservice.dto.TopicItemDTO;
 import com.kduytran.classresourceservice.dto.UpdateTopicDTO;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.entity.TopicEntity;
