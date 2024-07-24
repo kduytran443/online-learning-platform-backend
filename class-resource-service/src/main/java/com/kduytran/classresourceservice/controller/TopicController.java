@@ -4,14 +4,8 @@ import com.kduytran.classresourceservice.constant.ResponseConstant;
 import com.kduytran.classresourceservice.dto.*;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.service.ITopicService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +29,7 @@ public class TopicController {
     private final ITopicService topicService;
 
     @PostMapping
-    public ResponseEntity<IdResponseDTO> createTopic(@Valid @RequestBody UpdateTopicDTO topicDTO) {
+    public ResponseEntity<IdResponseDTO> createTopic(@Valid @RequestBody CreateTopicDTO topicDTO) {
         UUID id = topicService.create(topicDTO);
         return ResponseEntity.ok(IdResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201, id));
     }
@@ -52,9 +46,21 @@ public class TopicController {
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
-    @PutMapping("/next-seq")
-    public ResponseEntity<ResponseDTO> updateSeq(@RequestBody UpdateTopicSeqDTO topicDTO) {
-        topicService.updateNextSeq(topicDTO);
+    @PutMapping("/hide/{id}")
+    public ResponseEntity<ResponseDTO> hideTopic(@PathVariable String id) {
+        topicService.hide(id);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
+    @PutMapping("/next-seq/{id}")
+    public ResponseEntity<ResponseDTO> updateNextSeq(@PathVariable String id) {
+        topicService.updateNextSeq(id);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
+    @PutMapping("/previous-seq/{id}")
+    public ResponseEntity<ResponseDTO> updatePreviousSeq(@PathVariable String id) {
+        topicService.updatePreviousSeq(id);
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 

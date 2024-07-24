@@ -1,13 +1,14 @@
 package com.kduytran.classresourceservice.service.impl;
 
 import com.kduytran.classresourceservice.converter.TopicConverter;
+import com.kduytran.classresourceservice.dto.CreateTopicDTO;
 import com.kduytran.classresourceservice.dto.TopicDTO;
 import com.kduytran.classresourceservice.dto.UpdateTopicDTO;
-import com.kduytran.classresourceservice.dto.UpdateTopicSeqDTO;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.entity.TopicEntity;
 import com.kduytran.classresourceservice.exception.ResourceNotFoundException;
 import com.kduytran.classresourceservice.exception.TopicCannotMoveException;
+import com.kduytran.classresourceservice.exception.TopicLengthNotValidException;
 import com.kduytran.classresourceservice.repository.TopicRepository;
 import com.kduytran.classresourceservice.service.ITopicService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class TopicServiceImpl implements ITopicService {
     private final TopicRepository topicRepository;
 
     @Override
-    public UUID create(UpdateTopicDTO dto) {
+    public UUID create(CreateTopicDTO dto) {
         TopicEntity topicEntity = TopicConverter.convert(dto, new TopicEntity());
 
         long topicSize = topicRepository.countAllByClassIdAndStatusIn(UUID.fromString(dto.getClassId()),
@@ -45,28 +46,10 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
-    public void updateSeq(UpdateTopicSeqDTO dto) {
-//        TopicEntity topicEntity = topicRepository.findById(UUID.fromString(dto.getId())).orElseThrow(
-//                () -> new ResourceNotFoundException("topic", "id", dto.getId())
-//        );
-//        topicEntity.setSeq(dto.getSeq());
-//
-//        List<TopicEntity> topicEntities = topicRepository
-//                .findAllByClassIdAndSeqGreaterThanEqualOrderBySeq(UUID.fromString(dto.getClassId()), dto.getSeq());
-//
-//        topicEntities = topicEntities.stream().map(topic -> {
-//            topic.setSeq(topic.getSeq() + 1);
-//            return topic;
-//        }).collect(Collectors.toList());
-//        topicEntities.add(topicEntity);
-//
-//        topicRepository.saveAll(topicEntities);
-    }
-
-    @Override
-    public void updateNextSeq(UpdateTopicSeqDTO dto) {
-        TopicEntity topicEntity = topicRepository.findById(UUID.fromString(dto.getId())).orElseThrow(
-                () -> new ResourceNotFoundException("topic", "id", dto.getId())
+    public void updateNextSeq(String id) {
+        getActiveTopicLength(UUID.fromString(id), 1L, null);
+        TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("topic", "id", id)
         );
         Integer curSeq = topicEntity.getSeq();
         TopicEntity nextTopicEntity = topicRepository
@@ -82,8 +65,31 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
-    public void updatePreviousSeq(UpdateTopicSeqDTO dto) {
+    public void updatePreviousSeq(String id) {
+        long topicLength = getActiveTopicLength(UUID.fromString(id), 1L, null);
+        TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("topic", "id", id)
+        );
+        TopicEntity prevTopicEntity = topicRepository
+                .findFirstByClassIdAndSeqLessThanOrderBySeqDesc(topicEntity.getClassId(), topicEntity.getSeq()).orElse(
+                        topicRepository.findFirstByClassIdAndSeq(topicEntity.getClassId(), (int) topicLength)
+                );
+        if (topicEntity.getId().equals(prevTopicEntity.getId())) {
+            throw new TopicCannotMoveException("Cannot move the topic!");
+        }
+        Integer curSeq = topicEntity.getSeq();
+        topicEntity.setSeq(prevTopicEntity.getSeq());
+        prevTopicEntity.setSeq(curSeq);
+        topicRepository.saveAll(List.of(topicEntity, prevTopicEntity));
+    }
 
+    public long getActiveTopicLength(UUID id, Long minLength, Long maxLength) {
+        long topicLength = topicRepository.countAllByClassIdAndStatusIn((id),
+                List.of(EntityStatus.LIVE, EntityStatus.HIDDEN));
+        if ((minLength != null && topicLength < minLength) || (maxLength != null && topicLength > maxLength)) {
+            throw new TopicLengthNotValidException("Invalid topic length!");
+        }
+        return topicLength;
     }
 
     @Override
@@ -97,12 +103,21 @@ public class TopicServiceImpl implements ITopicService {
         topicRepository.save(topicEntity);
 
         List<TopicEntity> topicEntities = topicRepository
-                .findAllByClassIdAndSeqGreaterThanEqualOrderBySeqAsc(topicEntity.getClassId(), seq);
-        topicEntities = topicEntities.stream().filter(topic -> !topic.getId().equals(topic.getId())).map(topic -> {
+                .findAllByClassIdAndSeqGreaterThanEqualOrderBySeqAsc(topicEntity.getClassId(), seq + 1);
+        topicEntities = topicEntities.stream().map(topic -> {
             topic.setSeq(topic.getSeq() - 1);
             return topic;
         }).collect(Collectors.toList());
         topicRepository.saveAll(topicEntities);
+    }
+
+    @Override
+    public void hide(String id) {
+        TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("topic", "id", id)
+        );
+        topicEntity.setStatus(EntityStatus.HIDDEN);
+        topicRepository.save(topicEntity);
     }
 
     @Override
@@ -112,7 +127,22 @@ public class TopicServiceImpl implements ITopicService {
                 statuses.isEmpty() ? List.of(EntityStatus.LIVE) : statuses
         );
         return topicEntities.stream().map(topic -> TopicConverter
-                .convert(topic, new TopicDTO())).collect(Collectors.toList());
+                .convert(topic, new TopicDTO())).map(this::setDetails).collect(Collectors.toList());
+    }
+
+    @Override
+    public TopicDTO getTopicDetailsById(String id) {
+        TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("topic", "id", id)
+        );
+        TopicDTO topicDTO = TopicConverter.convert(topicEntity, new TopicDTO());
+        setDetails(topicDTO);
+        return TopicConverter.convert(topicEntity, new TopicDTO());
+    }
+
+    private TopicDTO setDetails(TopicDTO topicDTO) {
+//        topicDTO.setTopicItems();
+        return topicDTO;
     }
 
 }

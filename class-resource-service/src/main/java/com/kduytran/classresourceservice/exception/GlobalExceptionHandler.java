@@ -34,8 +34,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(TopicCannotMoveException.class)
-    public ResponseEntity<ErrorResponseDTO> handleSameTopicException(
+    public ResponseEntity<ErrorResponseDTO> handleTopicCannotMoveException(
             TopicCannotMoveException exception,
+            WebRequest webRequest) {
+        return getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TopicLengthNotValidException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTopicLengthNotValidException(
+            TopicLengthNotValidException exception,
             WebRequest webRequest) {
         return getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
     }

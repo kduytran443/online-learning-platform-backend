@@ -1,5 +1,6 @@
 package com.kduytran.classresourceservice.converter;
 
+import com.kduytran.classresourceservice.dto.CreateTopicDTO;
 import com.kduytran.classresourceservice.dto.TopicDTO;
 import com.kduytran.classresourceservice.dto.UpdateTopicDTO;
 import com.kduytran.classresourceservice.entity.EntityStatus;
@@ -12,6 +13,17 @@ import java.util.UUID;
 public class TopicConverter {
 
     public static TopicEntity convert(TopicDTO dto, TopicEntity entity) {
+        if (entity == null) {
+            entity = new TopicEntity();
+        }
+        entity.setName(dto.getName());
+        entity.setStatus(EntityStatus.of(dto.getStatus()));
+        entity.setClassId(UUID.fromString(dto.getClassId()));
+        // set seq
+        return entity;
+    }
+
+    public static TopicEntity convert(CreateTopicDTO dto, TopicEntity entity) {
         if (entity == null) {
             entity = new TopicEntity();
         }
