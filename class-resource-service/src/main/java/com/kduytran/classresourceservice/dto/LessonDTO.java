@@ -8,5 +8,6 @@ public class LessonDTO {
     private Integer seq;
     private String name;
     private String description;
-    private SimpleTopicDTO topic;
+    private TopicDTO topic;
+    private LessonContentDTO content;
 }
