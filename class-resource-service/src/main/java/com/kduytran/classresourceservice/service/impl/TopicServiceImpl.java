@@ -6,8 +6,8 @@ import com.kduytran.classresourceservice.dto.TopicDTO;
 import com.kduytran.classresourceservice.dto.UpdateTopicDTO;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.entity.TopicEntity;
+import com.kduytran.classresourceservice.exception.CannotMoveException;
 import com.kduytran.classresourceservice.exception.ResourceNotFoundException;
-import com.kduytran.classresourceservice.exception.TopicCannotMoveException;
 import com.kduytran.classresourceservice.exception.TopicLengthNotValidException;
 import com.kduytran.classresourceservice.repository.TopicRepository;
 import com.kduytran.classresourceservice.service.ITopicService;
@@ -57,7 +57,7 @@ public class TopicServiceImpl implements ITopicService {
                         topicRepository.findFirstByClassIdAndSeq(topicEntity.getClassId(), 1)
                 );
         if (topicEntity.getId().equals(nextTopicEntity.getId())) {
-            throw new TopicCannotMoveException("Cannot move the topic!");
+            throw new CannotMoveException("Cannot move the topic!");
         }
         topicEntity.setSeq(nextTopicEntity.getSeq());
         nextTopicEntity.setSeq(curSeq);
@@ -75,7 +75,7 @@ public class TopicServiceImpl implements ITopicService {
                         topicRepository.findFirstByClassIdAndSeq(topicEntity.getClassId(), (int) topicLength)
                 );
         if (topicEntity.getId().equals(prevTopicEntity.getId())) {
-            throw new TopicCannotMoveException("Cannot move the topic!");
+            throw new CannotMoveException("Cannot move the topic!");
         }
         Integer curSeq = topicEntity.getSeq();
         topicEntity.setSeq(prevTopicEntity.getSeq());
@@ -100,7 +100,6 @@ public class TopicServiceImpl implements ITopicService {
         Integer seq = topicEntity.getSeq();
         topicEntity.setStatus(EntityStatus.DELETED);
         topicEntity.setSeq(null);
-        topicRepository.save(topicEntity);
 
         List<TopicEntity> topicEntities = topicRepository
                 .findAllByClassIdAndSeqGreaterThanEqualOrderBySeqAsc(topicEntity.getClassId(), seq + 1);
@@ -108,6 +107,7 @@ public class TopicServiceImpl implements ITopicService {
             topic.setSeq(topic.getSeq() - 1);
             return topic;
         }).collect(Collectors.toList());
+        topicEntities.add(topicEntity);
         topicRepository.saveAll(topicEntities);
     }
 
@@ -132,11 +132,16 @@ public class TopicServiceImpl implements ITopicService {
 
     @Override
     public TopicDTO getTopicDetailsById(String id) {
+        TopicDTO topicDTO = getTopicById(id);
+        setDetails(topicDTO);
+        return topicDTO;
+    }
+
+    @Override
+    public TopicDTO getTopicById(String id) {
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
         );
-        TopicDTO topicDTO = TopicConverter.convert(topicEntity, new TopicDTO());
-        setDetails(topicDTO);
         return TopicConverter.convert(topicEntity, new TopicDTO());
     }
 

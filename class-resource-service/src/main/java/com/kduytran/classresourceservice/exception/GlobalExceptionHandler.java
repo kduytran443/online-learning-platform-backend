@@ -33,9 +33,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(TopicCannotMoveException.class)
+    @ExceptionHandler(CannotMoveException.class)
     public ResponseEntity<ErrorResponseDTO> handleTopicCannotMoveException(
-            TopicCannotMoveException exception,
+            CannotMoveException exception,
             WebRequest webRequest) {
         return getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
     }

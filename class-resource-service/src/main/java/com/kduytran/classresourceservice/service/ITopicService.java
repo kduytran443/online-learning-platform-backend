@@ -17,4 +17,5 @@ public interface ITopicService {
     void hide(String id);
     List<TopicDTO> findAllByClassId(String classId, List<EntityStatus> statuses);
     TopicDTO getTopicDetailsById(String id);
+    TopicDTO getTopicById(String id);
 }
