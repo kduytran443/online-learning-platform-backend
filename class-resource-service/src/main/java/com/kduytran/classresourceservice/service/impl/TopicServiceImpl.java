@@ -10,7 +10,7 @@ import com.kduytran.classresourceservice.exception.TopicLengthNotValidException;
 import com.kduytran.classresourceservice.repository.TopicRepository;
 import com.kduytran.classresourceservice.service.ILessonService;
 import com.kduytran.classresourceservice.service.ITopicService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,16 +18,18 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class TopicServiceImpl implements ITopicService {
-
     private final TopicRepository topicRepository;
     private final ILessonService lessonService;
+
+    public TopicServiceImpl(TopicRepository topicRepository, @Lazy ILessonService lessonService) {
+        this.topicRepository = topicRepository;
+        this.lessonService = lessonService;
+    }
 
     @Override
     public UUID create(CreateTopicDTO dto) {
         TopicEntity topicEntity = TopicConverter.convert(dto, new TopicEntity());
-
         long topicSize = topicRepository.countAllByClassIdAndStatusIn(UUID.fromString(dto.getClassId()),
                 List.of(EntityStatus.LIVE, EntityStatus.HIDDEN));
         topicEntity.setSeq((int) (topicSize + 1));

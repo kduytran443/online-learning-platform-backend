@@ -2,7 +2,6 @@ package com.kduytran.classresourceservice.converter;
 
 import com.kduytran.classresourceservice.dto.CreateTopicDTO;
 import com.kduytran.classresourceservice.dto.TopicDTO;
-import com.kduytran.classresourceservice.dto.TopicItemDTO;
 import com.kduytran.classresourceservice.dto.UpdateTopicDTO;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.entity.TopicEntity;
@@ -29,9 +28,12 @@ public class TopicConverter {
             entity = new TopicEntity();
         }
         entity.setName(dto.getName());
-        entity.setStatus(EntityStatus.of(dto.getStatus()));
+        if (dto.getStatus() != null) {
+            entity.setStatus(dto.getStatus());
+        } else {
+            entity.setStatus(EntityStatus.HIDDEN);
+        }
         entity.setClassId(UUID.fromString(dto.getClassId()));
-        // set seq
         return entity;
     }
 
@@ -40,9 +42,11 @@ public class TopicConverter {
             entity = new TopicEntity();
         }
         entity.setName(dto.getName());
-        entity.setStatus(EntityStatus.of(dto.getStatus()));
-        entity.setClassId(UUID.fromString(dto.getClassId()));
-        // set seq
+        if (dto.getStatus() != null) {
+            entity.setStatus(EntityStatus.of(dto.getStatus()));
+        } else {
+            entity.setStatus(EntityStatus.HIDDEN);
+        }
         return entity;
     }
 
