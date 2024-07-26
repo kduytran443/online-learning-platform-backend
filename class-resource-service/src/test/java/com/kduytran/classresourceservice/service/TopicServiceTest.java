@@ -23,9 +23,6 @@ public class TopicServiceTest {
     private TopicRepository topicRepository;
 
     @Autowired
-    private ILessonService lessonService;
-
-    @Autowired
     private TopicServiceImpl topicService;
 
     @BeforeEach
@@ -51,14 +48,59 @@ public class TopicServiceTest {
     @Test
     @Sql("/topic.sql")
     public void testUpdateTopic() {
+        UUID id = UUID.fromString("57161f1b-341d-4348-add6-4c3b558de4fd");
+        TopicEntity oldEntity = topicRepository.findById(id).get();
+        assertNotNull(oldEntity);
+
         UpdateTopicDTO dto = new UpdateTopicDTO();
         dto.setId("57161f1b-341d-4348-add6-4c3b558de4fd");
         dto.setName("Update name");
+        topicService.update(dto);
 
+        TopicEntity updatedEntity = topicRepository.findById(id).get();
+        assertNotNull(updatedEntity);
+        assertEquals(updatedEntity.getId().toString(), dto.getId().toString());
+        assertEquals(updatedEntity.getName(), dto.getName());
+        if (dto.getStatus() != null) {
+            assertEquals(updatedEntity.getStatus(), dto.getStatus());
+        }
+    }
+
+    @Test
+    @Sql("/topic.sql")
+    public void testDelete() {
         UUID id = UUID.fromString("57161f1b-341d-4348-add6-4c3b558de4fd");
-        TopicEntity savedEntity = topicRepository.findById(id).get();
-        assertNotNull(savedEntity);
+        TopicEntity topicEntity = topicRepository.findById(id).get();
+        assertNotNull(topicEntity);
 
+        topicService.delete("57161f1b-341d-4348-add6-4c3b558de4fd");
+        topicEntity = topicRepository.findById(id).get();
+        assertEquals(EntityStatus.DELETED, topicEntity.getStatus());
+    }
+
+    @Test
+    @Sql("/topic.sql")
+    public void testHide() {
+        UUID id = UUID.fromString("57161f1b-341d-4348-add6-4c3b558de4fd");
+        TopicEntity topicEntity = topicRepository.findById(id).get();
+        assertNotNull(topicEntity);
+
+        topicService.hide("57161f1b-341d-4348-add6-4c3b558de4fd");
+        topicEntity = topicRepository.findById(id).get();
+        assertEquals(EntityStatus.HIDDEN, topicEntity.getStatus());
+    }
+
+    @Test
+    @Sql("/topic.sql")
+    public void testUpdateNextSeq() {
+        UUID id = UUID.fromString("57161f1b-341d-4348-add6-4c3b558de4fd");
+        TopicEntity topicEntity = topicRepository.findById(id).get();
+        assertNotNull(topicEntity);
+
+        topicService.updateNextSeq("57161f1b-341d-4348-add6-4c3b558de4fd");
+        TopicEntity updatedTopicEntity = topicRepository.findById(id).get();
+        assertTrue(updatedTopicEntity.getSeq() == topicEntity.getSeq() + 1
+                            || updatedTopicEntity.getSeq() == 1);
     }
 
 }
