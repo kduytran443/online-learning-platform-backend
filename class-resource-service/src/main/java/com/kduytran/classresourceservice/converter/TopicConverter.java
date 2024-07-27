@@ -43,9 +43,7 @@ public class TopicConverter {
         }
         entity.setName(dto.getName());
         if (dto.getStatus() != null) {
-            entity.setStatus(EntityStatus.of(dto.getStatus()));
-        } else {
-            entity.setStatus(EntityStatus.HIDDEN);
+            entity.setStatus(dto.getStatus());
         }
         return entity;
     }

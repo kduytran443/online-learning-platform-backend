@@ -49,10 +49,10 @@ public class TopicServiceImpl implements ITopicService {
 
     @Override
     public void updateNextSeq(String id) {
-        getActiveTopicLength(UUID.fromString(id), 1L, null);
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
         );
+        getActiveTopicLength(topicEntity.getClassId(), 1L, null);
         Integer curSeq = topicEntity.getSeq();
         TopicEntity nextTopicEntity = topicRepository
                 .findFirstByClassIdAndSeqGreaterThanOrderBySeqAsc(topicEntity.getClassId(), curSeq).orElse(
@@ -68,10 +68,10 @@ public class TopicServiceImpl implements ITopicService {
 
     @Override
     public void updatePreviousSeq(String id) {
-        long topicLength = getActiveTopicLength(UUID.fromString(id), 1L, null);
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
         );
+        long topicLength = getActiveTopicLength(topicEntity.getClassId(), 1L, null);
         TopicEntity prevTopicEntity = topicRepository
                 .findFirstByClassIdAndSeqLessThanOrderBySeqDesc(topicEntity.getClassId(), topicEntity.getSeq()).orElse(
                         topicRepository.findFirstByClassIdAndSeq(topicEntity.getClassId(), (int) topicLength)
