@@ -1,0 +1,56 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Run Tests for Service
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Determine branch and service directory
+      id: branch-info
+      run: |
+        BRANCH_NAME="${{ github.head_ref }}"
+        echo "Branch name: $BRANCH_NAME"
+
+        # Check if branch ends with "service"
+        if [[ "$BRANCH_NAME" == *"service" ]]; then
+          echo "SERVICE_DIR=$BRANCH_NAME" >> $GITHUB_ENV
+        else
+          echo "SERVICE_DIR=skip" >> $GITHUB_ENV
+        fi
+
+    - name: Check if service directory exists
+      if: env.SERVICE_DIR != 'skip'
+      run: |
+        if [ -d "$SERVICE_DIR" ]; then
+          echo "Service directory exists: $SERVICE_DIR"
+        else
+          echo "Service directory does not exist: $SERVICE_DIR"
+          exit 1
+        fi
+
+    - name: Skip Test Run
+      if: env.SERVICE_DIR == 'skip'
+      run: |
+        echo "Skipping test run as SERVICE_DIR is set to skip"
+
+    - name: Run Tests
+      if: env.SERVICE_DIR != 'skip'
+      run: |
+        cd $SERVICE_DIR
+        mvn test
