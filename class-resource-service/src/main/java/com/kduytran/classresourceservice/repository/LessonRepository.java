@@ -14,6 +14,7 @@ public interface LessonRepository extends JpaRepository<LessonEntity, UUID> {
     long countAllByTopicIdAndStatusIn(UUID topicId, List<EntityStatus> statuses);
     List<LessonEntity> findAllByTopicIdAndSeqGreaterThanEqualOrderBySeqAsc(UUID topicId, Integer seq);
     Optional<LessonEntity> findFirstByTopicIdAndSeqGreaterThanOrderBySeqAsc(UUID topicId, Integer seq);
+    Optional<LessonEntity> findFirstByTopicIdAndSeqLessThanOrderBySeqDesc(UUID topicId, Integer seq);
     LessonEntity findFirstByTopicIdAndSeq(UUID topicId, Integer seq);
 
 }

@@ -34,8 +34,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(CannotMoveException.class)
-    public ResponseEntity<ErrorResponseDTO> handleTopicCannotMoveException(
+    public ResponseEntity<ErrorResponseDTO> handleCannotMoveException(
             CannotMoveException exception,
+            WebRequest webRequest) {
+        return getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CannotDeleteException.class)
+    public ResponseEntity<ErrorResponseDTO> handleCannotDeleteException(
+            CannotDeleteException exception,
             WebRequest webRequest) {
         return getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
     }

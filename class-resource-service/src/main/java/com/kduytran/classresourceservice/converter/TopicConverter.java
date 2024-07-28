@@ -17,7 +17,7 @@ public class TopicConverter {
             entity = new TopicEntity();
         }
         entity.setName(dto.getName());
-        entity.setStatus(EntityStatus.of(dto.getStatus()));
+        entity.setStatus(dto.getStatus());
         entity.setClassId(UUID.fromString(dto.getClassId()));
         // set seq
         return entity;
@@ -54,7 +54,7 @@ public class TopicConverter {
         }
         dto.setId(entity.getId().toString());
         dto.setClassId(entity.getClassId().toString());
-        dto.setStatus(entity.getStatus().getCode());
+        dto.setStatus(entity.getStatus());
         dto.setName(entity.getName());
         // set topic items
         return dto;

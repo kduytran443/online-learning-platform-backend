@@ -66,8 +66,9 @@ public class TopicController {
 
     @GetMapping("/class/{classId}")
     public ResponseEntity<List<TopicDTO>> findAllByClassId(@PathVariable String classId,
-                                                           @RequestParam List<EntityStatus> statuses) {
-        List<TopicDTO> dtoList = topicService.findAllByClassId(classId, statuses);
+                                                           @RequestParam(required = false) List<EntityStatus> statuses) {
+        List<TopicDTO> dtoList = topicService.findAllByClassId(classId,
+                (statuses == null || statuses.isEmpty()) ? List.of(EntityStatus.LIVE) : statuses );
         return ResponseEntity.ok(dtoList);
     }
 

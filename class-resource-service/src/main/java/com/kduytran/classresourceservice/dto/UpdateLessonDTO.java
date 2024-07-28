@@ -1,5 +1,6 @@
 package com.kduytran.classresourceservice.dto;
 
+import com.kduytran.classresourceservice.entity.EntityStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -28,9 +29,7 @@ public class UpdateLessonDTO {
     @Schema(
             description = "status of the lesson", example = "L"
     )
-    @NotEmpty(message = "status cannot be null or empty")
-    @Pattern(regexp = "^(L|D|H)$")
-    private String status;
+    private EntityStatus status;
 
     @Schema(
             description = "Topic id of the lesson", example = "xxx"

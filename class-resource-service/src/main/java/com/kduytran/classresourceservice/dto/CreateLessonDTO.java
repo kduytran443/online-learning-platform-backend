@@ -24,7 +24,6 @@ public class CreateLessonDTO {
     @Schema(
             description = "status of the lesson", example = "L"
     )
-    @NotEmpty(message = "status cannot be null or empty")
     private EntityStatus status;
 
     @Schema(

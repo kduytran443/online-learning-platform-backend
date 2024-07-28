@@ -32,7 +32,7 @@ public class LessonConverter {
         }
         entity.setDescription(dto.getDescription());
         entity.setName(dto.getName());
-        entity.setStatus(EntityStatus.of(dto.getStatus()));
+        entity.setStatus(dto.getStatus());
         return entity;
     }
 

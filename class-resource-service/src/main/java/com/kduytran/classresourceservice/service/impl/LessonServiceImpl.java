@@ -7,6 +7,7 @@ import com.kduytran.classresourceservice.dto.*;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.entity.LessonEntity;
 import com.kduytran.classresourceservice.entity.TopicEntity;
+import com.kduytran.classresourceservice.exception.CannotDeleteException;
 import com.kduytran.classresourceservice.exception.CannotMoveException;
 import com.kduytran.classresourceservice.exception.LessonLengthNotValidException;
 import com.kduytran.classresourceservice.exception.ResourceNotFoundException;
@@ -56,12 +57,16 @@ public class LessonServiceImpl implements ILessonService {
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
         );
+        if (lessonEntity.getStatus() == EntityStatus.DELETED || lessonEntity.getSeq() == null) {
+            throw new CannotDeleteException("Cannot delete the lesson!");
+        }
+        Integer curSeq = lessonEntity.getSeq();
         lessonEntity.setStatus(EntityStatus.DELETED);
         lessonEntity.setSeq(null);
 
         List<LessonEntity> lessonEntities = lessonRepository.findAllByTopicIdAndSeqGreaterThanEqualOrderBySeqAsc(
                 lessonEntity.getTopic().getId(),
-                lessonEntity.getSeq() + 1
+                curSeq + 1
         );
         lessonEntities = lessonEntities.stream().map(lesson -> {
             lesson.setSeq(lesson.getSeq() + 1);
@@ -73,11 +78,11 @@ public class LessonServiceImpl implements ILessonService {
 
     @Override
     public void updateNextSeq(String id) {
-        getActiveLessonLength(UUID.fromString(id), 1L, null);
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
         );
         TopicEntity topicEntity = lessonEntity.getTopic();
+        getActiveLessonLength(topicEntity.getId(), 1L, null);
         Integer curSeq = lessonEntity.getSeq();
         LessonEntity nextLessonEntity = lessonRepository.findFirstByTopicIdAndSeqGreaterThanOrderBySeqAsc(
                 topicEntity.getId(), curSeq)
@@ -92,16 +97,16 @@ public class LessonServiceImpl implements ILessonService {
 
     @Override
     public void updatePreviousSeq(String id) {
-        long lessonLength = getActiveLessonLength(UUID.fromString(id), 1L, null);
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
         );
         TopicEntity topicEntity = lessonEntity.getTopic();
+        long lessonLength = getActiveLessonLength(topicEntity.getId(), 1L, null);
         Integer curSeq = lessonEntity.getSeq();
-        LessonEntity prevLessonEntity = lessonRepository.findFirstByTopicIdAndSeqGreaterThanOrderBySeqAsc(
+        LessonEntity prevLessonEntity = lessonRepository.findFirstByTopicIdAndSeqLessThanOrderBySeqDesc(
                         topicEntity.getId(), curSeq)
                 .orElse(lessonRepository.findFirstByTopicIdAndSeq(topicEntity.getId(), (int) lessonLength));
-        if (lessonEntity.getId().equals(prevLessonEntity.getId())) {
+        if (prevLessonEntity == null || lessonEntity.getId().equals(prevLessonEntity.getId())) {
             throw new CannotMoveException("Cannot move the lesson!");
         }
         lessonEntity.setSeq(prevLessonEntity.getSeq());
@@ -115,7 +120,6 @@ public class LessonServiceImpl implements ILessonService {
                 () -> new ResourceNotFoundException("lesson", "id", id)
         );
         lessonEntity.setStatus(EntityStatus.HIDDEN);
-        lessonEntity.setSeq(null);
         lessonRepository.save(lessonEntity);
     }
 
