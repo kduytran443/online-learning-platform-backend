@@ -1,14 +1,13 @@
 package com.kduytran.classresourceservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kduytran.classresourceservice.constant.RequestConstant;
 import com.kduytran.classresourceservice.constant.ResponseConstant;
 import com.kduytran.classresourceservice.dto.CreateTopicDTO;
+import com.kduytran.classresourceservice.dto.TopicDTO;
 import com.kduytran.classresourceservice.dto.UpdateTopicDTO;
 import com.kduytran.classresourceservice.entity.EntityStatus;
-import com.kduytran.classresourceservice.entity.TopicEntity;
-import com.kduytran.classresourceservice.repository.TopicRepository;
 import com.kduytran.classresourceservice.service.ITopicService;
+import com.kduytran.classresourceservice.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -20,12 +19,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
@@ -35,9 +36,6 @@ public class TopicControllerTest {
 
     @MockBean
     private ITopicService topicService;
-
-    @MockBean
-    private TopicRepository topicRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -58,11 +56,9 @@ public class TopicControllerTest {
         dto.setStatus(EntityStatus.LIVE);
 
         UUID id = UUID.randomUUID();
-        TopicEntity topicEntity = new TopicEntity();
-        topicEntity.setId(id);
         when(topicService.create(any(CreateTopicDTO.class))).thenReturn(id);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(RequestConstant.TOPIC_CONTROLLER_URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(TestUtils.getTopicUrl())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -73,18 +69,14 @@ public class TopicControllerTest {
 
     @Test
     public void testUpdateTopic() throws Exception {
-        UUID id = UUID.randomUUID();
         UpdateTopicDTO dto = new UpdateTopicDTO();
         dto.setClassId("some-class-id");
         dto.setName("Update Topic");
-        dto.setId(id.toString());
+        dto.setId(UUID.randomUUID().toString());
 
-        TopicEntity topicEntity = new TopicEntity();
-        topicEntity.setId(id);
-        when(topicRepository.findById(any(UUID.class))).thenReturn(Optional.of(topicEntity));
         doNothing().when(topicService).update(any(UpdateTopicDTO.class));
 
-        mockMvc.perform(MockMvcRequestBuilders.put(RequestConstant.TOPIC_CONTROLLER_URL)
+        mockMvc.perform(MockMvcRequestBuilders.put(TestUtils.getTopicUrl())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -94,18 +86,9 @@ public class TopicControllerTest {
 
     @Test
     public void testDeleteTopic() throws Exception {
-        UUID id = UUID.randomUUID();
-        TopicEntity topicEntity = new TopicEntity();
-        topicEntity.setId(id);
-        when(topicRepository.findById(any(UUID.class))).thenReturn(Optional.of(topicEntity));
-        when(topicRepository.findAllByClassIdAndSeqGreaterThanEqualOrderBySeqAsc(
-                any(UUID.class),
-                any(Integer.class))
-        ).thenReturn(new ArrayList<>());
         doNothing().when(topicService).delete(anyString());
 
-        mockMvc.perform(MockMvcRequestBuilders.delete(String.format("%s/%s",
-                                RequestConstant.TOPIC_CONTROLLER_URL, id)))
+        mockMvc.perform(MockMvcRequestBuilders.delete(TestUtils.getTopicUrl(UUID.randomUUID().toString())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(ResponseConstant.STATUS_200))
                 .andExpect(jsonPath("$.statusMsg").value(ResponseConstant.MESSAGE_200));
@@ -113,14 +96,10 @@ public class TopicControllerTest {
 
     @Test
     public void testHideTopic() throws Exception {
-        UUID id = UUID.randomUUID();
-        TopicEntity topicEntity = new TopicEntity();
-        topicEntity.setId(id);
-        when(topicRepository.findById(any(UUID.class))).thenReturn(Optional.of(topicEntity));
         doNothing().when(topicService).hide(anyString());
 
-        mockMvc.perform(MockMvcRequestBuilders.delete(String.format("%s/%s",
-                        RequestConstant.TOPIC_CONTROLLER_URL, id)))
+        mockMvc.perform(MockMvcRequestBuilders.put(
+                TestUtils.getTopicUrl("hide", UUID.randomUUID().toString())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(ResponseConstant.STATUS_200))
                 .andExpect(jsonPath("$.statusMsg").value(ResponseConstant.MESSAGE_200));
@@ -128,14 +107,40 @@ public class TopicControllerTest {
 
     @Test
     public void testUpdateNextSeq() throws Exception {
-        UUID id = UUID.randomUUID();
-
         doNothing().when(topicService).updateNextSeq(anyString());
 
-        mockMvc.perform(MockMvcRequestBuilders.put(String.format("%s/next-seq/%s", RequestConstant.TOPIC_CONTROLLER_URL, id)))
+        mockMvc.perform(MockMvcRequestBuilders.put(
+                TestUtils.getTopicUrl("next-seq", UUID.randomUUID().toString())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(ResponseConstant.STATUS_200))
                 .andExpect(jsonPath("$.statusMsg").value(ResponseConstant.MESSAGE_200));
+    }
+
+    @Test
+    public void testUpdatePrevSeq() throws Exception {
+        doNothing().when(topicService).updatePreviousSeq(anyString());
+
+        mockMvc.perform(MockMvcRequestBuilders.put(
+                        TestUtils.getTopicUrl("previous-seq", UUID.randomUUID().toString())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(ResponseConstant.STATUS_200))
+                .andExpect(jsonPath("$.statusMsg").value(ResponseConstant.MESSAGE_200));
+    }
+
+    @Test
+    public void testFindAllByClassId() throws Exception {
+        List<TopicDTO> dtoList = Arrays.asList(
+                new TopicDTO("id-1", "name", EntityStatus.LIVE, "classId", new ArrayList<>()),
+                new TopicDTO("id-2", "name", EntityStatus.LIVE, "classId", new ArrayList<>()),
+                new TopicDTO("id-3", "name", EntityStatus.LIVE, "classId", new ArrayList<>())
+        );
+
+        when(topicService.findAllByClassId(anyString(), anyList())).thenReturn(dtoList);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                        TestUtils.getTopicUrl("class", UUID.randomUUID().toString())))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(dtoList)));
     }
 
 }
