@@ -17,8 +17,10 @@ import java.util.UUID;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Sql(value = "/topic.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
-@Sql(value = "/lesson.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = {
+        "/topic.sql",
+        "/lesson.sql"
+}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(value = "/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class LessonServiceTest {
 
