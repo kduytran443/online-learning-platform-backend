@@ -5,7 +5,6 @@ import com.kduytran.classresourceservice.dto.CreateLessonDTO;
 import com.kduytran.classresourceservice.dto.UpdateLessonDTO;
 import com.kduytran.classresourceservice.entity.EntityStatus;
 import com.kduytran.classresourceservice.entity.LessonEntity;
-import com.kduytran.classresourceservice.entity.TopicEntity;
 import com.kduytran.classresourceservice.repository.LessonRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +65,6 @@ public class LessonServiceTest {
 
     @Test
     public void testDeleteLesson() {
-        List<LessonEntity> list = lessonRepository.findAll();
         lessonService.delete("ffc5e6c3-34b9-4d13-94b2-486b789cbae3");
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString("ffc5e6c3-34b9-4d13-94b2-486b789cbae3")).get();
         assertEquals(EntityStatus.DELETED, lessonEntity.getStatus());
@@ -92,7 +90,6 @@ public class LessonServiceTest {
 
     @Test
     public void testUpdatePreviousSeq() {
-        List<LessonEntity> list = lessonRepository.findAll();
         UUID id = UUID.fromString("2c63eed0-34bd-45b1-920f-60a4eee1d95e");
         LessonEntity lessonEntity = lessonRepository.findById(id).get();
         lessonService.updatePreviousSeq(id.toString());
