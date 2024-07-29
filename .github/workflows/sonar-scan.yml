@@ -63,11 +63,19 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Set SonarCloud Token
+        id: set-token
+        if: env.SERVICE_DIR != 'skip'
+        run: |
+          # Determine the secret name based on the branch name
+          SECRET_NAME="SONAR_TOKEN_${BRANCH_NAME}"
+          echo "SONAR_TOKEN=${{ secrets[SECRET_NAME] }}" >> $GITHUB_ENV
+
       - name: Build and analyze
         if: env.SERVICE_DIR != 'skip'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets["SONAR_TOKEN_$SERVICE_DIR"] }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: |
           project_key="${BRANCH_NAME}"
           
