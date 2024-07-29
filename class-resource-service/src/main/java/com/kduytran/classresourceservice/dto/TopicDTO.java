@@ -33,6 +33,9 @@ public class TopicDTO {
     )
     private String classId;
 
+    @Schema(
+            description = "Lessons of the topic"
+    )
     private List<LessonDTO> lessons;
 
 }
