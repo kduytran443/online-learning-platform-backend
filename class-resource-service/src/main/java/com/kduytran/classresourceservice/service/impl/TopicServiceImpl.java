@@ -10,8 +10,12 @@ import com.kduytran.classresourceservice.exception.TopicLengthNotValidException;
 import com.kduytran.classresourceservice.repository.TopicRepository;
 import com.kduytran.classresourceservice.service.ILessonService;
 import com.kduytran.classresourceservice.service.ITopicService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +32,14 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "topic-details", allEntries = true),
+                    @CacheEvict(cacheNames = "topic", allEntries = true),
+                    @CacheEvict(cacheNames = "topics-by-class", allEntries = true)
+            }
+    )
     public UUID create(CreateTopicDTO dto) {
         TopicEntity topicEntity = TopicConverter.convert(dto, new TopicEntity());
         long topicSize = topicRepository.countAllByClassIdAndStatusIn(UUID.fromString(dto.getClassId()),
@@ -39,6 +51,14 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "topic-details", allEntries = true),
+                    @CacheEvict(cacheNames = "topic", allEntries = true),
+                    @CacheEvict(cacheNames = "topics-by-class", allEntries = true)
+            }
+    )
     public void update(UpdateTopicDTO dto) {
         TopicEntity topic = topicRepository.findById(UUID.fromString(dto.getId())).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", dto.getId())
@@ -48,6 +68,14 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "topic-details", allEntries = true),
+                    @CacheEvict(cacheNames = "topic", allEntries = true),
+                    @CacheEvict(cacheNames = "topics-by-class", allEntries = true)
+            }
+    )
     public void updateNextSeq(String id) {
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
@@ -67,6 +95,14 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "topic-details", allEntries = true),
+                    @CacheEvict(cacheNames = "topic", allEntries = true),
+                    @CacheEvict(cacheNames = "topics-by-class", allEntries = true)
+            }
+    )
     public void updatePreviousSeq(String id) {
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
@@ -95,6 +131,14 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "topic-details", allEntries = true),
+                    @CacheEvict(cacheNames = "topic", allEntries = true),
+                    @CacheEvict(cacheNames = "topics-by-class", allEntries = true)
+            }
+    )
     public void delete(String id) {
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
@@ -114,6 +158,14 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "topic-details", allEntries = true),
+                    @CacheEvict(cacheNames = "topic", allEntries = true),
+                    @CacheEvict(cacheNames = "topics-by-class", allEntries = true)
+            }
+    )
     public void hide(String id) {
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
@@ -123,6 +175,8 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Transactional
+    @Cacheable(cacheNames = "topics-by-class", key = "{ #classId, #statuses }")
     public List<TopicDTO> findAllByClassId(String classId, List<EntityStatus> statuses) {
         List<TopicEntity> topicEntities = topicRepository.findAllByClassIdAndStatusInOrderBySeqAsc(
                 UUID.fromString(classId),
@@ -133,6 +187,7 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Cacheable(cacheNames = "topic-details", key = "#id")
     public TopicDTO getTopicDetailsById(String id) {
         TopicDTO topicDTO = getTopicById(id);
         setLessons(topicDTO);
@@ -140,6 +195,7 @@ public class TopicServiceImpl implements ITopicService {
     }
 
     @Override
+    @Cacheable(cacheNames = "topic", key = "#id")
     public TopicDTO getTopicById(String id) {
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", id)
