@@ -47,6 +47,14 @@ jobs:
         run: |
           echo "Skipping test run as SERVICE_DIR is set to skip"
 
+      - name: Generate SonarCloud Token Secret Name
+        id: generate-token-name
+        if: env.SERVICE_DIR != 'skip'
+        run: |
+          # Convert branch name to uppercase and replace '-' with '_'
+          secret_name="SONAR_TOKEN_${BRANCH_NAME^^}"
+          echo "SONAR_TOKEN_SECRET_NAME=$secret_name" >> $GITHUB_ENV
+
       - name: Cache SonarCloud packages
         if: env.SERVICE_DIR != 'skip'
         uses: actions/cache@v3
@@ -67,9 +75,13 @@ jobs:
         id: set-token
         if: env.SERVICE_DIR != 'skip'
         run: |
-          # Determine the secret name based on the branch name
-          SECRET_NAME="SONAR_TOKEN_${BRANCH_NAME}"
-          echo "SONAR_TOKEN=${{ secrets[SECRET_NAME] }}" >> $GITHUB_ENV
+          # Retrieve the token using the generated secret name
+          secret_name="${{ env.SONAR_TOKEN_SECRET_NAME }}"
+          if [ -z "${{ secrets[secret_name] }}" ]; then
+            echo "No token found for secret name: $secret_name"
+            exit 1
+          fi
+          echo "SONAR_TOKEN=${{ secrets[secret_name] }}" >> $GITHUB_ENV
 
       - name: Build and analyze
         if: env.SERVICE_DIR != 'skip'
