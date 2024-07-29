@@ -54,6 +54,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache Maven packages
         if: env.SERVICE_DIR != 'skip'
         uses: actions/cache@v3
@@ -61,14 +62,17 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
       - name: Build and analyze
         if: env.SERVICE_DIR != 'skip'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets["SONAR_TOKEN_$SERVICE_DIR"] }}
         run: |
+          project_key="${BRANCH_NAME}"
+          
           cd $SERVICE_DIR
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=kduytran443_online-learning-platform-backend \
+            -Dsonar.projectKey=$project_key \
             -Dsonar.organization=kduytran443 \
             -Dsonar.host.url=https://sonarcloud.io
