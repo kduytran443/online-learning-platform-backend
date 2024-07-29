@@ -16,7 +16,11 @@ import com.kduytran.classresourceservice.repository.TopicRepository;
 import com.kduytran.classresourceservice.service.ILessonService;
 import com.kduytran.classresourceservice.service.ITopicService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +34,13 @@ public class LessonServiceImpl implements ILessonService {
     private final ITopicService topicService;
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "lesson-details", allEntries = true),
+                    @CacheEvict(cacheNames = "lessons-by-topic", allEntries = true)
+            }
+    )
     public UUID create(CreateLessonDTO dto) {
         TopicEntity topicEntity = topicRepository.findById(UUID.fromString(dto.getTopicId())).orElseThrow(
                 () -> new ResourceNotFoundException("topic", "id", dto.getTopicId())
@@ -44,6 +55,13 @@ public class LessonServiceImpl implements ILessonService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "lesson-details", allEntries = true),
+                    @CacheEvict(cacheNames = "lessons-by-topic", allEntries = true)
+            }
+    )
     public void update(UpdateLessonDTO dto) {
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(dto.getId())).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", dto.getId())
@@ -53,6 +71,13 @@ public class LessonServiceImpl implements ILessonService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "lesson-details", allEntries = true),
+                    @CacheEvict(cacheNames = "lessons-by-topic", allEntries = true)
+            }
+    )
     public void delete(String id) {
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
@@ -77,6 +102,13 @@ public class LessonServiceImpl implements ILessonService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "lesson-details", allEntries = true),
+                    @CacheEvict(cacheNames = "lessons-by-topic", allEntries = true)
+            }
+    )
     public void updateNextSeq(String id) {
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
@@ -96,6 +128,13 @@ public class LessonServiceImpl implements ILessonService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "lesson-details", allEntries = true),
+                    @CacheEvict(cacheNames = "lessons-by-topic", allEntries = true)
+            }
+    )
     public void updatePreviousSeq(String id) {
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
@@ -115,6 +154,13 @@ public class LessonServiceImpl implements ILessonService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "lesson-details", allEntries = true),
+                    @CacheEvict(cacheNames = "lessons-by-topic", allEntries = true)
+            }
+    )
     public void hide(String id) {
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
@@ -124,10 +170,11 @@ public class LessonServiceImpl implements ILessonService {
     }
 
     @Override
+    @Cacheable(cacheNames = "lessons-by-topic", key = "{ #topicId, #statuses }")
     public List<LessonDTO> findAllByTopicId(String topicId, List<EntityStatus> statuses) {
         List<LessonEntity> lessonEntities = lessonRepository.findAllByTopicIdAndStatusInOrderBySeqAsc(
                 UUID.fromString(topicId),
-                List.of(EntityStatus.LIVE, EntityStatus.HIDDEN)
+                statuses != null ? statuses : List.of(EntityStatus.LIVE, EntityStatus.HIDDEN)
         );
         TopicDTO topicDTO = topicService.getTopicById(topicId);
         return lessonEntities.stream()
@@ -140,6 +187,7 @@ public class LessonServiceImpl implements ILessonService {
     }
 
     @Override
+    @Cacheable(cacheNames = "lesson-details", key = "#id")
     public LessonDTO getLessonDetailsById(String id) {
         LessonEntity lessonEntity = lessonRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("lesson", "id", id)
