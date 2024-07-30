@@ -1,0 +1,44 @@
+name: Validate Directory Changes on Push
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Check if branch is a service branch
+        id: check-branch
+        run: |
+          branch_name="${{ github.ref }}"
+          
+          branch_name="${branch_name#refs/heads/}"
+          
+          if [[ "$branch_name" == *"service" ]]; then
+            echo "This is a service branch: $branch_name"
+            echo "IS_SERVICE_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "Not a service branch: $branch_name"
+            echo "IS_SERVICE_BRANCH=false" >> $GITHUB_ENV
+          fi
+
+      - name: Determine changed directories and validate
+        if: env.IS_SERVICE_BRANCH == 'true'
+        run: |
+          files=$(git diff --name-only HEAD~1 HEAD)
+          
+          directories=$(echo "$files" | xargs -n1 dirname | sort -u)
+          
+          for dir in $directories; do
+            if [[ "$dir" == "$branch_name"* ]]; then
+              echo "Directory $dir starts with $branch_name"
+            else
+              echo "Directory $dir does not start with $branch_name"
+              exit 1
+            fi
+          done

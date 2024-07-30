@@ -9,6 +9,7 @@ jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
         with:
@@ -46,6 +47,14 @@ jobs:
         run: |
           echo "Skipping test run as SERVICE_DIR is set to skip"
 
+      - name: Generate SonarCloud Token Secret Name
+        id: generate-token-name
+        if: env.SERVICE_DIR != 'skip'
+        run: |
+          # Convert branch name to uppercase and replace '-' with '_'
+          secret_name="SONAR_TOKEN_${BRANCH_NAME^^}"
+          echo "SONAR_TOKEN_SECRET_NAME=$secret_name" >> $GITHUB_ENV
+
       - name: Cache SonarCloud packages
         if: env.SERVICE_DIR != 'skip'
         uses: actions/cache@v3
@@ -53,6 +62,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache Maven packages
         if: env.SERVICE_DIR != 'skip'
         uses: actions/cache@v3
@@ -60,14 +70,29 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      - name: Set SonarCloud Token
+        id: set-token
+        if: env.SERVICE_DIR != 'skip'
+        run: |
+          # Retrieve the token using the generated secret name
+          secret_name="${{ env.SONAR_TOKEN_SECRET_NAME }}"
+          if [ -z "${{ secrets[secret_name] }}" ]; then
+            echo "No token found for secret name: $secret_name"
+            exit 1
+          fi
+          echo "SONAR_TOKEN=${{ secrets[secret_name] }}" >> $GITHUB_ENV
+
       - name: Build and analyze
         if: env.SERVICE_DIR != 'skip'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: |
+          project_key="${BRANCH_NAME}"
+          
           cd $SERVICE_DIR
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=kduytran443_online-learning-platform-backend \
+            -Dsonar.projectKey=$project_key \
             -Dsonar.organization=kduytran443 \
             -Dsonar.host.url=https://sonarcloud.io
