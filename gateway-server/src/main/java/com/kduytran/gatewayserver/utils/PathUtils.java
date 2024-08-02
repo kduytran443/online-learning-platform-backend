@@ -17,11 +17,11 @@ public class PathUtils {
     }
 
     public static String getRewriteSourcePath(String resource) {
-        return getPathWithContextPath(String.format("(?<versioning>v\\d{1,2})/%s/(?<segment>.*)", resource));
+        return getPathWithContextPath(String.format("(?<versioning>v\\d{1,2})/%s(?<segment>.*)", resource));
     }
 
     public static String getRewriteDestinationPath(String resource) {
-        return String.format("/api/${versioning}/%s/${segment}", resource);
+        return String.format("/api/${versioning}/%s${segment}", resource);
     }
 
     public static String getUri(String serviceName) {

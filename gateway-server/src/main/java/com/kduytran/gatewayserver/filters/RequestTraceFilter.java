@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,11 @@ public class RequestTraceFilter implements GlobalFilter {
             exchange = filterUtility.setTransactionId(exchange, transactionID);
             logger.debug("transaction-id generated in RequestTraceFilter : {}", transactionID);
         }
+        String path = exchange.getRequest().getPath().value();
+        String destinationUri = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR).toString();
+        logger.debug("Request Path: {}", path);
+        logger.debug("Destination URI: {}", destinationUri);
+
         return chain.filter(exchange);
     }
 
