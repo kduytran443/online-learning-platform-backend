@@ -46,27 +46,27 @@ public class LessonController {
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
-    @PutMapping("/hide/{id}")
+    @PutMapping("/{id}/hide")
     public ResponseEntity<ResponseDTO> hideLesson(@PathVariable String id) {
         lessonService.hide(id);
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
-    @PutMapping("/next-seq/{id}")
+    @PutMapping("/{id}/next-seq")
     public ResponseEntity<ResponseDTO> updateNextSeq(@PathVariable String id) {
         lessonService.updateNextSeq(id);
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
-    @PutMapping("/previous-seq/{id}")
+    @PutMapping("/{id}/previous-seq")
     public ResponseEntity<ResponseDTO> updatePreviousSeq(@PathVariable String id) {
         lessonService.updatePreviousSeq(id);
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
-    @GetMapping("/topic/{topicId}")
-    public ResponseEntity<List<LessonDTO>> findAllByTopicId(@PathVariable String topicId,
-                                                           @RequestParam List<EntityStatus> statuses) {
+    @GetMapping
+    public ResponseEntity<List<LessonDTO>> findAllByTopicId(@RequestParam String topicId,
+                                                           @RequestParam(required = false) List<EntityStatus> statuses) {
         List<LessonDTO> lessonDTOs = lessonService.findAllByTopicId(topicId, statuses);
         return ResponseEntity.ok(lessonDTOs);
     }
