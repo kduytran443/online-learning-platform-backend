@@ -51,6 +51,33 @@ public class RouteConfig {
                         )
                         .uri(PathUtils.getUri(ServiceConstant.CLASS_QUERY_NAME))
                 )
+                .route(p -> p
+                        .path(PathUtils.getServicePath(ServiceConstant.TOPIC_CONTEXT_PATH))
+                        .filters(f -> f
+                                .rewritePath(PathUtils.getRewriteSourcePath(ServiceConstant.TOPIC_CONTEXT_PATH),
+                                        PathUtils.getRewriteDestinationPath(ServiceConstant.TOPIC_CONTEXT_PATH))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri(PathUtils.getUri(ServiceConstant.CLASS_RESOURCE_NAME))
+                )
+                .route(p -> p
+                        .path(PathUtils.getServicePath(ServiceConstant.LESSON_CONTENT_CONTEXT_PATH))
+                        .filters(f -> f
+                                .rewritePath(PathUtils.getRewriteSourcePath(ServiceConstant.LESSON_CONTENT_CONTEXT_PATH),
+                                        PathUtils.getRewriteDestinationPath(ServiceConstant.LESSON_CONTENT_CONTEXT_PATH))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri(PathUtils.getUri(ServiceConstant.CLASS_RESOURCE_NAME))
+                )
+                .route(p -> p
+                        .path(PathUtils.getServicePath(ServiceConstant.LESSON_CONTEXT_PATH))
+                        .filters(f -> f
+                                .rewritePath(PathUtils.getRewriteSourcePath(ServiceConstant.LESSON_CONTEXT_PATH),
+                                        PathUtils.getRewriteDestinationPath(ServiceConstant.LESSON_CONTEXT_PATH))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri(PathUtils.getUri(ServiceConstant.CLASS_RESOURCE_NAME))
+                )
                 .build();
     }
 
