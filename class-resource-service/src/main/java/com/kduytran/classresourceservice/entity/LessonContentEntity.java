@@ -13,7 +13,6 @@ public class LessonContentEntity {
 
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column

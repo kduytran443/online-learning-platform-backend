@@ -91,8 +91,8 @@ public class LessonControllerTest {
     @Test
     public void testHideLesson() throws Exception {
         doNothing().when(lessonService).hide(any());
-        mockMvc.perform(MockMvcRequestBuilders.put(TestUtils.getLessonUrl("hide",
-                        UUID.randomUUID().toString())))
+        mockMvc.perform(MockMvcRequestBuilders.put(TestUtils.getLessonUrl(UUID.randomUUID().toString(),
+                        "hide")))
                 .andExpect(jsonPath("$.statusCode").value(ResponseConstant.STATUS_200))
                 .andExpect(jsonPath("$.statusMsg").value(ResponseConstant.MESSAGE_200));
     }
@@ -100,8 +100,8 @@ public class LessonControllerTest {
     @Test
     public void testUpdateNextSeq() throws Exception {
         doNothing().when(lessonService).updateNextSeq(any());
-        mockMvc.perform(MockMvcRequestBuilders.put(TestUtils.getLessonUrl("next-seq",
-                        UUID.randomUUID().toString())))
+        mockMvc.perform(MockMvcRequestBuilders.put(TestUtils.getLessonUrl(UUID.randomUUID().toString(),
+                        "next-seq")))
                 .andExpect(jsonPath("$.statusCode").value(ResponseConstant.STATUS_200))
                 .andExpect(jsonPath("$.statusMsg").value(ResponseConstant.MESSAGE_200));
     }
@@ -109,8 +109,8 @@ public class LessonControllerTest {
     @Test
     public void testUpdatePreviousSeq() throws Exception {
         doNothing().when(lessonService).updatePreviousSeq(any());
-        mockMvc.perform(MockMvcRequestBuilders.put(TestUtils.getLessonUrl("previous-seq",
-                        UUID.randomUUID().toString())))
+        mockMvc.perform(MockMvcRequestBuilders.put(TestUtils.getLessonUrl(UUID.randomUUID().toString(),
+                        "previous-seq")))
                 .andExpect(jsonPath("$.statusCode").value(ResponseConstant.STATUS_200))
                 .andExpect(jsonPath("$.statusMsg").value(ResponseConstant.MESSAGE_200));
     }
@@ -138,9 +138,9 @@ public class LessonControllerTest {
         List<LessonDTO> lessonDTOs = List.of(lesson1, lesson2, lesson3);
         when(lessonService.findAllByTopicId(any(), any())).thenReturn(lessonDTOs);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(TestUtils.getLessonUrl("topic",
-                UUID.randomUUID().toString()))
-                        .param("statuses", "LIVE,HIDDEN"))
+        mockMvc.perform(MockMvcRequestBuilders.get(TestUtils.getLessonUrl())
+                        .param("statuses", "LIVE,HIDDEN")
+                        .param("topicId", UUID.randomUUID().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(lessonDTOs.size()))
                 .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(lessonDTOs)));
