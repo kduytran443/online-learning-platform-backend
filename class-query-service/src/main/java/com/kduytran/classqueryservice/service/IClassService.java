@@ -40,4 +40,5 @@ public interface IClassService {
     PaginationResponseDTO<ClassDTO> search(SearchRequestDTO requestDTO);
     List<ClassDTO> getAllLiveStatus();
 
+    ClassDTO getClassDetails(String id);
 }

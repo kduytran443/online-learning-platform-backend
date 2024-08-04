@@ -13,7 +13,6 @@ import com.kduytran.classqueryservice.processor.CategoryStreamsProcessor;
 import com.kduytran.classqueryservice.repository.ClassRepository;
 import com.kduytran.classqueryservice.service.IClassService;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +28,6 @@ import java.util.stream.Collectors;
 public class ClassServiceImpl implements IClassService {
 
     private final ClassRepository classRepository;
-    private final ModelMapper modelMapper;
     private final CategoryStreamsProcessor categoryStreamsProcessor;
 
     /**
@@ -90,27 +85,16 @@ public class ClassServiceImpl implements IClassService {
 
     @Override
     public PaginationResponseDTO<ClassDTO> searchByCategory(SearchRequestDTO requestDTO) {
-        Sort sort = Sort.by(
-                Sort.Order.desc("weightedRating")
-        );
-
+        List<Sort.Order> orders = new ArrayList<>();
         if (requestDTO.getSortBy() != null) {
-            if (Sort.Direction.DESC.equals(requestDTO.getDirection())) {
-                sort = Sort.by(
-                        Sort.Order.desc(requestDTO.getSortBy()),
-                        Sort.Order.desc("weightedRating")
-                );
-            } else {
-                sort = Sort.by(
-                        Sort.Order.asc(requestDTO.getSortBy()),
-                        Sort.Order.desc("weightedRating")
-                );
-            }
+            orders.add(new Sort.Order(requestDTO.getDirection(), requestDTO.getSortBy()));
         }
+        orders.add(Sort.Order.desc("weightedRating"));
 
         Pageable pageable = PageRequest.of(
                 requestDTO.getPage() - 1,
-                requestDTO.getSize() > 0 ? requestDTO.getSize() : SearchRequestDTO.DEFAULT_SIZE, sort
+                requestDTO.getSize() > 0 ? requestDTO.getSize() : SearchRequestDTO.DEFAULT_SIZE,
+                Sort.by(orders)
         );
 
         Page<ClassEntity> entityPage = classRepository.
@@ -121,12 +105,16 @@ public class ClassServiceImpl implements IClassService {
                         requestDTO.getCategories(),
                         pageable
                 );
+        return buildResponseDTO(requestDTO, entityPage);
+    }
+
+    private PaginationResponseDTO<ClassDTO> buildResponseDTO(SearchRequestDTO requestDTO, Page<ClassEntity> entityPage) {
         PaginationResponseDTO<ClassDTO> responseDTO = new PaginationResponseDTO<>();
         responseDTO.setSize(requestDTO.getSize());
         responseDTO.setPage(entityPage.getNumber() + 1);
         responseDTO.setTotalElements(entityPage.getTotalElements());
         responseDTO.setTotalPages(entityPage.getTotalPages());
-        responseDTO.setItems(entityPage.get().map(entity -> convert(entity)).collect(Collectors.toList()));
+        responseDTO.setItems(entityPage.getContent().stream().map(this::convert).collect(Collectors.toList()));
         return responseDTO;
     }
 
@@ -145,6 +133,20 @@ public class ClassServiceImpl implements IClassService {
     public List<ClassDTO> getAllLiveStatus() {
         List<ClassEntity> list = classRepository.findAllByStatusAndEndAtIsAfter("L", LocalDateTime.now());
         return list.stream().map(entity -> convert(entity)).collect(Collectors.toList());
+    }
+
+    @Override
+    public ClassDTO getClassDetails(String id) {
+        ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new ResourceNotFoundException("class", "id", id)
+        );
+        return convertDetails(classEntity);
+    }
+
+    private ClassDTO convertDetails(ClassEntity entity) {
+        ClassDTO classDTO = convert(entity);
+        classDTO.setCategories(categoryStreamsProcessor.findAllById(classDTO.getCategoryId()));
+        return classDTO;
     }
 
     private ClassDTO convert(ClassEntity entity) {

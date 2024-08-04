@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Schema(description = "ClassDTO represents a class with its associated metadata.")
@@ -47,6 +48,8 @@ public class ClassDTO {
     @NotNull(message = "Category name cannot be null.")
     @Schema(description = "Name of the category the class belongs to.", example = "Mathematics", required = true)
     private String categoryName;
+
+    private List<CategoryDTO> categories;
 
     @Pattern(regexp = "^(G|U)$", message = "Owner type must be 'G' (Group) or 'U' (User).")
     @Schema(description = "Type of the class owner. 'G' for Group, 'U' for User.", example = "U")
