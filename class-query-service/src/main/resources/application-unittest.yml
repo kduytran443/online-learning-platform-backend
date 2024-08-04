@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  config:
+    import: ""
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+    consumer:
+      auto-offset-reset: earliest
+      application-id: class-query-service-app
+    streams:
+      cleanup:
+        on-startup: true
+    properties:
+      request.timeout.ms: 60000
+      metadata.fetch.timeout.ms: 60000
+    listener:
+      ack-mode: manual
+      client-id: test-client-id
+      concurrency: 10
+      type: batch
+    admin:
+      client-id: admin-test-client-id
+  cloud:
+    config:
+      enabled: false
+
+test:
+  topic: embedded-test-topic
+
+eureka:
+  client:
+    enabled: false
+
+environment:
+  actual: test
