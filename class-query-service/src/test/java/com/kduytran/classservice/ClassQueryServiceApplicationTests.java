@@ -8,7 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(
 		classes = ClassQueryServiceApplication.class,
-		properties = "spring.config.additional-location=classpath:/application-unittest.yml"
+		properties = "spring.config.additional-location=classpath:/application-ut.yml"
 )
 @EmbeddedKafka(
 		partitions = 1,
