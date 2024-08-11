@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: "payment-service"
+server:
+  port: 8140
+
+url:
+  successful: ""
+
+paypal:
+  mode: sandbox
+  client:
+    app: Af-cR80FUNgZSA57sUdaCkKEi6UroekXJn0_stbVTMVGg6FGa28CZmrPnQhNs1jtxygshPgrUm1cjDpk
+    secret: EGP8qto2Dhczr-pGWA5984lFCUNDQzWnqeZ_D3XBSM1DImIEKMHHU-eTLP45rq3VWtplqUOax_7xcJKt
