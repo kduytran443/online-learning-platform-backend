@@ -123,4 +123,17 @@ public class PaymentServiceImpl implements IPaymentService {
         }
     }
 
+    @Override
+    public void cancelPaypalTransaction(String paymentId, String payerId) {
+        TransactionEntity entity = transactionRepository.findByPaymentId(paymentId).orElseThrow(
+                () -> new ResourceNotFoundException("transaction", "paymentId", paymentId)
+        );
+        entity.setExecutionAt(LocalDateTime.now());
+        entity.setPayerId(payerId);
+        entity.setStatus(PaymentStatus.CANCELLED);
+        LOGGER.info("Payment executed with state: {}", entity.getStatus());
+        transactionRepository.save(entity);
+        LOGGER.info("Payment saved: {}", entity);
+    }
+
 }

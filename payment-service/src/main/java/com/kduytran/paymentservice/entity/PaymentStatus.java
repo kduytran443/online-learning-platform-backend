@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 public enum PaymentStatus {
     FAILED("F"),
     PENDING("P"),
+    CANCELLED("C"),
     SUCCESSFUL("S");
 
     private String code;

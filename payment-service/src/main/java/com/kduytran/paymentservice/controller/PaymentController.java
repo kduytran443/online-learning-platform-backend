@@ -57,6 +57,26 @@ public class PaymentController {
     }
 
     @Operation(
+            summary = "Cancel Pending PayPal Payment",
+            description = "Cancel a pending payment transaction."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully cancelled PayPal payment",
+                    content = @Content(
+                            schema = @Schema(implementation = ResponseDTO.class)
+                    )
+            )
+    })
+    @PostMapping("/cancel")
+    public ResponseEntity<ResponseDTO> cancelPayment(@RequestBody ExecutePaypalTransactionRequestDTO dto) {
+        LOGGER.info("Cancelling Payment with request: {}", dto);
+        paymentService.cancelPaypalTransaction(dto.getPaymentId(), dto.getPayerId());
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
+    }
+
+    @Operation(
             summary = "Execute PayPal Payment",
             description = "Executes a PayPal payment transaction after the user has approved it."
     )
