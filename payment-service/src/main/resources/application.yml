@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: "payment-service"
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  datasource:
+    url: jdbc:postgresql://localhost:5439/payment_db
+    driver-class-name: org.postgresql.Driver
+    username: user
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8140
+
+paypal:
+  mode: sandbox
+  client:
+    app: Af-cR80FUNgZSA57sUdaCkKEi6UroekXJn0_stbVTMVGg6FGa28CZmrPnQhNs1jtxygshPgrUm1cjDpk
+    secret: EGP8qto2Dhczr-pGWA5984lFCUNDQzWnqeZ_D3XBSM1DImIEKMHHU-eTLP45rq3VWtplqUOax_7xcJKt
+
+management:
+  info:
+    env:
+      enabled: true
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+
+info:
+  app:
+    name: "class-query"
+    description: "Class query service"
+    version: "1.0.0"
+
+logging:
+  level:
+    com.kduytran.paymentservice: debug
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: "http://localhost:8070/eureka/"
