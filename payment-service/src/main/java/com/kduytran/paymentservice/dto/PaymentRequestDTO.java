@@ -1,6 +1,7 @@
 package com.kduytran.paymentservice.dto;
 
 import com.kduytran.paymentservice.entity.PaymentMethod;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,8 @@ public class PaymentRequestDTO {
     private String cancelUrl;
     private String successUrl;
     private PaymentMethod paymentMethod;
+    private UUID userId;
+    private String username;
+    private String fullName;
+    private String email;
 }
