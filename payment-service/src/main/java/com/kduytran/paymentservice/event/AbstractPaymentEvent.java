@@ -1,63 +1,36 @@
-package com.kduytran.paymentservice.entity;
+package com.kduytran.paymentservice.event;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.kduytran.paymentservice.entity.PaymentMethod;
+import com.kduytran.paymentservice.entity.PaymentStatus;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "transaction")
-@Getter @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class TransactionEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public abstract class AbstractPaymentEvent {
+    private UUID transactionId;
     private UUID id;
-
-    @Column(name = "total")
     private Double total;
-
-    @Column(name = "currency")
     private String currency;
-
-    @Column
     private UUID orderId;
-
-    @Column
     private String description;
-
-    @Column
     private PaymentMethod paymentMethod;
-
-    @Column
     private PaymentStatus status;
-
-    @Column
     private String payerId;
-
-    @Column
     private String paymentId;
-
-    @Column
     private LocalDateTime createdAt;
-
-    @Column
     private LocalDateTime executionAt;
-
-    @Column
     private UUID userId;
-
-    @Column
     private String username;
-
-    @Column
     private String fullName;
-
-    @Column
     private String email;
 
+    public abstract PaymentEventType getAction();
 }

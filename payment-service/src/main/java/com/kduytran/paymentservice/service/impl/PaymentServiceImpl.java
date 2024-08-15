@@ -4,6 +4,10 @@ import com.kduytran.paymentservice.dto.*;
 import com.kduytran.paymentservice.entity.PaymentMethod;
 import com.kduytran.paymentservice.entity.PaymentStatus;
 import com.kduytran.paymentservice.entity.TransactionEntity;
+import com.kduytran.paymentservice.event.AbstractPaymentEvent;
+import com.kduytran.paymentservice.event.PaymentCancelledEvent;
+import com.kduytran.paymentservice.event.PaymentCreatedEvent;
+import com.kduytran.paymentservice.event.PaymentExecutedEvent;
 import com.kduytran.paymentservice.exception.PayPalTransactionException;
 import com.kduytran.paymentservice.exception.ResourceNotFoundException;
 import com.kduytran.paymentservice.repository.TransactionRepository;
@@ -14,7 +18,9 @@ import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,6 +36,7 @@ public class PaymentServiceImpl implements IPaymentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
     private final Supplier<APIContext> apiContext;
     private final TransactionRepository transactionRepository;
+    private final ApplicationEventPublisher publisher;
 
     public Payment createPaypalPayment(PaymentRequestDTO dto) throws PayPalRESTException {
         Amount amount = new Amount();
@@ -69,6 +76,7 @@ public class PaymentServiceImpl implements IPaymentService {
         return payment.execute(apiContext.get(), paymentExecute);
     }
 
+    @Transactional
     @Override
     public PaypalResponseDTO createPaypalTransaction(PaymentRequestDTO dto) {
         try {
@@ -89,8 +97,13 @@ public class PaymentServiceImpl implements IPaymentService {
             entity.setStatus(PaymentStatus.PENDING);
             entity.setPaymentMethod(PaymentMethod.PAYPAL);
             entity.setPaymentId(payment.getId());
+            entity.setUsername(dto.getUsername());
+            entity.setUserId(dto.getUserId());
+            entity.setEmail(dto.getEmail());
+            entity.setFullName(dto.getFullName());
 
             transactionRepository.save(entity);
+            pushEvent(entity);
 
             PaypalResponseDTO responseDTO = new PaypalResponseDTO();
             responseDTO.setRedirectUrl(redirectUrl);
@@ -101,6 +114,7 @@ public class PaymentServiceImpl implements IPaymentService {
         }
     }
 
+    @Transactional
     @Override
     public boolean executePaypalTransaction(String paymentId, String payerId) {
         TransactionEntity entity = transactionRepository.findByPaymentId(paymentId).orElseThrow(
@@ -120,9 +134,11 @@ public class PaymentServiceImpl implements IPaymentService {
         } finally {
             LOGGER.info("Payment saved: {}", entity);
             transactionRepository.save(entity);
+            pushEvent(entity);
         }
     }
 
+    @Transactional
     @Override
     public void cancelPaypalTransaction(String paymentId, String payerId) {
         TransactionEntity entity = transactionRepository.findByPaymentId(paymentId).orElseThrow(
@@ -134,6 +150,36 @@ public class PaymentServiceImpl implements IPaymentService {
         LOGGER.info("Payment executed with state: {}", entity.getStatus());
         transactionRepository.save(entity);
         LOGGER.info("Payment saved: {}", entity);
+        pushEvent(entity);
+    }
+
+    private void pushEvent(TransactionEntity entity) {
+        AbstractPaymentEvent event = switch (entity.getStatus()) {
+            case SUCCESSFUL -> new PaymentExecutedEvent();
+            case PENDING -> new PaymentCreatedEvent();
+            case FAILED, CANCELLED -> new PaymentCancelledEvent();
+        };
+        makeEvent(event, entity);
+        publisher.publishEvent(event);
+    }
+
+    private void makeEvent(AbstractPaymentEvent event, TransactionEntity entity) {
+        event.setTransactionId(entity.getId());
+        event.setId(entity.getId());
+        event.setTotal(entity.getTotal());
+        event.setCurrency(entity.getCurrency());
+        event.setOrderId(entity.getOrderId());
+        event.setDescription(entity.getDescription());
+        event.setPaymentMethod(entity.getPaymentMethod());
+        event.setStatus(entity.getStatus());
+        event.setPayerId(entity.getPayerId());
+        event.setPaymentId(entity.getPaymentId());
+        event.setCreatedAt(entity.getCreatedAt());
+        event.setExecutionAt(entity.getExecutionAt());
+        event.setUserId(entity.getUserId());
+        event.setUsername(entity.getUsername());
+        event.setFullName(entity.getFullName());
+        event.setEmail(entity.getEmail());
     }
 
 }

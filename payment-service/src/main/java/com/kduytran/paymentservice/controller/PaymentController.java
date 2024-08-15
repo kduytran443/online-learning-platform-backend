@@ -99,7 +99,7 @@ public class PaymentController {
                 dto.getPaymentId(), dto.getPayerId());
         boolean result = paymentService.executePaypalTransaction(dto.getPaymentId(), dto.getPayerId());
         if (result) {
-            LOGGER.info("PayPal payment created successfully with request: paymentId={}, payerId={}",
+            LOGGER.info("PayPal payment executed successfully with request: paymentId={}, payerId={}",
                     dto.getPaymentId(), dto.getPayerId());
             return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
         } else {
