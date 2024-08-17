@@ -13,6 +13,13 @@ spring:
     hibernate:
       ddl-auto: create
     show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    streams:
+      application-id: "payment-service-stream-app"
+      bootstrap-servers: localhost:9092
+      default-key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      default-value-serde: org.apache.kafka.common.serialization.Serdes$JsonSerde
 
 server:
   port: 8140
