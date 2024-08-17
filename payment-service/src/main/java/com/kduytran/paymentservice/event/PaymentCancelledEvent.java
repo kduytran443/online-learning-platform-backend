@@ -14,17 +14,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @ToString
 public class PaymentCancelledEvent extends AbstractPaymentEvent {
-
-    public PaymentCancelledEvent(UUID transactionId, UUID id, Double total, String currency, UUID orderId,
-                                String description, PaymentMethod paymentMethod, PaymentStatus status, String payerId,
-                                String paymentId, LocalDateTime createdAt, LocalDateTime executionAt, UUID userId,
-                                String username, String fullName, String email) {
-        super(transactionId, id, total, currency, orderId, description, paymentMethod, status, payerId, paymentId,
-                createdAt, executionAt, userId, username, fullName, email);
-    }
-
     @Override
     public PaymentEventType getAction() {
         return PaymentEventType.CANCEL;
     }
+
 }

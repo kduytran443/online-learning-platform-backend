@@ -15,16 +15,9 @@ import java.util.UUID;
 @ToString
 public class PaymentCreatedEvent extends AbstractPaymentEvent {
 
-    public PaymentCreatedEvent(UUID transactionId, UUID id, Double total, String currency, UUID orderId,
-                               String description, PaymentMethod paymentMethod, PaymentStatus status, String payerId,
-                               String paymentId, LocalDateTime createdAt, LocalDateTime executionAt, UUID userId,
-                               String username, String fullName, String email) {
-        super(transactionId, id, total, currency, orderId, description, paymentMethod, status, payerId, paymentId,
-                createdAt, executionAt, userId, username, fullName, email);
-    }
-
     @Override
     public PaymentEventType getAction() {
         return PaymentEventType.CREATE;
     }
+
 }
