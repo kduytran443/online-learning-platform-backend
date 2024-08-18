@@ -7,23 +7,19 @@ import java.util.stream.Stream;
 
 @Getter
 @AllArgsConstructor
-public enum OrderStatus {
-    CREATED("A"),
-    CANCELLED("C"),
-    PAYING("P"),
-    PAID("D"),
-    FAILED("F");
+public enum OrderType {
+    BUY_CLASS("BL");
 
     private String code;
 
-    public static OrderStatus of(String code) {
+    public static OrderType of(String code) {
         if (code == null) {
             throw new RuntimeException();
         }
-        return Stream.of(OrderStatus.values())
+        return Stream.of(OrderType.values())
                 .filter(type -> code.equals(type.getCode()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No enum OrderStatus constant with code " + code));
+                .orElseThrow(() -> new IllegalArgumentException("No enum OrderType constant with code " + code));
     }
 
 }
