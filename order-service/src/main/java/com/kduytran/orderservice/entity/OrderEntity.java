@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order")
+@Table(name = "`order`")
 @Getter @Setter
 public class OrderEntity {
 
@@ -42,7 +42,7 @@ public class OrderEntity {
     private LocalDateTime createdAt;
 
     @Column
-    private LocalDateTime executeAt;
+    private LocalDateTime executedAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderDetailsEntity> orderDetailsList;

@@ -1,6 +1,7 @@
 package com.kduytran.orderservice.service;
 
 import com.kduytran.orderservice.dto.OrderRequestDTO;
+import com.kduytran.orderservice.dto.OrderResponseDTO;
 import com.kduytran.orderservice.dto.PayingOrderDTO;
 
 import java.util.UUID;
@@ -12,5 +13,6 @@ public interface IOrderService {
     void makeOrderPaying(PayingOrderDTO dto);
     void cancelOrder(String id);
     void makeOrderPaid(String id);
+    OrderResponseDTO getOrder(String id);
 
 }
