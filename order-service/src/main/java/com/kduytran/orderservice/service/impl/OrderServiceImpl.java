@@ -6,11 +6,16 @@ import com.kduytran.orderservice.dto.OrderResponseDTO;
 import com.kduytran.orderservice.dto.PayingOrderDTO;
 import com.kduytran.orderservice.entity.OrderEntity;
 import com.kduytran.orderservice.entity.OrderStatus;
+import com.kduytran.orderservice.event.AbstractOrderEvent;
+import com.kduytran.orderservice.event.EventType;
+import com.kduytran.orderservice.event.OrderCreatedEvent;
 import com.kduytran.orderservice.exception.ResourceNotFoundException;
 import com.kduytran.orderservice.repository.OrderRepository;
 import com.kduytran.orderservice.service.IOrderService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,13 +23,15 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class OrderServiceImpl implements IOrderService {
-
     private final OrderRepository orderRepository;
+    private final ApplicationEventPublisher publisher;
 
-    public OrderServiceImpl(OrderRepository orderRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, ApplicationEventPublisher publisher) {
         this.orderRepository = orderRepository;
+        this.publisher = publisher;
     }
 
+    @Transactional
     @Override
     public UUID placeAnOrder(OrderRequestDTO dto) {
         // TODO: Validate the order by calling APIs
@@ -33,9 +40,9 @@ public class OrderServiceImpl implements IOrderService {
         OrderEntity orderEntity = OrderConverter.convert(dto, new OrderEntity());
         orderEntity.setCreatedAt(LocalDateTime.now());
         orderEntity.setStatus(OrderStatus.CREATED);
-
         orderEntity = orderRepository.save(orderEntity);
 
+        pushEvent(orderEntity, EventType.CREATED);
         return orderEntity.getId();
     }
 
@@ -90,9 +97,21 @@ public class OrderServiceImpl implements IOrderService {
         return OrderConverter.convert(orderEntity);
     }
 
-
     public void validate(OrderRequestDTO dto) {
 
+    }
+
+    private void pushEvent(OrderEntity entity, EventType type) {
+        AbstractOrderEvent event = switch (type) {
+            case CREATED -> new OrderCreatedEvent();
+        };
+        makeEvent(event, entity);
+        publisher.publishEvent(event);
+    }
+
+    private void makeEvent(AbstractOrderEvent event, OrderEntity entity) {
+        event.setCorrelationId(UUID.randomUUID());
+        event.setOrderId(entity.getId());
     }
 
 }
