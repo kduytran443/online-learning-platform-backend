@@ -1,6 +1,7 @@
 package com.kduytran.orderservice.service.impl;
 
 import com.kduytran.orderservice.converter.OrderConverter;
+import com.kduytran.orderservice.dto.OrderDetailsDTO;
 import com.kduytran.orderservice.dto.OrderRequestDTO;
 import com.kduytran.orderservice.dto.OrderResponseDTO;
 import com.kduytran.orderservice.dto.PayingOrderDTO;
@@ -42,7 +43,9 @@ public class OrderServiceImpl implements IOrderService {
         orderEntity.setStatus(OrderStatus.CREATED);
         orderEntity = orderRepository.save(orderEntity);
 
-        pushEvent(orderEntity, EventType.CREATED);
+        Double total = dto.getOrderDetails().stream().mapToDouble(OrderDetailsDTO::getPrice).sum();
+
+        pushEvent(orderEntity, EventType.CREATED, dto, total);
         return orderEntity.getId();
     }
 
@@ -101,17 +104,26 @@ public class OrderServiceImpl implements IOrderService {
 
     }
 
-    private void pushEvent(OrderEntity entity, EventType type) {
+    private void pushEvent(OrderEntity entity, EventType type, OrderRequestDTO dto, Double total) {
         AbstractOrderEvent event = switch (type) {
             case CREATED -> new OrderCreatedEvent();
         };
-        makeEvent(event, entity);
+        makeEvent(event, entity, dto);
+        event.setTotal(total);
         publisher.publishEvent(event);
     }
 
-    private void makeEvent(AbstractOrderEvent event, OrderEntity entity) {
+    private void makeEvent(AbstractOrderEvent event,
+                           OrderEntity entity, OrderRequestDTO dto) {
         event.setCorrelationId(UUID.randomUUID());
         event.setOrderId(entity.getId());
+        event.setEmail(entity.getUserInfo().getEmail());
+        event.setName(entity.getUserInfo().getName());
+        event.setUserId(entity.getUserInfo().getId());
+        event.setUsername(entity.getUserInfo().getUsername());
+        event.setStatus(event.getStatus());
+        event.setPaymentMethod(dto.getPaymentMethod());
+        event.setCurrency(dto.getCurrency());
     }
 
 }

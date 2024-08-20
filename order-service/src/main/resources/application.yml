@@ -15,6 +15,8 @@ spring:
     import: "optional:configserver:http://localhost:8071/"
   kafka:
     bootstrap-servers: localhost:29092
+    consumer:
+      group-id: "order-consumers"
     producer:
       bootstrap-servers: localhost:29092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -25,6 +27,7 @@ spring:
             trusted:
               packages: "*"
             "use.type.headers": false
+
 
 server:
   port: 8130

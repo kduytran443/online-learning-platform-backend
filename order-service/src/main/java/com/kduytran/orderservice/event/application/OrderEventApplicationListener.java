@@ -1,7 +1,7 @@
 package com.kduytran.orderservice.event.application;
 
 import com.kduytran.orderservice.event.OrderCreatedEvent;
-import com.kduytran.orderservice.kafka.KafkaConstant;
+import com.kduytran.orderservice.constant.KafkaConstant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

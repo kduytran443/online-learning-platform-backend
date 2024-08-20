@@ -1,5 +1,7 @@
 package com.kduytran.orderservice.event;
 
+import com.kduytran.orderservice.event.payment.PaymentMethod;
+import com.kduytran.orderservice.event.payment.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,14 @@ import java.util.UUID;
 public abstract class AbstractOrderEvent {
     private UUID correlationId;
     private UUID orderId;
+    private Double total;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus status;
+    private UUID userId;
+    private String username;
+    private String name;
+    private String email;
+    private String currency;
 
     public abstract EventType getAction();
 }

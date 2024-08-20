@@ -1,4 +1,4 @@
-package com.kduytran.orderservice.kafka;
+package com.kduytran.orderservice.constant;
 
 import lombok.experimental.UtilityClass;
 
@@ -6,5 +6,6 @@ import lombok.experimental.UtilityClass;
 public class KafkaConstant {
 
     public static final String TOPIC_ORDERS = "t_orders";
+    public static final String TOPIC_PAYMENTS = "t_payments";
 
 }
