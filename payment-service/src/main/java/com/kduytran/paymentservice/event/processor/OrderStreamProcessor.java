@@ -1,6 +1,8 @@
-package com.kduytran.paymentservice.processor;
+package com.kduytran.paymentservice.event.processor;
 
 import com.kduytran.paymentservice.constant.KafkaConstant;
+import com.kduytran.paymentservice.event.order.OrderEvent;
+import com.kduytran.paymentservice.util.StreamUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
@@ -13,14 +15,20 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @AllArgsConstructor
-public class PaymentProcessor extends AbstractStreamsProcessor {
+public class OrderStreamProcessor extends AbstractStreamsProcessor {
     private final StreamsBuilder streamsBuilder;
     private final ModelMapper modelMapper;
 
     @Override
     protected void handleStream() {
-        KStream<String, String> kStream = streamsBuilder.stream(KafkaConstant.TOPIC_ORDERS,
-                Consumed.with(Serdes.String(), Serdes.String()));
+        KStream<String, OrderEvent> kStream = streamsBuilder.stream(KafkaConstant.TOPIC_ORDERS,
+                Consumed.with(Serdes.String(), Serdes.String()))
+                .mapValues(value -> StreamUtils.mapValue(value, OrderEvent.class));
+
+        kStream.foreach((key, value) -> handleService(value));
+    }
+
+    private void handleService(OrderEvent event) {
 
     }
 

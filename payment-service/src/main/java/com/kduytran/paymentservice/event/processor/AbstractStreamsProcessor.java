@@ -1,4 +1,4 @@
-package com.kduytran.paymentservice.processor;
+package com.kduytran.paymentservice.event.processor;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
