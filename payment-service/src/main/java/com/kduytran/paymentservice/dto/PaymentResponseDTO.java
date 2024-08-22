@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class PaypalResponseDTO {
+public class PaymentResponseDTO {
 
     @Schema(description = "Status code in the response", example = "200")
     private String statusCode;

@@ -1,7 +1,10 @@
 package com.kduytran.paymentservice.event.processor;
 
 import com.kduytran.paymentservice.constant.KafkaConstant;
+import com.kduytran.paymentservice.dto.PaymentRequestDTO;
 import com.kduytran.paymentservice.event.order.OrderEvent;
+import com.kduytran.paymentservice.service.IPaymentService;
+import com.kduytran.paymentservice.service.IPaypalService;
 import com.kduytran.paymentservice.util.StreamUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Component;
 public class OrderStreamProcessor extends AbstractStreamsProcessor {
     private final StreamsBuilder streamsBuilder;
     private final ModelMapper modelMapper;
+    private final IPaypalService paypalService;
 
     @Override
     protected void handleStream() {
@@ -29,7 +33,10 @@ public class OrderStreamProcessor extends AbstractStreamsProcessor {
     }
 
     private void handleService(OrderEvent event) {
-
+        PaymentRequestDTO dto = new PaymentRequestDTO();
+        switch (event.getAction()) {
+            case CREATED -> paypalService.createPaypalTransaction(dto);
+        }
     }
 
 }

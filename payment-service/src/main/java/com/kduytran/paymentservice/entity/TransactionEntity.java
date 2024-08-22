@@ -60,4 +60,7 @@ public class TransactionEntity {
     @Column
     private String email;
 
+    @Column
+    private String redirectUrl;
+
 }

@@ -3,6 +3,7 @@ package com.kduytran.paymentservice.controller;
 import com.kduytran.paymentservice.constant.ResponseConstant;
 import com.kduytran.paymentservice.dto.*;
 import com.kduytran.paymentservice.service.IPaymentService;
+import com.kduytran.paymentservice.service.IPaypalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PaymentController {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentController.class);
-    private final IPaymentService paymentService;
+    private final IPaypalService paymentService;
 
     @Operation(
             summary = "Create PayPal Payment",
