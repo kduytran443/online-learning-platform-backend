@@ -1,5 +1,6 @@
 package com.kduytran.paymentservice.payment;
 
+import com.kduytran.paymentservice.dto.ExecuteTransactionRequestDTO;
 import com.kduytran.paymentservice.dto.PaymentRequestDTO;
 import com.kduytran.paymentservice.dto.PaypalPaymentIntent;
 import com.kduytran.paymentservice.dto.PaypalPaymentMethod;
@@ -7,12 +8,13 @@ import com.kduytran.paymentservice.entity.PaymentMethod;
 import com.kduytran.paymentservice.entity.PaymentStatus;
 import com.kduytran.paymentservice.entity.TransactionEntity;
 import com.kduytran.paymentservice.exception.PayPalTransactionException;
+import com.kduytran.paymentservice.exception.ResourceNotFoundException;
 import com.kduytran.paymentservice.repository.TransactionRepository;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,11 +25,26 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 @Data
-@AllArgsConstructor
-public class PaypalStrategy implements InitPaymentStrategy {
+@Slf4j
+public class PaypalStrategy implements InitPaymentStrategy, ExecutePaymentStrategy {
     private final Supplier<APIContext> apiContext;
     private final TransactionRepository transactionRepository;
     private PaymentRequestDTO dto;
+    private ExecuteTransactionRequestDTO executeDTO;
+
+    public PaypalStrategy(Supplier<APIContext> apiContext, TransactionRepository transactionRepository,
+                          PaymentRequestDTO dto) {
+        this.apiContext = apiContext;
+        this.transactionRepository = transactionRepository;
+        this.dto = dto;
+    }
+
+    public PaypalStrategy(Supplier<APIContext> apiContext, TransactionRepository transactionRepository,
+                          ExecuteTransactionRequestDTO executeDTO) {
+        this.apiContext = apiContext;
+        this.transactionRepository = transactionRepository;
+        this.executeDTO = executeDTO;
+    }
 
     public Payment createPaypalPayment() throws PayPalRESTException {
         Amount amount = new Amount();
@@ -57,6 +74,14 @@ public class PaypalStrategy implements InitPaymentStrategy {
         payment.setRedirectUrls(redirectUrls);
 
         return payment.create(apiContext.get());
+    }
+
+    public Payment executePaypalPayment(String paymentId, String payerId) throws PayPalRESTException {
+        Payment payment = new Payment();
+        payment.setId(paymentId);
+        PaymentExecution paymentExecute = new PaymentExecution();
+        paymentExecute.setPayerId(payerId);
+        return payment.execute(apiContext.get(), paymentExecute);
     }
 
     @Override
@@ -93,4 +118,26 @@ public class PaypalStrategy implements InitPaymentStrategy {
         return "";
     }
 
+    @Override
+    public TransactionEntity execute() {
+        TransactionEntity entity = transactionRepository.findByPaymentId(executeDTO.getPaymentId()).orElseThrow(
+                () -> new ResourceNotFoundException("transaction", "paymentId", executeDTO.getPaymentId())
+        );
+        entity.setExecutionAt(LocalDateTime.now());
+        entity.setPayerId(executeDTO.getPayerId());
+        try {
+            Payment payment = this.executePaypalPayment(executeDTO.getPaymentId(), executeDTO.getPayerId());
+            entity.setStatus("approved".equals(payment.getState()) ? PaymentStatus.SUCCESSFUL : PaymentStatus.FAILED);
+            log.info("Payment executed with state: {}", entity.getStatus());
+        } catch (PayPalRESTException e) {
+            entity.setStatus(PaymentStatus.FAILED);
+            log.info("Payment executed with state: {}", entity.getStatus());
+            throw new PayPalTransactionException(String.format("Error executing PayPal payment %s",
+                    executeDTO.getPaymentId()));
+        } finally {
+            log.info("Payment saved: {}", entity);
+            transactionRepository.save(entity);
+        }
+        return entity;
+    }
 }
