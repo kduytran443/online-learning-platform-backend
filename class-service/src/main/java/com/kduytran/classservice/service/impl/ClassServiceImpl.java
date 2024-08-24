@@ -4,23 +4,29 @@ import com.kduytran.classservice.converter.ClassConverter;
 import com.kduytran.classservice.dto.*;
 import com.kduytran.classservice.entity.ClassEntity;
 import com.kduytran.classservice.entity.EntityStatus;
+import com.kduytran.classservice.event.Action;
+import com.kduytran.classservice.event.application.AbstractClassApplicationEvent;
+import com.kduytran.classservice.event.application.ClassCreatedApplicationEvent;
+import com.kduytran.classservice.event.application.ClassDeletedApplicationEvent;
+import com.kduytran.classservice.event.application.ClassUpdatedApplicationEvent;
 import com.kduytran.classservice.exception.EntityStatusNotValidException;
 import com.kduytran.classservice.exception.ResourceNotFoundException;
 import com.kduytran.classservice.repository.ClassRepository;
 import com.kduytran.classservice.service.IClassService;
+import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ClassServiceImpl implements IClassService {
 
     private final ClassRepository classRepository;
-
-    public ClassServiceImpl(ClassRepository classRepository) {
-        this.classRepository = classRepository;
-    }
+    private final ApplicationEventPublisher publisher;
 
     /**
      * Creates a new class based on the provided data.
@@ -28,9 +34,12 @@ public class ClassServiceImpl implements IClassService {
      * @param updateClassDTO The DTO (Data Transfer Object) containing the data needed to create a class.
      */
     @Override
+    @Transactional
     public UUID create(UpdateClassDTO updateClassDTO) {
         ClassEntity classEntity = ClassConverter.convert(updateClassDTO, new ClassEntity());
-        return classRepository.save(classEntity).getId();
+        classEntity = classRepository.save(classEntity);
+        pushEvent(classEntity, Action.CREATE);
+        return classEntity.getId();
     }
 
     /**
@@ -39,12 +48,14 @@ public class ClassServiceImpl implements IClassService {
      * @param updateClassDTO The DTO containing the updated data for the class.
      */
     @Override
+    @Transactional
     public void update(String id, UpdateClassDTO updateClassDTO) {
         ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("class", "id", id)
         );
         classEntity = ClassConverter.convert(updateClassDTO, classEntity);
         classRepository.save(classEntity);
+        pushEvent(classEntity, Action.UPDATE);
     }
 
     /**
@@ -99,6 +110,7 @@ public class ClassServiceImpl implements IClassService {
         }
         classEntity.setStatus(EntityStatus.DELETED);
         classRepository.save(classEntity);
+        pushEvent(classEntity, Action.DELETE);
     }
 
     /**
@@ -125,6 +137,7 @@ public class ClassServiceImpl implements IClassService {
      * @param id The unique identifier for the class to be hidden.
      */
     @Override
+    @Transactional
     public void hide(String id) {
         ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new ResourceNotFoundException("class", "id", id)
@@ -158,6 +171,7 @@ public class ClassServiceImpl implements IClassService {
      * @param setPasswordDTO The new password to be set.
      */
     @Override
+    @Transactional
     public void setPassword(String id, SetPasswordDTO setPasswordDTO) {
         String hashedPassword = BCrypt.hashpw(setPasswordDTO.getPassword(), BCrypt.gensalt());
         ClassEntity classEntity = classRepository.findById(UUID.fromString(id)).orElseThrow(
@@ -165,6 +179,32 @@ public class ClassServiceImpl implements IClassService {
         );
         classEntity.setPassword(hashedPassword);
         classRepository.save(classEntity);
+    }
+
+    private void pushEvent(ClassEntity classEntity, Action action) {
+        AbstractClassApplicationEvent event = switch (action) {
+            case CREATE -> new ClassCreatedApplicationEvent();
+            case UPDATE -> new ClassUpdatedApplicationEvent();
+            case DELETE -> new ClassDeletedApplicationEvent();
+        };
+        makeEvent(event, classEntity);
+        publisher.publishEvent(event);
+    }
+
+    private void makeEvent(AbstractClassApplicationEvent event, ClassEntity classEntity) {
+        event.setId(classEntity.getId());
+        event.setName(classEntity.getName());
+        event.setImage(classEntity.getImage());
+        event.setEndAt(classEntity.getEndAt());
+        event.setHasPassword(classEntity.getPassword() != null);
+        event.setCategoryId(classEntity.getCategoryId());
+        event.setOwnerId(classEntity.getOwnerId());
+        event.setOwnerType(classEntity.getOwnerType().getCode());
+        event.setStartAt(classEntity.getStartAt());
+        event.setStatus(classEntity.getStatus().getCode());
+
+        // TODO: set TransactionId
+        // event.setTransactionId();
     }
 
 }
