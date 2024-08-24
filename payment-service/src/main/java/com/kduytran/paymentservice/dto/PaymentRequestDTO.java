@@ -1,7 +1,6 @@
 package com.kduytran.paymentservice.dto;
 
 import com.kduytran.paymentservice.entity.PaymentMethod;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
