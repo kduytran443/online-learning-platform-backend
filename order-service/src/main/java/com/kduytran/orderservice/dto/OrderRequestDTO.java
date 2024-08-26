@@ -22,4 +22,6 @@ public class OrderRequestDTO {
     private String fullName;
     private String email;
     private String currency;
+    private String cancelUrl;
+    private String successUrl;
 }

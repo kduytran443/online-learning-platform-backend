@@ -24,6 +24,8 @@ public abstract class AbstractOrderEvent {
     private String name;
     private String email;
     private String currency;
+    private String cancelUrl;
+    private String successUrl;
 
     public abstract EventType getAction();
 }

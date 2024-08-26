@@ -20,10 +20,12 @@ public class OrderEventHandler {
     @KafkaListener(
             topics = KafkaConstant.TOPIC_PAYMENTS,
             groupId = "order-consumers",
-            containerFactory = "kafkaListener"
+            properties = {
+            "spring.json.value.default.type: com.kduytran.orderservice.event.payment.PaymentEvent"
+            }
     )
     public void handlePaymentEvent(PaymentEvent event) {
-        log.info("Correlation ID: {} - Receive event for order ID: {}",
+        log.info("Correlation ID: {} - Receive PaymentEvent for order ID: {}",
                 event.getCorrelationId(), event.getOrderId());
 
         switch (event.getAction()) {
@@ -34,9 +36,9 @@ public class OrderEventHandler {
                 dto.setPaymentUrl(event.getPaymentUrl());
                 dto.setCorrelationId(event.getCorrelationId().toString());
                 orderService.makeOrderPaying(dto);
-                break;
             }
             case EXECUTE -> orderService.makeOrderPaid(event.getOrderId().toString());
+            case FAIL -> orderService.makeOrderFailed(event.getOrderId().toString());
         }
     }
 

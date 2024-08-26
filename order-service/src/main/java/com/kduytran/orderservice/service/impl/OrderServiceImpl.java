@@ -1,7 +1,6 @@
 package com.kduytran.orderservice.service.impl;
 
 import com.kduytran.orderservice.converter.OrderConverter;
-import com.kduytran.orderservice.dto.OrderDetailsDTO;
 import com.kduytran.orderservice.dto.OrderRequestDTO;
 import com.kduytran.orderservice.dto.OrderResponseDTO;
 import com.kduytran.orderservice.dto.PayingOrderDTO;
@@ -42,10 +41,7 @@ public class OrderServiceImpl implements IOrderService {
         orderEntity.setCreatedAt(LocalDateTime.now());
         orderEntity.setStatus(OrderStatus.CREATED);
         orderEntity = orderRepository.save(orderEntity);
-
-        Double total = dto.getOrderDetails().stream().mapToDouble(OrderDetailsDTO::getPrice).sum();
-
-        pushEvent(orderEntity, EventType.CREATED, dto, total);
+        pushEvent(orderEntity, EventType.CREATED, dto, orderEntity.getAmount());
         return orderEntity.getId();
     }
 
@@ -124,6 +120,8 @@ public class OrderServiceImpl implements IOrderService {
         event.setStatus(event.getStatus());
         event.setPaymentMethod(dto.getPaymentMethod());
         event.setCurrency(dto.getCurrency());
+        event.setCancelUrl(dto.getCancelUrl());
+        event.setSuccessUrl(dto.getSuccessUrl());
     }
 
 }

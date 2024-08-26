@@ -16,7 +16,16 @@ spring:
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
+      bootstrap-servers: localhost:29092
       group-id: "order-consumers"
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            "use.type.headers": false
     producer:
       bootstrap-servers: localhost:29092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
