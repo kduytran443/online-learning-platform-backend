@@ -3,10 +3,7 @@ package com.kduytran.paymentservice.service.impl;
 import com.kduytran.paymentservice.dto.*;
 import com.kduytran.paymentservice.entity.PaymentStatus;
 import com.kduytran.paymentservice.entity.TransactionEntity;
-import com.kduytran.paymentservice.event.AbstractPaymentEvent;
-import com.kduytran.paymentservice.event.PaymentCancelledEvent;
-import com.kduytran.paymentservice.event.PaymentCreatedEvent;
-import com.kduytran.paymentservice.event.PaymentExecutedEvent;
+import com.kduytran.paymentservice.event.*;
 import com.kduytran.paymentservice.exception.ResourceNotFoundException;
 import com.kduytran.paymentservice.payment.ExecutePaymentStrategy;
 import com.kduytran.paymentservice.payment.InitPaymentStrategy;
@@ -72,7 +69,8 @@ public class PaymentServiceImpl implements IPaymentService {
         AbstractPaymentEvent event = switch (entity.getStatus()) {
             case SUCCESSFUL -> new PaymentExecutedEvent();
             case PENDING -> new PaymentCreatedEvent();
-            case FAILED, CANCELLED -> new PaymentCancelledEvent();
+            case FAILED -> new PaymentFailedEvent();
+            case CANCELLED -> new PaymentCancelledEvent();
         };
         makeEvent(event, entity);
         publisher.publishEvent(event);

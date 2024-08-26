@@ -32,10 +32,18 @@ public class OrderStreamProcessor extends AbstractStreamsProcessor {
     }
 
     private void handleService(OrderEvent event) {
-        PaymentRequestDTO dto = new PaymentRequestDTO();
         switch (event.getAction()) {
-            case CREATED -> paymentService.makeTransaction(dto);
+            case CREATED -> handleCreate(event);
         }
+    }
+
+    private void handleCreate(OrderEvent event) {
+        log.info("Correlation ID: {} - Processing OrderEvent with action: {}, for Order ID: {}",
+                event.getCorrelationId(),
+                event.getAction(),
+                event.getOrderId());
+        PaymentRequestDTO dto = modelMapper.map(event, PaymentRequestDTO.class);
+        paymentService.makeTransaction(dto);
     }
 
 }

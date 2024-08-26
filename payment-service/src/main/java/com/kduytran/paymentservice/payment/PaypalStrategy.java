@@ -86,32 +86,33 @@ public class PaypalStrategy implements InitPaymentStrategy, ExecutePaymentStrate
 
     @Override
     public TransactionEntity init() {
+        TransactionEntity entity = new TransactionEntity();
+        entity.setTotal(dto.getTotal());
+        entity.setCurrency(dto.getCurrency());
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setOrderId(dto.getOrderId());
+        entity.setPaymentMethod(PaymentMethod.PAYPAL);
+        entity.setUsername(dto.getUsername());
+        entity.setUserId(dto.getUserId());
+        entity.setEmail(dto.getEmail());
+        entity.setFullName(dto.getFullName());
         try {
             Payment payment = this.createPaypalPayment();
             String redirectUrl = payment.getLinks().stream().filter(link -> "approval_url".equals(link.getRel()))
                     .findFirst().map(Links::getHref).orElseThrow(
                             () -> new RuntimeException("Link not found!")
                     );
-
-            TransactionEntity entity = new TransactionEntity();
-            entity.setTotal(dto.getTotal());
-            entity.setCurrency(dto.getCurrency());
-            entity.setDescription(getDescription());
-            entity.setCreatedAt(LocalDateTime.now());
-            entity.setOrderId(dto.getOrderId());
             entity.setStatus(PaymentStatus.PENDING);
-            entity.setPaymentMethod(PaymentMethod.PAYPAL);
             entity.setPaymentId(payment.getId());
-            entity.setUsername(dto.getUsername());
-            entity.setUserId(dto.getUserId());
-            entity.setEmail(dto.getEmail());
-            entity.setFullName(dto.getFullName());
             entity.setRedirectUrl(redirectUrl);
-            return entity;
+            entity.setDescription(getDescription());
         } catch (PayPalRESTException e) {
-            throw new PayPalTransactionException(
-                    String.format("Error executing PayPal payment for orderId %s", dto.getOrderId()));
+            String logMsg = String.format("Error executing PayPal payment for orderId %s", dto.getOrderId());
+            log.error(logMsg);
+            entity.setDescription(logMsg);
+            entity.setStatus(PaymentStatus.FAILED);
         }
+        return entity;
     }
 
     private String getDescription() {
