@@ -33,8 +33,8 @@ public class MasterCardStrategy implements InitPaymentStrategy {
         entity.setUsername(dto.getUsername());
         entity.setUserId(dto.getUserId());
         entity.setEmail(dto.getEmail());
-        entity.setFullName(dto.getFullName());
-        entity.setRedirectUrl(redirectUrl);
+        entity.setFullName(dto.getName());
+        entity.setPaymentUrl(redirectUrl);
         return entity;
     }
 

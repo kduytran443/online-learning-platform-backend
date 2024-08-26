@@ -7,7 +7,6 @@ import com.kduytran.paymentservice.dto.PaypalPaymentMethod;
 import com.kduytran.paymentservice.entity.PaymentMethod;
 import com.kduytran.paymentservice.entity.PaymentStatus;
 import com.kduytran.paymentservice.entity.TransactionEntity;
-import com.kduytran.paymentservice.exception.PayPalTransactionException;
 import com.kduytran.paymentservice.exception.ResourceNotFoundException;
 import com.kduytran.paymentservice.repository.TransactionRepository;
 import com.paypal.api.payments.*;
@@ -95,7 +94,7 @@ public class PaypalStrategy implements InitPaymentStrategy, ExecutePaymentStrate
         entity.setUsername(dto.getUsername());
         entity.setUserId(dto.getUserId());
         entity.setEmail(dto.getEmail());
-        entity.setFullName(dto.getFullName());
+        entity.setFullName(dto.getName());
         try {
             Payment payment = this.createPaypalPayment();
             String redirectUrl = payment.getLinks().stream().filter(link -> "approval_url".equals(link.getRel()))
@@ -104,19 +103,18 @@ public class PaypalStrategy implements InitPaymentStrategy, ExecutePaymentStrate
                     );
             entity.setStatus(PaymentStatus.PENDING);
             entity.setPaymentId(payment.getId());
-            entity.setRedirectUrl(redirectUrl);
-            entity.setDescription(getDescription());
+            entity.setPaymentUrl(redirectUrl);
+            entity.setDescription("Initiated Paypal payment");
         } catch (PayPalRESTException e) {
-            String logMsg = String.format("Error executing PayPal payment for orderId %s", dto.getOrderId());
+            String logMsg = String.format("Error initiating PayPal payment for orderId %s", dto.getOrderId());
             log.error(logMsg);
             entity.setDescription(logMsg);
             entity.setStatus(PaymentStatus.FAILED);
+        } finally {
+            log.info("Payment saved: {}", entity);
+            transactionRepository.save(entity);
         }
         return entity;
-    }
-
-    private String getDescription() {
-        return "";
     }
 
     @Override
@@ -128,13 +126,19 @@ public class PaypalStrategy implements InitPaymentStrategy, ExecutePaymentStrate
         entity.setPayerId(executeDTO.getPayerId());
         try {
             Payment payment = this.executePaypalPayment(executeDTO.getPaymentId(), executeDTO.getPayerId());
+            String logMsg = String.format("Executed PayPal payment for paymentId %s with paypal status: %s",
+                    executeDTO.getPaymentId(), payment.getState());
+            entity.setDescription(logMsg);
+            log.info(logMsg);
             entity.setStatus("approved".equals(payment.getState()) ? PaymentStatus.SUCCESSFUL : PaymentStatus.FAILED);
-            log.info("Payment executed with state: {}", entity.getStatus());
         } catch (PayPalRESTException e) {
-            entity.setStatus(PaymentStatus.FAILED);
-            log.info("Payment executed with state: {}", entity.getStatus());
-            throw new PayPalTransactionException(String.format("Error executing PayPal payment %s",
-                    executeDTO.getPaymentId()));
+            String logMsg = String.format("Error executing PayPal paymentId %s: %s",
+                    executeDTO.getPaymentId(), e.getMessage());
+            log.error(logMsg);
+            entity.setDescription(logMsg);
+            if (!e.getMessage().contains("PAYMENT_ALREADY_DONE")) {
+                entity.setStatus(PaymentStatus.FAILED);
+            }
         } finally {
             log.info("Payment saved: {}", entity);
             transactionRepository.save(entity);

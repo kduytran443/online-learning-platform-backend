@@ -11,5 +11,5 @@ public class PaymentResponseDTO {
 
     @Schema(description = "Status message in the response", example = "Request processed successfully")
     private String statusMsg;
-    private String redirectUrl;
+    private String paymentUrl;
 }

@@ -22,6 +22,6 @@ public class PaymentRequestDTO {
     private PaymentMethod paymentMethod;
     private UUID userId;
     private String username;
-    private String fullName;
+    private String name;
     private String email;
 }

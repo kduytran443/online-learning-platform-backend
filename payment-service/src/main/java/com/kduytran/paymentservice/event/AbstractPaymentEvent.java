@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 public abstract class AbstractPaymentEvent {
-    private UUID transactionId;
+    private UUID correlationId;
     private UUID id;
     private Double total;
     private String currency;
@@ -25,6 +25,7 @@ public abstract class AbstractPaymentEvent {
     private PaymentStatus status;
     private String payerId;
     private String paymentId;
+    private String paymentUrl;
     private LocalDateTime createdAt;
     private LocalDateTime executionAt;
     private UUID userId;

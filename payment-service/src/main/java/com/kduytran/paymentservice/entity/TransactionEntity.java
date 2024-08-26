@@ -27,7 +27,7 @@ public class TransactionEntity {
     @Column
     private UUID orderId;
 
-    @Column
+    @Column(length = 1024)
     private String description;
 
     @Column
@@ -60,7 +60,7 @@ public class TransactionEntity {
     @Column
     private String email;
 
-    @Column
-    private String redirectUrl;
+    @Column(length = 1024)
+    private String paymentUrl;
 
 }

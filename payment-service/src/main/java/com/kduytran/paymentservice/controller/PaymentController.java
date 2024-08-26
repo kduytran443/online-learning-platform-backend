@@ -50,7 +50,7 @@ public class PaymentController {
                     )
             )
     })
-    @PostMapping("/paypal/make")
+    @PostMapping("/make")
     public ResponseEntity<PaymentResponseDTO> createPaypalPayment(@RequestBody PaymentRequestDTO dto) {
         LOGGER.info("Creating PayPal payment with request: {}", dto);
         return ResponseEntity.ok(paymentService.makeTransaction(dto));
@@ -93,7 +93,7 @@ public class PaymentController {
                     )
             )
     })
-    @PostMapping("/paypal/execute")
+    @PostMapping("/execute")
     public ResponseEntity<ResponseDTO> executePayment(@RequestBody ExecuteTransactionRequestDTO dto) {
         LOGGER.info("Executing PayPal payment with request: paymentId={}, payerId={}",
                 dto.getPaymentId(), dto.getPayerId());

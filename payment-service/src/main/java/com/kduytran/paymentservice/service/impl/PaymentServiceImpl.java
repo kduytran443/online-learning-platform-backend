@@ -33,12 +33,10 @@ public class PaymentServiceImpl implements IPaymentService {
     public PaymentResponseDTO makeTransaction(PaymentRequestDTO dto) {
         InitPaymentStrategy strategy = InitPaymentStrategy.of(apiContext, transactionRepository, dto);
         TransactionEntity entity = strategy.init();
-
-        transactionRepository.save(entity);
         pushEvent(entity);
 
         PaymentResponseDTO responseDTO = new PaymentResponseDTO();
-        responseDTO.setRedirectUrl(entity.getRedirectUrl());
+        responseDTO.setPaymentUrl(entity.getPaymentUrl());
         return responseDTO;
     }
 
@@ -52,7 +50,7 @@ public class PaymentServiceImpl implements IPaymentService {
     }
 
     @Transactional
-    public void cancelPaypalTransaction(String paymentId, String payerId) {
+    public void cancelTransaction(String paymentId, String payerId) {
         TransactionEntity entity = transactionRepository.findByPaymentId(paymentId).orElseThrow(
                 () -> new ResourceNotFoundException("transaction", "paymentId", paymentId)
         );
@@ -77,13 +75,14 @@ public class PaymentServiceImpl implements IPaymentService {
     }
 
     private void makeEvent(AbstractPaymentEvent event, TransactionEntity entity) {
-        event.setTransactionId(entity.getId());
+        event.setCorrelationId(entity.getId());
         event.setId(entity.getId());
         event.setTotal(entity.getTotal());
         event.setCurrency(entity.getCurrency());
         event.setOrderId(entity.getOrderId());
         event.setDescription(entity.getDescription());
         event.setPaymentMethod(entity.getPaymentMethod());
+        event.setPaymentUrl(entity.getPaymentUrl());
         event.setStatus(entity.getStatus());
         event.setPayerId(entity.getPayerId());
         event.setPaymentId(entity.getPaymentId());

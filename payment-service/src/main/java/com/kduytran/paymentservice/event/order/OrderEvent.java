@@ -18,5 +18,7 @@ public class OrderEvent {
     private String name;
     private String email;
     private String currency;
+    private String cancelUrl;
+    private String successUrl;
     private EventType action;
 }
