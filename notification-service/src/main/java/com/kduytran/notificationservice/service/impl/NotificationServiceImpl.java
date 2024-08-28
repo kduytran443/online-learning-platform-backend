@@ -1,8 +1,10 @@
 package com.kduytran.notificationservice.service.impl;
 
 import com.kduytran.notificationservice.constant.AttributeConstant;
+import com.kduytran.notificationservice.dto.PaymentDTO;
 import com.kduytran.notificationservice.dto.RegistrationMessageDTO;
 import com.kduytran.notificationservice.notifier.email.AbstractEmail;
+import com.kduytran.notificationservice.notifier.email.PaymentSuccessEmail;
 import com.kduytran.notificationservice.notifier.email.RegistrationEmail;
 import com.kduytran.notificationservice.service.INotificationService;
 import jakarta.mail.MessagingException;
@@ -45,7 +47,29 @@ public class NotificationServiceImpl implements INotificationService {
         AbstractEmail email = RegistrationEmail.of(
                 mailSender, templateEngine, variables, recipientEmail
         );
+        sendMail(email);
+    }
 
+    @Override
+    public void sendPaymentEmail(PaymentDTO paymentDTO) {
+        String recipientEmail = paymentDTO.getEmail();
+        Map<String, Object> variables = new HashMap<>();
+        variables.put(AttributeConstant.FULL_NAME_ATTRIBUTE, paymentDTO.getFullName());
+        variables.put(AttributeConstant.ORDER_ID_ATTRIBUTE, paymentDTO.getOrderId());
+        variables.put(AttributeConstant.PAYMENT_ID_ATTRIBUTE, paymentDTO.getPaymentId());
+        variables.put(AttributeConstant.TOTAL_ATTRIBUTE, paymentDTO.getTotal());
+        variables.put(AttributeConstant.CURRENCY_ATTRIBUTE, paymentDTO.getCurrency());
+        variables.put(AttributeConstant.PAYMENT_METHOD_ATTRIBUTE, paymentDTO.getPaymentMethod());
+        variables.put(AttributeConstant.DESCRIPTION_ATTRIBUTE, paymentDTO.getDescription());
+        variables.put(AttributeConstant.EXECUTION_AT_ATTRIBUTE, paymentDTO.getExecutionAt());
+        variables.put(AttributeConstant.USERNAME_ATTRIBUTE, paymentDTO.getUsername());
+        variables.put(AttributeConstant.EMAIL_ATTRIBUTE, paymentDTO.getEmail());
+
+        AbstractEmail email = new PaymentSuccessEmail(mailSender, templateEngine, null, variables, recipientEmail);
+        sendMail(email);
+    }
+
+    private void sendMail(AbstractEmail email) {
         try {
             List<String> errors = email.send();
             if (errors.isEmpty()) {
@@ -56,6 +80,6 @@ public class NotificationServiceImpl implements INotificationService {
         } catch (MessagingException e) {
             LOGGER.error(e.toString());
         }
-
     }
+
 }

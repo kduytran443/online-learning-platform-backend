@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:remove="all">Payment Failure</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    .message {
+      margin-bottom: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #dc3545;
+      color: #fff !important;
+      text-decoration: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Payment Failure - Online Learning Platform</h1>
+  <div class="message">
+    <p>Dear <span th:text="${name}"></span>,</p>
+    <p>We regret to inform you that your payment for the order <strong>#<span th:text="${orderId}"></span></strong> has failed.</p>
+    <p>Here are the details of the transaction attempt:</p>
+    <ul>
+      <li><strong>Order ID:</strong> <span th:text="${orderId}"></span></li>
+      <li><strong>Payment ID:</strong> <span th:text="${paymentId}"></span></li>
+      <li><strong>Amount:</strong> $<span th:text="${amount}"></span></li>
+      <li><strong>Payment Date:</strong> <span th:text="${paymentDate}"></span></li>
+    </ul>
+    <p>Please try again or contact our support team if the issue persists.</p>
+    <a th:href="'http://localhost:8080/api/v1/payments/retry?orderId=' + ${orderId}" class="button">Retry Payment</a>
+  </div>
+</div>
+</body>
+</html>
