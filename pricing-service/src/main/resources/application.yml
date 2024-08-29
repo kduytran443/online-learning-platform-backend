@@ -1,6 +1,52 @@
 spring:
   application:
     name: "pricing"
+  datasource:
+    url: jdbc:postgresql://localhost:5442/pricing_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  config:
+    import: "optional:configserver:http://localhost:8071/"
 
 server:
   port: 8120
+management:
+  info:
+    env:
+      enabled: true
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+
+info:
+  app:
+    name: "pricing"
+    description: "Pricing service"
+    version: "1.0.0"
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: "http://localhost:8070/eureka/"
