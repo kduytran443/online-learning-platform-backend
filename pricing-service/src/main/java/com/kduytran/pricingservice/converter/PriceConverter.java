@@ -20,6 +20,7 @@ public class PriceConverter {
         entity.setTargetType(dto.getTargetType());
         entity.setStatus(EntityStatus.ACTIVE);
         entity.setCreatedAt(LocalDateTime.now());
+        entity.setCurrency(dto.getCurrency());
         return entity;
     }
 
@@ -34,6 +35,8 @@ public class PriceConverter {
         dto.setTargetType(entity.getTargetType());
         dto.setClosedAt(entity.getClosedAt());
         dto.setCloseReason(entity.getCloseReason());
+        dto.setStatus(entity.getStatus());
+        dto.setCurrency(entity.getCurrency());
         return dto;
     }
 

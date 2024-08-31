@@ -15,12 +15,13 @@ import java.util.List;
 @Validated
 @RequestMapping("/api/v1/prices")
 @RequiredArgsConstructor
+@RestController
 public class PriceController {
     private final IPriceService priceService;
 
-    @GetMapping
+    @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public IdResponseDTO createPrice(@RequestBody CreatePriceDTO dto) {
+        public IdResponseDTO createPrice(@RequestBody CreatePriceDTO dto) {
         return IdResponseDTO.of(ResponseConstant.STATUS_200,
                 ResponseConstant.MESSAGE_200,
                 priceService.createPrice(dto));

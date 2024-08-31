@@ -60,4 +60,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(SamePriceException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSamePriceException(SamePriceException exception,
+                                                                     WebRequest webRequest) {
+        return this.getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
 }

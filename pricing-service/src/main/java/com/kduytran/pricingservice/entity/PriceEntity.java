@@ -25,6 +25,9 @@ public class PriceEntity {
     private BigDecimal amount;
 
     @Column
+    private Currency currency;
+
+    @Column
     private EntityStatus status;
 
     @Column
