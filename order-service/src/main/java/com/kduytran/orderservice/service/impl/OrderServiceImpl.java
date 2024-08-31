@@ -1,6 +1,7 @@
 package com.kduytran.orderservice.service.impl;
 
 import com.kduytran.orderservice.converter.OrderConverter;
+import com.kduytran.orderservice.dto.OrderDetailsDTO;
 import com.kduytran.orderservice.dto.OrderRequestDTO;
 import com.kduytran.orderservice.dto.OrderResponseDTO;
 import com.kduytran.orderservice.dto.PayingOrderDTO;
@@ -9,6 +10,10 @@ import com.kduytran.orderservice.entity.OrderStatus;
 import com.kduytran.orderservice.event.AbstractOrderEvent;
 import com.kduytran.orderservice.event.EventType;
 import com.kduytran.orderservice.event.OrderCreatedEvent;
+import com.kduytran.orderservice.event.pricing.EntityStatus;
+import com.kduytran.orderservice.event.pricing.PriceDTO;
+import com.kduytran.orderservice.event.processor.PricingStreamsProcessor;
+import com.kduytran.orderservice.exception.InvalidPriceException;
 import com.kduytran.orderservice.exception.ResourceNotFoundException;
 import com.kduytran.orderservice.repository.OrderRepository;
 import com.kduytran.orderservice.service.IOrderService;
@@ -17,7 +22,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -25,10 +32,12 @@ import java.util.UUID;
 public class OrderServiceImpl implements IOrderService {
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher publisher;
+    private final PricingStreamsProcessor pricingStreamsProcessor;
 
-    public OrderServiceImpl(OrderRepository orderRepository, ApplicationEventPublisher publisher) {
+    public OrderServiceImpl(OrderRepository orderRepository, ApplicationEventPublisher publisher, PricingStreamsProcessor pricingStreamsProcessor) {
         this.orderRepository = orderRepository;
         this.publisher = publisher;
+        this.pricingStreamsProcessor = pricingStreamsProcessor;
     }
 
     @Transactional
@@ -97,7 +106,15 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     public void validate(OrderRequestDTO dto) {
+        boolean validPrice = dto.getOrderDetails().stream().allMatch(this::checkOrderDetails);
+        if (!validPrice) {
+            throw new InvalidPriceException("Invalid price");
+        }
+    }
 
+    private boolean checkOrderDetails(OrderDetailsDTO dto) {
+        PriceDTO priceDTO = pricingStreamsProcessor.findByKey(dto.getTargetId().toString());
+        return priceDTO != null && priceDTO.getAmount().compareTo(BigDecimal.valueOf(dto.getPrice())) == 0;
     }
 
     private void pushEvent(OrderEntity entity, EventType type, OrderRequestDTO dto, Double total) {

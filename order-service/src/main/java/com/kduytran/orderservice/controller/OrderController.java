@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @Tag(
-        name = "CRUD REST APIs for class microservice"
+        name = "CRUD REST APIs for order microservice"
 )
 @RequestMapping(
         path = "/api/v1/orders",

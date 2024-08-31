@@ -36,7 +36,9 @@ spring:
             trusted:
               packages: "*"
             "use.type.headers": false
-
+    streams:
+      application-id: order-service-app
+      bootstrap-servers: localhost:29092
 
 server:
   port: 8130
