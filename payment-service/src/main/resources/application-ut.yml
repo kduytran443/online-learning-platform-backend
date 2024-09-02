@@ -13,6 +13,24 @@ spring:
   cloud:
     config:
       enabled: false
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+    consumer:
+      auto-offset-reset: earliest
+      application-id: payment-service-app
+    streams:
+      cleanup:
+        on-startup: true
+    properties:
+      request.timeout.ms: 60000
+      metadata.fetch.timeout.ms: 60000
+    listener:
+      ack-mode: manual
+      client-id: test-client-id
+      concurrency: 10
+      type: batch
+    admin:
+      client-id: admin-test-client-id
 
 eureka:
   client:

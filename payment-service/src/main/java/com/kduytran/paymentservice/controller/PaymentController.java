@@ -39,7 +39,7 @@ public class PaymentController {
                     responseCode = "200",
                     description = "Successfully created PayPal payment",
                     content = @Content(
-                            schema = @Schema(implementation = PaypalResponseDTO.class)
+                            schema = @Schema(implementation = PaymentResponseDTO.class)
                     )
             ),
             @ApiResponse(
@@ -50,10 +50,10 @@ public class PaymentController {
                     )
             )
     })
-    @PostMapping("/paypal/make")
-    public ResponseEntity<PaypalResponseDTO> createPaypalPayment(@RequestBody PaymentRequestDTO dto) {
+    @PostMapping("/make")
+    public ResponseEntity<PaymentResponseDTO> createPaypalPayment(@RequestBody PaymentRequestDTO dto) {
         LOGGER.info("Creating PayPal payment with request: {}", dto);
-        return ResponseEntity.ok(paymentService.createPaypalTransaction(dto));
+        return ResponseEntity.ok(paymentService.makeTransaction(dto));
     }
 
     @Operation(
@@ -70,9 +70,9 @@ public class PaymentController {
             )
     })
     @PostMapping("/cancel")
-    public ResponseEntity<ResponseDTO> cancelPayment(@RequestBody ExecutePaypalTransactionRequestDTO dto) {
+    public ResponseEntity<ResponseDTO> cancelPayment(@RequestBody ExecuteTransactionRequestDTO dto) {
         LOGGER.info("Cancelling Payment with request: {}", dto);
-        paymentService.cancelPaypalTransaction(dto.getPaymentId(), dto.getPayerId());
+        // paymentService.cancelPaypalTransaction(dto.getPaymentId(), dto.getPayerId());
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200));
     }
 
@@ -93,11 +93,11 @@ public class PaymentController {
                     )
             )
     })
-    @PostMapping("/paypal/execute")
-    public ResponseEntity<ResponseDTO> executePayment(@RequestBody ExecutePaypalTransactionRequestDTO dto) {
+    @PostMapping("/execute")
+    public ResponseEntity<ResponseDTO> executePayment(@RequestBody ExecuteTransactionRequestDTO dto) {
         LOGGER.info("Executing PayPal payment with request: paymentId={}, payerId={}",
                 dto.getPaymentId(), dto.getPayerId());
-        boolean result = paymentService.executePaypalTransaction(dto.getPaymentId(), dto.getPayerId());
+        boolean result = paymentService.executeTransaction(dto);
         if (result) {
             LOGGER.info("PayPal payment executed successfully with request: paymentId={}, payerId={}",
                     dto.getPaymentId(), dto.getPayerId());
