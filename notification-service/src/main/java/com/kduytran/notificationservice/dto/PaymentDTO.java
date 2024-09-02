@@ -1,5 +1,6 @@
 package com.kduytran.notificationservice.dto;
 
+import com.kduytran.notificationservice.event.payment.OrderDetails;
 import com.kduytran.notificationservice.event.payment.PaymentEventType;
 import com.kduytran.notificationservice.event.payment.PaymentMethod;
 import com.kduytran.notificationservice.event.payment.PaymentStatus;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -34,4 +36,5 @@ public class PaymentDTO {
     private String fullName;
     private String email;
     private PaymentEventType action;
+    private List<OrderDetails> orderDetailsList;
 }

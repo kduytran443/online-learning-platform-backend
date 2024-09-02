@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -31,4 +32,5 @@ public class PaymentEvent {
     private String fullName;
     private String email;
     private PaymentEventType action;
+    private List<OrderDetails> orderDetailsList;
 }

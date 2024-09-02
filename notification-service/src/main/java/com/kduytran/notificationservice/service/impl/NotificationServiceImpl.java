@@ -64,6 +64,7 @@ public class NotificationServiceImpl implements INotificationService {
         variables.put(AttributeConstant.EXECUTION_AT_ATTRIBUTE, paymentDTO.getExecutionAt());
         variables.put(AttributeConstant.USERNAME_ATTRIBUTE, paymentDTO.getUsername());
         variables.put(AttributeConstant.EMAIL_ATTRIBUTE, paymentDTO.getEmail());
+        variables.put(AttributeConstant.ORDER_DETAILS_LIST_ATTRIBUTE, paymentDTO.getOrderDetailsList());
 
         AbstractEmail email = new PaymentSuccessEmail(mailSender, templateEngine, null, variables, recipientEmail);
         sendMail(email);

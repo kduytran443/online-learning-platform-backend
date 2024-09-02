@@ -22,4 +22,5 @@ public class AttributeConstant {
     public static final String PAYMENT_METHOD_ATTRIBUTE = "paymentMethod";
     public static final String DESCRIPTION_ATTRIBUTE = "description";
     public static final String EXECUTION_AT_ATTRIBUTE = "executionAt";
+    public static final String ORDER_DETAILS_LIST_ATTRIBUTE = "orderDetailsList";
 }

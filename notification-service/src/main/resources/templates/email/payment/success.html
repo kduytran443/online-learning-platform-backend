@@ -42,6 +42,11 @@
       <li><strong>Description:</strong> <span th:text="${description}"></span></li>
       <li><strong>Payment Date:</strong> <span th:text="${executionAt}"></span></li>
       <li><strong>User:</strong> <span th:text="${username}"></span> (<span th:text="${email}"></span>)</li>
+      <li><strong>Order details:</strong>
+        <ul>
+          <li th:each="orderDetails : ${orderDetailsList}" th:text="${orderDetails.name} + ' - ' + ${orderDetails.price}"></li>
+        </ul>
+      </li>
     </ul>
     <p>Thank you for your purchase! We hope you enjoy your experience.</p>
     <p>If you have any questions, please feel free to contact our support team.</p>
