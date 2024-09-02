@@ -1,0 +1,30 @@
+package com.kduytran.orderservice.converter;
+
+import com.kduytran.orderservice.dto.OrderRequestDTO;
+import com.kduytran.orderservice.dto.OrderResponseDTO;
+import com.kduytran.orderservice.entity.OrderEntity;
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
+public class OrderConverter {
+
+    public static OrderEntity convert(OrderRequestDTO dto, OrderEntity entity) {
+        if (entity == null) {
+            entity = new OrderEntity();
+        }
+        entity.setAmount(dto.getAmount());
+        entity.setType(dto.getType());
+        entity.setUserInfo(dto.getUserInfo());
+        return entity;
+    }
+
+    public static OrderResponseDTO convert(OrderEntity entity) {
+        OrderResponseDTO responseDTO = new OrderResponseDTO();
+        responseDTO.setId(entity.getId());
+        responseDTO.setStatus(entity.getStatus());
+        responseDTO.setPaymentId(entity.getPaymentId());
+        responseDTO.setPaymentUrl(entity.getPaymentUrl());
+        return responseDTO;
+    }
+
+}
