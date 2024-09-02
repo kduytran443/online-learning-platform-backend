@@ -1,11 +1,13 @@
 package com.kduytran.paymentservice.dto;
 
+import com.kduytran.paymentservice.entity.OrderDetails;
 import com.kduytran.paymentservice.entity.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -24,4 +26,5 @@ public class PaymentRequestDTO {
     private String username;
     private String name;
     private String email;
+    private List<OrderDetails> orderDetailsList;
 }

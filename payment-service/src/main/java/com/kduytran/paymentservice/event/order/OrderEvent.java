@@ -4,6 +4,7 @@ import com.kduytran.paymentservice.entity.PaymentMethod;
 import com.kduytran.paymentservice.entity.PaymentStatus;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,4 +22,5 @@ public class OrderEvent {
     private String cancelUrl;
     private String successUrl;
     private EventType action;
+    private List<OrderDetails> orderDetailsList;
 }

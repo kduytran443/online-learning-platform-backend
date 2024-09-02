@@ -1,5 +1,6 @@
 package com.kduytran.paymentservice.entity;
 
+import com.kduytran.paymentservice.entity.attrconverter.OrderDetailsInfoAttrConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -62,5 +63,9 @@ public class TransactionEntity {
 
     @Column(length = 1024)
     private String paymentUrl;
+
+    @Column
+    @Convert(converter = OrderDetailsInfoAttrConverter.class)
+    private OrderDetailsInfo orderDetailsInfo;
 
 }

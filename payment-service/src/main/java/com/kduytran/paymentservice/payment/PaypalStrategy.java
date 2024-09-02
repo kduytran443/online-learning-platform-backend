@@ -4,6 +4,7 @@ import com.kduytran.paymentservice.dto.ExecuteTransactionRequestDTO;
 import com.kduytran.paymentservice.dto.PaymentRequestDTO;
 import com.kduytran.paymentservice.dto.PaypalPaymentIntent;
 import com.kduytran.paymentservice.dto.PaypalPaymentMethod;
+import com.kduytran.paymentservice.entity.OrderDetailsInfo;
 import com.kduytran.paymentservice.entity.PaymentMethod;
 import com.kduytran.paymentservice.entity.PaymentStatus;
 import com.kduytran.paymentservice.entity.TransactionEntity;
@@ -95,6 +96,10 @@ public class PaypalStrategy implements InitPaymentStrategy, ExecutePaymentStrate
         entity.setUserId(dto.getUserId());
         entity.setEmail(dto.getEmail());
         entity.setFullName(dto.getName());
+
+        OrderDetailsInfo detailsInfo = new OrderDetailsInfo();
+        detailsInfo.setOrderDetailsList(dto.getOrderDetailsList());
+        entity.setOrderDetailsInfo(detailsInfo);
         try {
             Payment payment = this.createPaypalPayment();
             String redirectUrl = payment.getLinks().stream().filter(link -> "approval_url".equals(link.getRel()))

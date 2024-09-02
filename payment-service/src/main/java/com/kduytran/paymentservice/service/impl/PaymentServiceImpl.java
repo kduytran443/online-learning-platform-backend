@@ -92,6 +92,7 @@ public class PaymentServiceImpl implements IPaymentService {
         event.setUsername(entity.getUsername());
         event.setFullName(entity.getFullName());
         event.setEmail(entity.getEmail());
+        event.setOrderDetailsList(entity.getOrderDetailsInfo().getOrderDetailsList());
     }
 
 }
