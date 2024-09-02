@@ -45,6 +45,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return getErrorResponseEntity(exception, webRequest, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidPriceException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidPriceException(
+            InvalidPriceException exception,
+            WebRequest webRequest) {
+        return getErrorResponseEntity(exception, webRequest, HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<ErrorResponseDTO> getErrorResponseEntity(
             Exception exception, WebRequest webRequest, HttpStatus httpStatus) {
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(

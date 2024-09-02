@@ -16,9 +16,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.function.Predicate;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -37,18 +34,12 @@ public class PricingStreamsProcessor extends AbstractStreamsProcessor<PriceDTO> 
                 Consumed.with(Serdes.String(), Serdes.String()))
                 .mapValues(value -> MapUtils.mapValue(value, PriceEvent.class))
                 .mapValues(value -> modelMapper.map(value, PriceDTO.class))
-                .peek((key, value) -> log.info("Event received " + value))
+                .peek((key, value) -> log.info("Saved to table " + value))
                 .toTable(
                         Materialized.<String, PriceDTO, KeyValueStore<Bytes, byte[]>>as(getStoreName())
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(new JsonSerde<>(PriceDTO.class))
                 );
-    }
-
-    public List<PriceDTO> getPriceListOfTarget(String targetId) {
-        Predicate<PriceDTO> targetIdPredicate = priceDTO -> targetId.equals(priceDTO.getTargetId());
-        List<PriceDTO> list = findAllFromStore(getStore(), targetIdPredicate);
-        return list;
     }
 
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -26,6 +27,7 @@ public abstract class AbstractOrderEvent {
     private String currency;
     private String cancelUrl;
     private String successUrl;
+    private List<OrderDetails> orderDetailsList;
 
     public abstract EventType getAction();
 }

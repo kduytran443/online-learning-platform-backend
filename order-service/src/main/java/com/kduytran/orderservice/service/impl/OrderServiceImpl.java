@@ -1,20 +1,21 @@
 package com.kduytran.orderservice.service.impl;
 
 import com.kduytran.orderservice.converter.OrderConverter;
-import com.kduytran.orderservice.dto.OrderDetailsDTO;
+import com.kduytran.orderservice.converter.OrderDetailsConverter;
 import com.kduytran.orderservice.dto.OrderRequestDTO;
 import com.kduytran.orderservice.dto.OrderResponseDTO;
 import com.kduytran.orderservice.dto.PayingOrderDTO;
+import com.kduytran.orderservice.entity.OrderDetailsEntity;
 import com.kduytran.orderservice.entity.OrderEntity;
 import com.kduytran.orderservice.entity.OrderStatus;
 import com.kduytran.orderservice.event.AbstractOrderEvent;
 import com.kduytran.orderservice.event.EventType;
 import com.kduytran.orderservice.event.OrderCreatedEvent;
-import com.kduytran.orderservice.event.pricing.EntityStatus;
+import com.kduytran.orderservice.event.OrderDetails;
 import com.kduytran.orderservice.event.pricing.PriceDTO;
 import com.kduytran.orderservice.event.processor.PricingStreamsProcessor;
-import com.kduytran.orderservice.exception.InvalidPriceException;
 import com.kduytran.orderservice.exception.ResourceNotFoundException;
+import com.kduytran.orderservice.repository.OrderDetailsRepository;
 import com.kduytran.orderservice.repository.OrderRepository;
 import com.kduytran.orderservice.service.IOrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +23,22 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class OrderServiceImpl implements IOrderService {
     private final OrderRepository orderRepository;
+    private final OrderDetailsRepository orderDetailsRepository;
     private final ApplicationEventPublisher publisher;
     private final PricingStreamsProcessor pricingStreamsProcessor;
 
-    public OrderServiceImpl(OrderRepository orderRepository, ApplicationEventPublisher publisher, PricingStreamsProcessor pricingStreamsProcessor) {
+    public OrderServiceImpl(OrderRepository orderRepository, OrderDetailsRepository orderDetailsRepository, ApplicationEventPublisher publisher, PricingStreamsProcessor pricingStreamsProcessor) {
         this.orderRepository = orderRepository;
+        this.orderDetailsRepository = orderDetailsRepository;
         this.publisher = publisher;
         this.pricingStreamsProcessor = pricingStreamsProcessor;
     }
@@ -50,7 +53,11 @@ public class OrderServiceImpl implements IOrderService {
         orderEntity.setCreatedAt(LocalDateTime.now());
         orderEntity.setStatus(OrderStatus.CREATED);
         orderEntity = orderRepository.save(orderEntity);
-        pushEvent(orderEntity, EventType.CREATED, dto, orderEntity.getAmount());
+
+        List<OrderDetailsEntity> detailsEntityList = getOrderDetailsEntity(dto, orderEntity);
+        orderDetailsRepository.saveAll(detailsEntityList);
+
+        pushEvent(orderEntity, detailsEntityList, EventType.CREATED, dto, orderEntity.getAmount());
         return orderEntity.getId();
     }
 
@@ -106,28 +113,36 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     public void validate(OrderRequestDTO dto) {
-        boolean validPrice = dto.getOrderDetails().stream().allMatch(this::checkOrderDetails);
-        if (!validPrice) {
-            throw new InvalidPriceException("Invalid price");
+    }
+
+    private List<OrderDetailsEntity> getOrderDetailsEntity(OrderRequestDTO dto, OrderEntity entity) {
+        return dto.getOrderDetails().stream().map(detailsDTO -> {
+            OrderDetailsEntity detailsEntity = OrderDetailsConverter.convert(detailsDTO, new OrderDetailsEntity());
+            detailsEntity.setOrder(entity);
+            detailsEntity.setPrice(getPrice(detailsDTO.getTargetId().toString()));
+            return detailsEntity;
+        }).collect(Collectors.toList());
+    }
+
+    private Double getPrice(String targetId) {
+        PriceDTO priceDTO = pricingStreamsProcessor.findByKey(targetId);
+        if (priceDTO == null) {
+            return null;
         }
+        return priceDTO.getAmount().doubleValue();
     }
 
-    private boolean checkOrderDetails(OrderDetailsDTO dto) {
-        PriceDTO priceDTO = pricingStreamsProcessor.findByKey(dto.getTargetId().toString());
-        return priceDTO != null && priceDTO.getAmount().compareTo(BigDecimal.valueOf(dto.getPrice())) == 0;
-    }
-
-    private void pushEvent(OrderEntity entity, EventType type, OrderRequestDTO dto, Double total) {
+    private void pushEvent(OrderEntity entity, List<OrderDetailsEntity> orderDetailsEntities, EventType type, OrderRequestDTO dto, Double total) {
         AbstractOrderEvent event = switch (type) {
             case CREATED -> new OrderCreatedEvent();
         };
-        makeEvent(event, entity, dto);
+        makeEvent(event, entity, dto, orderDetailsEntities);
         event.setTotal(total);
         publisher.publishEvent(event);
     }
 
     private void makeEvent(AbstractOrderEvent event,
-                           OrderEntity entity, OrderRequestDTO dto) {
+                           OrderEntity entity, OrderRequestDTO dto, List<OrderDetailsEntity> orderDetailsEntities) {
         event.setCorrelationId(UUID.randomUUID());
         event.setOrderId(entity.getId());
         event.setEmail(entity.getUserInfo().getEmail());
@@ -139,6 +154,13 @@ public class OrderServiceImpl implements IOrderService {
         event.setCurrency(dto.getCurrency());
         event.setCancelUrl(dto.getCancelUrl());
         event.setSuccessUrl(dto.getSuccessUrl());
+        event.setOrderDetailsList(orderDetailsEntities.stream().map(detailsEntity -> {
+            OrderDetails details = new OrderDetails();
+            details.setName(detailsEntity.getName());
+            details.setPrice(detailsEntity.getPrice());
+            details.setTargetId(detailsEntity.getTargetId());
+            return details;
+        }).collect(Collectors.toList()));
     }
 
 }
