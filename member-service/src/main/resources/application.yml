@@ -11,6 +11,9 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
+  kafka:
+    streams:
+      bootstrap-servers: localhost:19092
 
 server:
   port: 8150
