@@ -45,3 +45,16 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: "http://localhost:8070/eureka/"
+
+keycloak:
+  auth-server-url: http://localhost:8180
+  realm: online-learning-platform
+  resource: olp-client # Client ID
+  ssl-required: none
+  use-resource-role-mappings: true
+  bearer-only: true
+  cors: true
+  principal-attribute: preferred_username
+
+keycloak-config:
+  client-secret: 68xszkoyUm0aFgT0PWeAxy5WC4hTQM6P # TODO: Need to hide or encrypt it
