@@ -3,6 +3,8 @@ package com.kduytran.authmanagementservice.service.impl;
 import com.kduytran.authmanagementservice.converter.UserConverter;
 import com.kduytran.authmanagementservice.dto.UserDTO;
 import com.kduytran.authmanagementservice.dto.UserRequestDTO;
+import com.kduytran.authmanagementservice.exception.KeyCloakActionFailedException;
+import com.kduytran.authmanagementservice.exception.UserNotFoundException;
 import com.kduytran.authmanagementservice.service.IAuthManagementService;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -25,35 +27,54 @@ public class AuthManagementServiceImpl implements IAuthManagementService {
     }
 
     @Override
-    public boolean removeUser(String userId) {
-        UsersResource resource = keycloak.realm(realm).users();
-        Response response = resource.delete(userId);
-        return response.getStatus() == HttpStatus.OK.value();
+    public void removeUser(String userId) {
+        try (keycloak) {
+            UsersResource resource = keycloak.realm(realm).users();
+            Response response = resource.delete(userId);
+
+            if (!isSuccessStatus(response.getStatus())) {
+                throw new KeyCloakActionFailedException(response.readEntity(String.class));
+            }
+        }
     }
 
     @Override
     public void updateUser(UserRequestDTO dto) {
-        keycloak.realm(realm).users().get(dto.getId()).update(UserConverter.convert(dto, new UserRepresentation()));
+        try (keycloak) {
+            keycloak.realm(realm).users().get(dto.getId())
+                    .update(UserConverter.convert(dto, new UserRepresentation()));
+        }
     }
 
     @Override
-    public int registerUser(UserRequestDTO dto) {
-        // Create users resource
-        UsersResource usersResource = keycloak.realm(realm).users();
+    public void registerUser(UserRequestDTO dto) {
+        try (keycloak) {
+            // Create users resource
+            UsersResource usersResource = keycloak.realm(realm).users();
 
-        // Create user
-        Response response = usersResource.create(UserConverter.convert(dto, new UserRepresentation()));
+            // Create user
+            Response response = usersResource.create(UserConverter.convert(dto, new UserRepresentation()));
+            keycloak.close();
 
-        return response.getStatus();
+            if (!isSuccessStatus(response.getStatus())) {
+                throw new KeyCloakActionFailedException(response.readEntity(String.class));
+            }
+        }
     }
 
     @Override
     public UserDTO getUserByUsername(String username) {
-        List<UserRepresentation> search = keycloak.realm(realm).users().search(username);
-        if (search.isEmpty()) {
-            // TODO: throw error
+        try (keycloak) {
+            List<UserRepresentation> search = keycloak.realm(realm).users().search(username);
+            if (search.isEmpty()) {
+                throw new UserNotFoundException("No user found with the username: " + username);
+            }
+            return UserConverter.convert(search.get(0), new UserDTO());
         }
-        return UserConverter.convert(search.get(0), new UserDTO());
+    }
+
+    private boolean isSuccessStatus(int status) {
+        return HttpStatus.Series.valueOf(status).compareTo(HttpStatus.Series.SUCCESSFUL) == 0;
     }
 
 }
