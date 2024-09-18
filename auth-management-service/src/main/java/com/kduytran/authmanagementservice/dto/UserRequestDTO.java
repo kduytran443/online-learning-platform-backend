@@ -3,7 +3,8 @@ package com.kduytran.authmanagementservice.dto;
 import lombok.Data;
 
 @Data
-public class UserRegisterRequestDTO {
+public class UserRequestDTO {
+    private String id;
     private String userName;
     private String email;
     private String phoneNumber;
