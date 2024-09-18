@@ -3,8 +3,10 @@ package com.kduytran.authmanagementservice.config;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
 @Configuration
@@ -14,6 +16,7 @@ public class KeyCloakConfig {
     Environment env;
 
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Keycloak keycloakInstance() {
         return KeycloakBuilder.builder()
                 .serverUrl(env.getProperty("keycloak.auth-server-url"))
