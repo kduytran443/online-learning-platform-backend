@@ -15,21 +15,23 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Service
 public class AuthManagementServiceImpl implements IAuthManagementService {
-    private final Keycloak keycloak;
+    private final Supplier<Keycloak> keycloak;
     private final String realm;
 
-    public AuthManagementServiceImpl(Keycloak keycloak, @Value("${keycloak.realm}") String realm) {
+    public AuthManagementServiceImpl(Supplier<Keycloak> keycloak, @Value("${keycloak.realm}") String realm) {
         this.keycloak = keycloak;
         this.realm = realm;
     }
 
     @Override
     public void removeUser(String userId) {
-        try (keycloak) {
-            UsersResource resource = keycloak.realm(realm).users();
+        Keycloak keycloakInstance = keycloak.get();
+        try (keycloakInstance) {
+            UsersResource resource = keycloakInstance.realm(realm).users();
             Response response = resource.delete(userId);
 
             if (!isSuccessStatus(response.getStatus())) {
@@ -40,21 +42,26 @@ public class AuthManagementServiceImpl implements IAuthManagementService {
 
     @Override
     public void updateUser(UserRequestDTO dto) {
-        try (keycloak) {
-            keycloak.realm(realm).users().get(dto.getId())
+        Keycloak keycloakInstance = keycloak.get();
+        try (keycloakInstance) {
+            keycloakInstance.realm(realm).users().get(dto.getId())
                     .update(UserConverter.convert(dto, new UserRepresentation()));
         }
     }
 
     @Override
     public void registerUser(UserRequestDTO dto) {
-        try (keycloak) {
+        Keycloak keycloakInstance = keycloak.get();
+        try (keycloakInstance) {
             // Create users resource
-            UsersResource usersResource = keycloak.realm(realm).users();
+            UsersResource usersResource = keycloakInstance.realm(realm).users();
+
+            UserRepresentation userRepresentation = UserConverter.convert(dto, new UserRepresentation());
+            userRepresentation.setEnabled(true);
+            userRepresentation.setEmailVerified(true);
 
             // Create user
-            Response response = usersResource.create(UserConverter.convert(dto, new UserRepresentation()));
-            keycloak.close();
+            Response response = usersResource.create(userRepresentation);
 
             if (!isSuccessStatus(response.getStatus())) {
                 throw new KeyCloakActionFailedException(response.readEntity(String.class));
@@ -64,8 +71,9 @@ public class AuthManagementServiceImpl implements IAuthManagementService {
 
     @Override
     public UserDTO getUserByUsername(String username) {
-        try (keycloak) {
-            List<UserRepresentation> search = keycloak.realm(realm).users().search(username);
+        Keycloak keycloakInstance = keycloak.get();
+        try (keycloakInstance) {
+            List<UserRepresentation> search = keycloakInstance.realm(realm).users().search(username);
             if (search.isEmpty()) {
                 throw new UserNotFoundException("No user found with the username: " + username);
             }
