@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
+import java.util.function.Supplier;
+
 @Configuration
 public class KeyCloakConfig {
 
@@ -17,8 +19,8 @@ public class KeyCloakConfig {
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public Keycloak keycloakInstance() {
-        return KeycloakBuilder.builder()
+    public Supplier<Keycloak> keycloakInstance() {
+        return () -> KeycloakBuilder.builder()
                 .serverUrl(env.getProperty("keycloak.auth-server-url"))
                 .realm(env.getProperty("keycloak.realm"))
                 .clientId(env.getProperty("keycloak.resource"))
