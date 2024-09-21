@@ -5,7 +5,7 @@ import com.kduytran.authmanagementservice.dto.UserRequestDTO;
 
 public interface IAuthManagementService {
     void removeUser(String userId);
-    void updateUser(UserRequestDTO dto);
+    void updateUser(String id, UserRequestDTO dto);
     void registerUser(UserRequestDTO dto);
     UserDTO getUserByUsername(String username);
 }

@@ -6,7 +6,6 @@ import lombok.ToString;
 @Data
 @ToString
 public class UserRequestDTO {
-    private String id;
     private String username;
     private String email;
     private String phoneNumber;

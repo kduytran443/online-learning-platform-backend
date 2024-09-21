@@ -41,10 +41,10 @@ public class AuthManagementServiceImpl implements IAuthManagementService {
     }
 
     @Override
-    public void updateUser(UserRequestDTO dto) {
+    public void updateUser(String id, UserRequestDTO dto) {
         Keycloak keycloakInstance = keycloak.get();
         try (keycloakInstance) {
-            keycloakInstance.realm(realm).users().get(dto.getId())
+            keycloakInstance.realm(realm).users().get(id)
                     .update(UserConverter.convert(dto, new UserRepresentation()));
         }
     }

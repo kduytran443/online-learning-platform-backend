@@ -34,11 +34,11 @@ public class AuthManagementController {
         return ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201);
     }
 
-    @PutMapping("/users")
+    @PutMapping("/users/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseDTO updateUser(@RequestBody @Valid UserRequestDTO dto) {
+    public ResponseDTO updateUser(@PathVariable String id, @RequestBody @Valid UserRequestDTO dto) {
         log.info("Updating user with request: userRequestDTO={}", dto);
-        authManagementService.updateUser(dto);
+        authManagementService.updateUser(id, dto);
         return ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200);
     }
 
