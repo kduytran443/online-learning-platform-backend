@@ -31,9 +31,8 @@ public class UserConverter {
         credential.setValue(dto.getPassword());
 
         // Setup user data
-        representation.setId(dto.getId());
         representation.setEmail(dto.getEmail());
-        representation.setFirstName(dto.getFullName());
+        representation.setFirstName(dto.getName());
         representation.setUsername(dto.getUsername());
         representation.setCredentials(Arrays.asList(credential));
 
