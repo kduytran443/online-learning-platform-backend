@@ -5,8 +5,10 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class AddScopeDTO {
+public class ScopePermissionDTO {
     private String userId;
-    private String resourceId;
     private Set<String> scopes;
+    private Set<String> resources;
+    private String name;
+    private String description;
 }
