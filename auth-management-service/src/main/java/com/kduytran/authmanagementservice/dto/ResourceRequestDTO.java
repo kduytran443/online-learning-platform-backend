@@ -8,7 +8,7 @@ import lombok.ToString;
 @ToString
 public class ResourceRequestDTO {
     @NotEmpty
-    private String documentId;
+    private String resourceId;
 
     @NotEmpty
     private String userId;
