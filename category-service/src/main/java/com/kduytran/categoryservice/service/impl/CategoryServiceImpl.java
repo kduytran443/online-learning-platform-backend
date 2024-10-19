@@ -7,6 +7,7 @@ import com.kduytran.categoryservice.entity.CategoryEntity;
 import com.kduytran.categoryservice.entity.EntityStatus;
 import com.kduytran.categoryservice.event.CategoryCreatedEvent;
 import com.kduytran.categoryservice.event.CategoryDeletedEvent;
+import com.kduytran.categoryservice.event.CategoryUpdatedEvent;
 import com.kduytran.categoryservice.exception.CategoryAlreadyExistsException;
 import com.kduytran.categoryservice.exception.CategoryNotFoundException;
 import com.kduytran.categoryservice.exception.CategoryNotInStatusException;
@@ -160,7 +161,8 @@ public class CategoryServiceImpl implements ICategoryService {
         }
 
         logger.debug("Updating category name: {}", categoryEntity.getName());
-        categoryRepository.save(categoryEntity);
+        categoryEntity = categoryRepository.save(categoryEntity);
+        publishUpdatedUser(categoryEntity);
     }
 
     /**
@@ -350,6 +352,19 @@ public class CategoryServiceImpl implements ICategoryService {
 
     private void publishCreatedUser(CategoryEntity categoryEntity) {
         CategoryCreatedEvent event = new CategoryCreatedEvent();
+        event.setId(categoryEntity.getId().toString());
+        event.setName(categoryEntity.getName());
+        event.setDescription(categoryEntity.getDescription());
+        event.setCode(categoryEntity.getCode());
+        CategoryEntity parent = categoryEntity.getParentCategory();
+        if (parent != null) {
+            event.setParentCategoryId(parent.getId().toString());
+        }
+        publisher.publishEvent(event);
+    }
+
+    private void publishUpdatedUser(CategoryEntity categoryEntity) {
+        CategoryUpdatedEvent event = new CategoryUpdatedEvent();
         event.setId(categoryEntity.getId().toString());
         event.setName(categoryEntity.getName());
         event.setDescription(categoryEntity.getDescription());

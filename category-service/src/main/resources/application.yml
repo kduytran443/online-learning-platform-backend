@@ -20,6 +20,9 @@ spring:
           json:
             trusted:
               packages: "*"
+            add:
+              type:
+                headers: false
   application:
     name: "category"
   datasource:
@@ -41,6 +44,13 @@ spring:
       mode: always
   config:
     import: "optional:configserver:http://localhost:8071/"
+  cloud:
+    bus:
+      enabled: true
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:29092
 
 server:
   port: 8100
@@ -80,3 +90,7 @@ eureka:
     serviceUrl:
       defaultZone: "http://localhost:8070/eureka/"
 
+
+logging:
+  level:
+    com.kduytran.categoryservice: debug

@@ -1,8 +1,12 @@
 package com.kduytran.categoryservice.event;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CategoryEvent {
     private String transactionId;
     private String action;
