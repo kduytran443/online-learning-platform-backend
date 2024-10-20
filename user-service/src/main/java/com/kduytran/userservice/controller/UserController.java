@@ -1,11 +1,12 @@
 package com.kduytran.userservice.controller;
 
+import com.kduytran.userservice.constant.RequestConstant;
 import com.kduytran.userservice.constant.ResponseConstant;
 import com.kduytran.userservice.dto.*;
 import com.kduytran.userservice.dto.msg.RegistrationMessageDTO;
+import com.kduytran.userservice.service.ISignUpService;
 import com.kduytran.userservice.service.IUserService;
 import com.kduytran.userservice.utils.LogUtils;
-import com.kduytran.userservice.utils.TransactionIdHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,8 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,16 +29,16 @@ import org.springframework.web.bind.annotation.*;
 )
 @RequestMapping(
         path = "/api/v1/users",
-        produces = { MediaType.APPLICATION_JSON_VALUE }
+        produces = {MediaType.APPLICATION_JSON_VALUE}
 )
 @Validated
 @AllArgsConstructor
+@Slf4j
 public class UserController {
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final IUserService userService;
     private final KafkaTemplate<String, RegistrationMessageDTO> kafkaTemplate;
     private final ServiceContactInfoDTO serviceContactInfoDTO;
-    private final TransactionIdHolder transactionIdHolder;
+    private final ISignUpService signUpService;
 
     @Operation(
             summary = "Get contact info",
@@ -51,8 +51,9 @@ public class UserController {
             )
     })
     @GetMapping("/contact-info")
-    public ResponseEntity<ServiceContactInfoDTO> getContactInfo() {
-        logger.debug(LogUtils.getLogDebugFormat("get contract info"), transactionIdHolder.getCurrentTransactionId());
+    public ResponseEntity<ServiceContactInfoDTO> getContactInfo(
+            @RequestHeader(RequestConstant.CORRELATION_ID) String correlationId) {
+        log.info(LogUtils.withCorrelation(correlationId, "{}"), "Hello there");
         return ResponseEntity.status(HttpStatus.OK).body(serviceContactInfoDTO);
     }
 
@@ -74,8 +75,10 @@ public class UserController {
             )
     })
     @PostMapping("/registration")
-    public ResponseEntity<ResponseDTO> registerUser(@RequestBody RegistrationDTO registrationDTO) {
-        userService.createUser(registrationDTO);
+    public ResponseEntity<ResponseDTO> registerUser(
+            @RequestHeader(RequestConstant.CORRELATION_ID) String correlationId,
+            @RequestBody RegistrationDTO registrationDTO) {
+        signUpService.signUp(correlationId, registrationDTO);
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
     }
 
@@ -97,8 +100,10 @@ public class UserController {
             )
     })
     @GetMapping("/verification")
-    public ResponseEntity<ResponseDTO> verifyUser(@PathParam("token") String token) {
-        userService.verifyUserRegistration(token);
+    public ResponseEntity<ResponseDTO> verifyUser(
+            @RequestHeader(RequestConstant.CORRELATION_ID) String correlationId,
+            @PathParam("token") String token) {
+        signUpService.verifyUserRegistration(correlationId, token);
         return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.MESSAGE_201));
     }
 
@@ -120,9 +125,12 @@ public class UserController {
             )
     })
     @PostMapping("/refresh-verification")
-    public ResponseEntity<ResponseDTO> refreshUserVerification(@PathParam("userId") String userId) {
-        userService.refreshUserVerification(userId);
-        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201, ResponseConstant.REFRESH_VERIFICATION_MESSAGE_201));
+    public ResponseEntity<ResponseDTO> refreshUserVerification(
+            @RequestHeader(RequestConstant.CORRELATION_ID) String correlationId,
+            @PathParam("userId") String userId) {
+        signUpService.refreshUserVerification(correlationId, userId);
+        return ResponseEntity.ok(ResponseDTO.of(ResponseConstant.STATUS_201,
+                ResponseConstant.REFRESH_VERIFICATION_MESSAGE_201));
     }
 
     @Operation(
