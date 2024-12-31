@@ -23,11 +23,11 @@ spring:
             trusted:
               packages: "*"
             "use.type.headers": false
-    streams:
-      application-id: "member-service-stream-app"
-      bootstrap-servers: localhost:19092
-      default-key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-      default-value-serde: org.apache.kafka.common.serialization.Serdes$JsonSerde
+#    streams:
+#      application-id: "member-service-stream-app"
+#      bootstrap-servers: localhost:19092
+#      default-key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+#      default-value-serde: org.apache.kafka.common.serialization.Serdes$JsonSerde
 
 server:
   port: 8150
