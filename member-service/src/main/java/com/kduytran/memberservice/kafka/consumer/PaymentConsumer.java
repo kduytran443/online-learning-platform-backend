@@ -2,10 +2,11 @@ package com.kduytran.memberservice.kafka.consumer;
 
 import com.kduytran.memberservice.constant.KafkaConstant;
 import com.kduytran.memberservice.event.PaymentEvent;
-import com.kduytran.memberservice.service.IClassMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.RetriableException;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.retrytopic.DltStrategy;
@@ -17,30 +18,34 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentConsumer {
+class PaymentConsumer extends BaseKafkaConsumer<String, PaymentEvent> {
 
-    private final IClassMemberService classMemberService;
+    private final PaymentConsumerService paymentConsumerService;
 
     @KafkaListener(
             id = "payment-handling",
             groupId = "member-consumers",
             topics = KafkaConstant.TOPIC_PAYMENTS
     )
-    @RetryableTopic(    // Non-blocking
-            attempts = "3", // 1 primary topic + 3 retry topics + 1 DLT topic
-            backoff = @Backoff(delay = 1000, multiplier = 2), // exponential backoff is better than linear backoff
-            // here - 1, 2, 4
+    @RetryableTopic(
+            attempts = "3",
+            backoff = @Backoff(delay = 1000, multiplier = 2),
             dltStrategy = DltStrategy.FAIL_ON_ERROR, // No retry on DLT topic
-            autoCreateTopics = "true",  // true: for test; false: recommended
-            include = {RetriableException.class, RuntimeException.class}    // RuntimeException: for test; mark
-            // Retriable business exceptions
+            autoCreateTopics = "true", // true: for test; false: recommended
+            include = {RetriableException.class, RuntimeException.class}
     )
     public void processMessage(
             @Header(KafkaHeaders.RECEIVED_KEY) String key,
             @Payload(required = false) @Valid PaymentEvent paymentEvent,
             @Headers MessageHeaders headers) {
-        // Handling
+        processMessage(key, paymentEvent, headers, paymentConsumerService::handle);
+    }
+
+    @DltHandler
+    public void handleDlt(@Payload String message) {
+        log.debug("DLT handler");
     }
 }
