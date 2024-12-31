@@ -8,25 +8,26 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "join_request")
+@Table(name = "MB_JOIN_REQUEST")
 @Getter
 @Setter
 public class JoinRequestEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column
-    private UUID from;
+    private UUID fromId;
 
     @Column
-    private UUID to;
+    private UUID toId;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private JoinRequestType requestType;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private JoinRequestStatus requestStatus;
 
     @Column
@@ -34,4 +35,11 @@ public class JoinRequestEntity {
 
     @Column
     private LocalDateTime decidedAt;
+
+    @PrePersist
+    private void prePersis() {
+        if (getId() == null) {
+            setId(UUID.randomUUID());
+        }
+    }
 }

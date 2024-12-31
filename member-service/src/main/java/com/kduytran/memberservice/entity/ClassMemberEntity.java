@@ -8,13 +8,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "class_member")
+@Table(name = "MB_CLASS_MEMBER")
 @Getter
 @Setter
 public class ClassMemberEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column
@@ -24,9 +23,16 @@ public class ClassMemberEntity {
     private UUID classId;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private ClassRole role;
 
     @Column
     private LocalDateTime joinedAt;
 
+    @PrePersist
+    private void prePersis() {
+        if (getId() == null) {
+            setId(UUID.randomUUID());
+        }
+    }
 }
