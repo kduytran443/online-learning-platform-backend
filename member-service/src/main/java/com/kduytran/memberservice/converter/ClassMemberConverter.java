@@ -1,13 +1,13 @@
 package com.kduytran.memberservice.converter;
 
-import com.kduytran.memberservice.dto.ClassMemberDTO;
+import com.kduytran.memberservice.dto.ClassMemberRequestDTO;
 import com.kduytran.memberservice.entity.ClassMemberEntity;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ClassMemberConverter {
 
-    public static ClassMemberEntity convert(ClassMemberDTO dto, ClassMemberEntity entity) {
+    public static ClassMemberEntity convert(ClassMemberRequestDTO dto, ClassMemberEntity entity) {
         if (entity == null) {
             entity = new ClassMemberEntity();
         }

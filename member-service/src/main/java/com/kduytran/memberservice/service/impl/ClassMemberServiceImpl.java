@@ -1,7 +1,7 @@
 package com.kduytran.memberservice.service.impl;
 
 import com.kduytran.memberservice.converter.ClassMemberConverter;
-import com.kduytran.memberservice.dto.ClassMemberDTO;
+import com.kduytran.memberservice.dto.ClassMemberRequestDTO;
 import com.kduytran.memberservice.entity.ClassMemberEntity;
 import com.kduytran.memberservice.repository.ClassMemberRepository;
 import com.kduytran.memberservice.service.IClassMemberService;
@@ -17,10 +17,11 @@ public class ClassMemberServiceImpl implements IClassMemberService {
     private final ClassMemberRepository classMemberRepository;
 
     @Override
-    public UUID joinClass(ClassMemberDTO dto) {
+    public UUID joinClass(ClassMemberRequestDTO dto) {
         ClassMemberEntity entity = ClassMemberConverter.convert(dto, new ClassMemberEntity());
         entity.setJoinedAt(LocalDateTime.now());
         entity = classMemberRepository.save(entity);
+        // todo: Call API to KeyCloak
         return entity.getId();
     }
 

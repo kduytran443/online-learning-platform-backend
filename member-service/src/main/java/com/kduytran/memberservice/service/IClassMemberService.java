@@ -1,11 +1,11 @@
 package com.kduytran.memberservice.service;
 
-import com.kduytran.memberservice.dto.ClassMemberDTO;
+import com.kduytran.memberservice.dto.ClassMemberRequestDTO;
 
 import java.util.UUID;
 
 public interface IClassMemberService {
 
-    UUID joinClass(ClassMemberDTO dto);
+    UUID joinClass(ClassMemberRequestDTO dto);
 
 }
