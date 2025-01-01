@@ -11,6 +11,6 @@ import java.util.UUID;
 @FeignClient(name = "class-query", fallback = ClassQueryFeignClientFallback.class, primary = false)
 public interface ClassQueryFeignClient {
 
-    @GetMapping("/api/v1/class-queries/list")
-    List<ClassDTO> findAllByIds(@RequestParam List<UUID> ids);
+    @GetMapping("/api/v1/class-queries/list-by-ids")
+    List<ClassDTO> findAllClassesByIds(@RequestParam List<UUID> ids);
 }

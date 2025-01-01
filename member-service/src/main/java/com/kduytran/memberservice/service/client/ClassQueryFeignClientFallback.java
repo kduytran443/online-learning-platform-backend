@@ -10,7 +10,7 @@ import java.util.UUID;
 class ClassQueryFeignClientFallback implements ClassQueryFeignClient {
 
     @Override
-    public List<ClassDTO> findAllByIds(List<UUID> ids) {
+    public List<ClassDTO> findAllClassesByIds(List<UUID> ids) {
         log.error("Failed to fetch class details for IDs: {}. Returning empty list as fallback.", ids);
         return List.of();
     }

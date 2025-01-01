@@ -3,7 +3,7 @@ package com.kduytran.memberservice.kafka.consumer;
 import com.kduytran.memberservice.dto.ClassMemberRequestDTO;
 import com.kduytran.memberservice.event.PaymentEvent;
 import com.kduytran.memberservice.event.PaymentEventType;
-import com.kduytran.memberservice.service.IClassMemberService;
+import com.kduytran.memberservice.service.ClassMemberService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PaymentConsumerService {
 
-    private final IClassMemberService classMemberService;
+    private final ClassMemberService classMemberService;
     private final ModelMapper modelMapper;
 
     public void handle(@NotNull PaymentEvent event) {
