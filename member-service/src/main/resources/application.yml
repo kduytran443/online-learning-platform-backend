@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "member-service"
+    name: "member"
   datasource:
     driver-class-name: org.postgresql.Driver
     url: "jdbc:postgresql://localhost:5440/member_db"
@@ -31,8 +31,16 @@ spring:
 
 server:
   port: 8150
-
 management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+      encoding: JSON
+      connect-timeout: 1s
   info:
     env:
       enabled: true
@@ -70,3 +78,29 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: "http://localhost:8070/eureka/"
+
+resilience4j:
+  retry:
+    instances:
+      feignClientRetry:
+        max-attempts: 3
+        wait-duration: 500ms
+        exponential-backoff-multiplier: 1.5
+        exponential-max-wait-duration:
+          seconds: 5
+        retry-exceptions:
+          - java.io.IOException
+          - java.net.ConnectException
+          - java.net.UnknownHostException
+          - feign.RetryableException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+  circuitbreaker:
+    instances:
+      feignClientCircuitBreaker:
+        register-health-indicator: true
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5000ms
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 1
