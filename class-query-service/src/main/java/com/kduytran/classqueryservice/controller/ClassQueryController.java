@@ -25,7 +25,7 @@ import java.util.UUID;
 )
 @RequestMapping(
         path = "/api/v1/class-queries",
-        produces = { MediaType.APPLICATION_JSON_VALUE }
+        produces = {MediaType.APPLICATION_JSON_VALUE}
 )
 @Validated
 @AllArgsConstructor
@@ -99,4 +99,8 @@ public class ClassQueryController {
         return ResponseEntity.ok(classService.getClassDetails(id));
     }
 
+    @GetMapping("/list-by-ids")
+    public List<ClassDTO> getAllClassesByIds(@RequestParam List<UUID> ids) {
+        return classService.findAllClassesByIds(ids);
+    }
 }

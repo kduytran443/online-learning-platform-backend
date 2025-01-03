@@ -13,6 +13,7 @@ import com.kduytran.classqueryservice.processor.CategoryStreamsProcessor;
 import com.kduytran.classqueryservice.repository.ClassRepository;
 import com.kduytran.classqueryservice.service.IClassService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ClassServiceImpl implements IClassService {
@@ -108,7 +110,8 @@ public class ClassServiceImpl implements IClassService {
         return buildResponseDTO(requestDTO, entityPage);
     }
 
-    private PaginationResponseDTO<ClassDTO> buildResponseDTO(SearchRequestDTO requestDTO, Page<ClassEntity> entityPage) {
+    private PaginationResponseDTO<ClassDTO> buildResponseDTO(SearchRequestDTO requestDTO,
+                                                             Page<ClassEntity> entityPage) {
         PaginationResponseDTO<ClassDTO> responseDTO = new PaginationResponseDTO<>();
         responseDTO.setSize(requestDTO.getSize());
         responseDTO.setPage(entityPage.getNumber() + 1);
@@ -132,7 +135,7 @@ public class ClassServiceImpl implements IClassService {
     @Override
     public List<ClassDTO> getAllLiveStatus() {
         List<ClassEntity> list = classRepository.findAllByStatusAndEndAtIsAfter("L", LocalDateTime.now());
-        return list.stream().map(entity -> convert(entity)).collect(Collectors.toList());
+        return list.stream().map(this::convert).toList();
     }
 
     @Override
@@ -141,6 +144,13 @@ public class ClassServiceImpl implements IClassService {
                 () -> new ResourceNotFoundException("class", "id", id)
         );
         return convertDetails(classEntity);
+    }
+
+    @Override
+    public List<ClassDTO> findAllClassesByIds(List<UUID> ids) {
+        log.info("Fetching classes by IDs: {}", ids);
+        List<ClassEntity> classEntities = classRepository.findAllByIdIn(ids);
+        return classEntities.stream().map(this::convert).toList();
     }
 
     private ClassDTO convertDetails(ClassEntity entity) {
