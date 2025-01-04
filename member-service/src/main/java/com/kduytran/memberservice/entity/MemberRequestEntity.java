@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "MB_JOIN_REQUEST")
+@Table(name = "MB_MEMBER_REQUEST")
 @Getter
 @Setter
-public class JoinRequestEntity {
+public class MemberRequestEntity {
 
     @Id
     private UUID id;
@@ -24,11 +24,11 @@ public class JoinRequestEntity {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private JoinRequestType requestType;
+    private MemberRequestType requestType;
 
     @Column
     @Enumerated(EnumType.STRING)
-    private JoinRequestStatus requestStatus;
+    private MemberRequestStatus requestStatus;
 
     @Column
     private LocalDateTime createdAt;

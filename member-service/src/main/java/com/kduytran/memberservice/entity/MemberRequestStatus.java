@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum JoinRequestStatus {
+public enum MemberRequestStatus {
     PENDING,
     REJECTED,
     ACCEPTED

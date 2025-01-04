@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum JoinRequestType {
-    JOIN_CLASS
+public enum MemberRequestType {
+    JOIN_CLASS,
+    OUT_CLASS
 }
