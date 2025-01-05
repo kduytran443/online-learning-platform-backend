@@ -16,12 +16,12 @@ public class ClassMemberSizeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(updatable = false, nullable = false, unique = true)
     private UUID classId;
 
-    @Column
-    private Integer maxSize;
+    @Column(nullable = false)
+    private int maxSize;
 
-    @Column
-    private Integer currentSize;
+    @Column(nullable = false)
+    private int currentSize;
 }
