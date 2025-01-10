@@ -7,6 +7,7 @@ import com.kduytran.memberservice.dto.UserClassesResponseDTO;
 import com.kduytran.memberservice.entity.ClassMemberEntity;
 import com.kduytran.memberservice.repository.ClassMemberRepository;
 import com.kduytran.memberservice.service.ClassMemberService;
+import com.kduytran.memberservice.service.ClassMemberSizeService;
 import com.kduytran.memberservice.service.client.ClassQueryFeignClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -26,6 +27,7 @@ public class ClassMemberServiceImpl implements ClassMemberService {
 
     private final ClassMemberRepository classMemberRepository;
     private final ClassQueryFeignClient classQueryFeignClient;
+    private final ClassMemberSizeService classMemberSizeService;
 
     @Override
     public UUID joinClass(ClassMemberRequestDTO dto) {
@@ -33,6 +35,10 @@ public class ClassMemberServiceImpl implements ClassMemberService {
         entity.setJoinedAt(LocalDateTime.now());
         entity = classMemberRepository.save(entity);
         // todo: Call API to KeyCloak
+
+        // Increase current class member size
+        classMemberSizeService.increaseCurrentSize(entity.getClassId());
+
         return entity.getId();
     }
 
