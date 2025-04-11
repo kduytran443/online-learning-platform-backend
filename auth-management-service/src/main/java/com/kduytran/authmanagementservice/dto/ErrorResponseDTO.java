@@ -2,6 +2,7 @@ package com.kduytran.authmanagementservice.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
         description = "Schema to hold error response information"
 )
 @Data
+@Builder
 @AllArgsConstructor
 public class ErrorResponseDTO {
 

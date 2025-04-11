@@ -3,9 +3,22 @@ spring:
     name: 'auth-management-service'
   config:
     import: "optional:configserver:http://localhost:8071/"
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5443/auth_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
 
 server:
   port: 8160
+
+olp:
+  dummy-topic: "dummy-value"
 
 management:
   info:
@@ -36,6 +49,11 @@ info:
 logging:
   level:
     com.kduytran.authmanagementservice: debug
+  org:
+    springframework:
+      web:
+        client:
+          RestTemplate: debug
 
 eureka:
   instance:
@@ -45,16 +63,3 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: "http://localhost:8070/eureka/"
-
-keycloak:
-  auth-server-url: http://localhost:8180
-  realm: online-learning-platform
-  resource: olp-client # Client ID
-  ssl-required: none
-  use-resource-role-mappings: true
-  bearer-only: true
-  cors: true
-  principal-attribute: preferred_username
-
-keycloak-config:
-  client-secret: 68xszkoyUm0aFgT0PWeAxy5WC4hTQM6P # TODO: Need to hide or encrypt it
