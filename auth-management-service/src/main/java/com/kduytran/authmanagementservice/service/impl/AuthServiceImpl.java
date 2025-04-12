@@ -11,6 +11,7 @@ import com.kduytran.authmanagementservice.utils.TimeUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final RegistrationMapper registrationMapper;
     private final SignUpRepository signUpRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void login(String username, String password) {
@@ -42,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
         SignUpEntity signUpEntity = registrationMapper.map(registrationDTO, new SignUpEntity());
         signUpEntity.setCreatedAt(LocalDateTime.now());
         signUpEntity.setStatus(SignUpStatus.PENDING);
+        signUpEntity.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
 
         assignNewToken(signUpEntity);
 
