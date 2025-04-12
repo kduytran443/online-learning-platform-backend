@@ -13,12 +13,38 @@ spring:
     username: user
     password: password
     driver-class-name: org.postgresql.Driver
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: <CLIENT_ID>
+            client-secret: <CLIENT_SECRET>
+            scope:
+              - email
+              - profile
 
 server:
   port: 8160
 
 olp:
   dummy-topic: "dummy-value"
+  jwt:
+    token-exp: PT10M
+    refresh-token-exp: P7D
+    public-key-path: <PUBLIC-KEY>
+    private-key-path: <PRIVATE-KEY>
+  frontend-login-success-url: "http://localhost:8160"
+  security:
+    roles:
+      - name: ADMIN
+        permissions:
+          - USER_READ
+          - USER_WRITE
+          - ROLE_MANAGE
+      - name: USER
+        permissions:
+          - USER_READ
 
 management:
   info:
