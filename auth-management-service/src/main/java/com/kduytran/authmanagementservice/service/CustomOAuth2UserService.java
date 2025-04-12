@@ -3,6 +3,7 @@ package com.kduytran.authmanagementservice.service;
 import com.kduytran.authmanagementservice.entity.CustomOAuth2User;
 import com.kduytran.authmanagementservice.entity.RoleEntity;
 import com.kduytran.authmanagementservice.entity.UserEntity;
+import com.kduytran.authmanagementservice.entity.UserType;
 import com.kduytran.authmanagementservice.exception.ResourceNotFoundException;
 import com.kduytran.authmanagementservice.repository.RoleRepository;
 import com.kduytran.authmanagementservice.repository.UserRepository;
@@ -30,14 +31,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String email = oauth2User.getAttribute("email");
 
         UserEntity user = userRepository.findByEmail(email).orElseGet(() -> {
-            RoleEntity role = roleRepository.findByName("USER")
+            RoleEntity role = roleRepository.findByName(UserType.USER.name())
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
             String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
 
             return userRepository.save(UserEntity.builder()
                     .email(email)
                     .username(email)
                     .name(oauth2User.getAttribute("name"))
+                    .picture(oauth2User.getAttribute("picture"))
                     .roles(Set.of(role))
                     .oauthId(registrationId)
                     .build());

@@ -34,6 +34,9 @@ public class UserEntity {
     @Column
     private String name;
 
+    @Column
+    private String picture;
+
     @Column(nullable = true)
     private String oauthId;
 

@@ -9,7 +9,5 @@ import lombok.ToString;
 @ToString
 public enum UserType {
     ADMIN,
-    USER,
-    TEACHER,
-    STUDENT
+    USER
 }
