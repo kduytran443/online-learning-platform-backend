@@ -72,6 +72,11 @@ public class JwtKeyServiceImpl implements JwtKeyService {
                 .compact();
     }
 
+    @Override
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
     private List<String> getRoles(UserEntity user) {
         return user.getRoles()
                 .stream()
