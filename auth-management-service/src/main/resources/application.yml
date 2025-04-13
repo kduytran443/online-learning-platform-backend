@@ -29,6 +29,7 @@ server:
 
 olp:
   dummy-topic: "dummy-value"
+  secured-token: false
   jwt:
     token-exp: PT10M
     refresh-token-exp: P7D

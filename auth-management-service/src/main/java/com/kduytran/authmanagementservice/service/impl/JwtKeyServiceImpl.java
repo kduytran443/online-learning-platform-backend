@@ -3,8 +3,6 @@ package com.kduytran.authmanagementservice.service.impl;
 import com.kduytran.authmanagementservice.entity.PermissionEntity;
 import com.kduytran.authmanagementservice.entity.RoleEntity;
 import com.kduytran.authmanagementservice.entity.UserEntity;
-import com.kduytran.authmanagementservice.repository.PermissionRepository;
-import com.kduytran.authmanagementservice.repository.RoleRepository;
 import com.kduytran.authmanagementservice.service.JwtKeyService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -32,9 +30,6 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class JwtKeyServiceImpl implements JwtKeyService {
-
-    private final RoleRepository roleRepository;
-    private final PermissionRepository permissionRepository;
 
     @Value("${olp.jwt.public-key-path}")
     private String publicKeyPath;

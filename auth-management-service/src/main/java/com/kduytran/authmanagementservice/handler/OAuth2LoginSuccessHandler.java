@@ -28,6 +28,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Value("${olp.frontend-login-success-url}")
     private String frontendLoginSuccessUrl;
 
+    @Value("${olp.secured-token}")
+    private String securedToken;
+
     @Value("${olp.jwt.token-exp}")
     private String tokenExp;
 
@@ -62,8 +65,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private Cookie makeCookie(String name, String value, long maxAge) {
         Cookie accessTokenCookie = new Cookie(name, value);
+        accessTokenCookie.setSecure(Boolean.parseBoolean(securedToken)); // true in production
         accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(false); // true in production
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge((int) maxAge);
         return accessTokenCookie;
