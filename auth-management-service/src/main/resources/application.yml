@@ -40,12 +40,24 @@ olp:
     roles:
       - name: ADMIN
         permissions:
-          - USER_READ
-          - USER_WRITE
-          - ROLE_MANAGE
+          - LESSON_READ
+          - LESSON_CREATE
+          - LESSON_UPDATE
+          - LESSON_DELETE
+          - TOPIC_READ
+          - TOPIC_CREATE
+          - TOPIC_UPDATE
+          - TOPIC_DELETE
       - name: USER
         permissions:
-          - USER_READ
+          - LESSON_READ
+          - LESSON_CREATE
+          - LESSON_UPDATE
+          - LESSON_DELETE
+          - TOPIC_READ
+          - TOPIC_CREATE
+          - TOPIC_UPDATE
+          - TOPIC_DELETE
 
 management:
   info:
@@ -76,11 +88,11 @@ info:
 logging:
   level:
     com.kduytran.authmanagementservice: debug
-  org:
-    springframework:
-      web:
-        client:
-          RestTemplate: debug
+    org:
+      springframework:
+        web: DEBUG
+        security: DEBUG
+        web.servlet.DispatcherServlet: DEBUG
 
 eureka:
   instance:
