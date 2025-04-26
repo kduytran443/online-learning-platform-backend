@@ -1,6 +1,5 @@
 package com.kduytran.categoryservice.audit;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
@@ -10,8 +9,6 @@ import java.util.Optional;
 @Component
 public class AuditAwareImpl implements AuditorAware<String> {
 
-    @Autowired
-    private HttpServletRequest request;
 
     /**
      * Returns the current auditor of the application.
@@ -20,7 +17,7 @@ public class AuditAwareImpl implements AuditorAware<String> {
      */
     @Override
     public Optional<String> getCurrentAuditor() {
-        String currentAuditor = request != null ? request.getHeader("CurrentAuditor") : null;
+        String currentAuditor = null;
         return Optional.of(currentAuditor == null ? "CATEGORY_MS" : currentAuditor);
     }
 

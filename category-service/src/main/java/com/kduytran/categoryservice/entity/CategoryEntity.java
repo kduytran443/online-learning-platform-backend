@@ -1,23 +1,18 @@
 package com.kduytran.categoryservice.entity;
 
+import com.kduytran.olpcommon.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Entity(name = "category")
-@Getter @Setter
+@Getter
+@Setter
 public class CategoryEntity extends BaseEntity {
-
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column
     private String name;
@@ -53,7 +48,7 @@ public class CategoryEntity extends BaseEntity {
      * from the current category back to the root.
      *
      * @return a list of parent {@link CategoryEntity} objects, ordered from the closest parent
-     *         to the farthest. If there are no parents, the list will be empty.
+     * to the farthest. If there are no parents, the list will be empty.
      */
     public List<CategoryEntity> getAllParents() {
         List<CategoryEntity> allParents = new ArrayList<>();
@@ -71,12 +66,11 @@ public class CategoryEntity extends BaseEntity {
      * in reverse, providing the lineage from the root down to the current category.
      *
      * @return a list of parent {@link CategoryEntity} objects, ordered from the farthest
-     *         parent to the closest. If there are no parents, the list will be empty.
+     * parent to the closest. If there are no parents, the list will be empty.
      */
     public List<CategoryEntity> getAllParentsInReverse() {
         List<CategoryEntity> allParents = getAllParents();
         Collections.reverse(allParents);
         return allParents;
     }
-
 }
