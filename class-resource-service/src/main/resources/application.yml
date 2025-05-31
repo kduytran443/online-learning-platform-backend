@@ -13,6 +13,13 @@ spring:
     show-sql: true
   config:
     import: "optional:configserver:http://localhost:8071/"
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81" #TODO: Need to be encrypted in future
 
 server:
   port: 8120

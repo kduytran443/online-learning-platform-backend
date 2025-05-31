@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,10 +66,10 @@ public class LessonController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('LESSON_READ')")
     public ResponseEntity<List<LessonDTO>> findAllByTopicId(@RequestParam String topicId,
-                                                           @RequestParam(required = false) List<EntityStatus> statuses) {
+                                                            @RequestParam(required = false) List<EntityStatus> statuses) {
         List<LessonDTO> lessonDTOs = lessonService.findAllByTopicId(topicId, statuses);
         return ResponseEntity.ok(lessonDTOs);
     }
-
 }
