@@ -7,11 +7,11 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @ToString
-public class PaymentCreatedEvent extends AbstractPaymentEvent {
+public class PaymentFailedEvent extends AbstractPaymentEvent {
 
     @Override
     public PaymentEventType getAction() {
-        return PaymentEventType.CREATE;
+        return PaymentEventType.FAIL;
     }
 
 }

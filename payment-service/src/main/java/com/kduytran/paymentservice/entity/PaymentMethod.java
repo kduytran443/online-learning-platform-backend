@@ -8,7 +8,8 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum PaymentMethod {
-    PAYPAL("P");
+    PAYPAL("P"),
+    MASTER_CARD("M");
 
     private String code;
 
