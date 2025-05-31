@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: 'auth-management-service'
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5443/auth_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: <CLIENT_ID>
+            client-secret: <CLIENT_SECRET>
+            scope:
+              - email
+              - profile
+
+server:
+  port: 8160
+
+olp:
+  dummy-topic: "dummy-value"
+  secured-token: false
+  jwt:
+    token-exp: PT10M
+    refresh-token-exp: P7D
+    public-key-path: <PUBLIC-KEY>
+    private-key-path: <PRIVATE-KEY>
+  frontend-login-success-url: "http://localhost:8160"
+  security:
+    roles:
+      - name: ADMIN
+        permissions:
+          - LESSON_READ
+          - LESSON_CREATE
+          - LESSON_UPDATE
+          - LESSON_DELETE
+          - TOPIC_READ
+          - TOPIC_CREATE
+          - TOPIC_UPDATE
+          - TOPIC_DELETE
+      - name: USER
+        permissions:
+          - LESSON_READ
+          - LESSON_CREATE
+          - LESSON_UPDATE
+          - LESSON_DELETE
+          - TOPIC_READ
+          - TOPIC_CREATE
+          - TOPIC_UPDATE
+          - TOPIC_DELETE
+
+management:
+  info:
+    env:
+      enabled: true
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+
+info:
+  app:
+    name: "auth-management-service"
+    description: "Auth Management Service"
+    version: "1.0.0"
+
+logging:
+  level:
+    com.kduytran.authmanagementservice: debug
+    org:
+      springframework:
+        web: DEBUG
+        security: DEBUG
+        web.servlet.DispatcherServlet: DEBUG
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: "http://localhost:8070/eureka/"
