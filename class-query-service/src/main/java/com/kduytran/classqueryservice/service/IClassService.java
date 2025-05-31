@@ -19,6 +19,7 @@ public interface IClassService {
      * @return The UUID of the newly created class.
      */
     UUID create(ClassDTO dto);
+
     void createBulk(ClassDTO[] dtos);
 
     /**
@@ -38,7 +39,10 @@ public interface IClassService {
     PaginationResponseDTO<ClassDTO> searchByCategory(SearchRequestDTO requestDTO);
 
     PaginationResponseDTO<ClassDTO> search(SearchRequestDTO requestDTO);
+
     List<ClassDTO> getAllLiveStatus();
 
     ClassDTO getClassDetails(String id);
+
+    List<ClassDTO> findAllClassesByIds(List<UUID> ids);
 }
