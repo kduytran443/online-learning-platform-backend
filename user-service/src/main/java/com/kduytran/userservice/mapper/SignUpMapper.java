@@ -3,16 +3,15 @@ package com.kduytran.userservice.mapper;
 import com.kduytran.userservice.dto.RegistrationDTO;
 import com.kduytran.userservice.dto.UserDTO;
 import com.kduytran.userservice.entity.SignUpEntity;
-import com.kduytran.userservice.entity.UserEntity;
 import com.kduytran.userservice.entity.UserType;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class UserMapper {
+public class SignUpMapper {
 
-    public static UserEntity convert(RegistrationDTO dto, UserEntity entity) {
+    public static SignUpEntity convert(RegistrationDTO dto, SignUpEntity entity) {
         if (entity == null) {
-            entity = new UserEntity();
+            entity = new SignUpEntity();
         }
         entity.setEmail(dto.getEmail());
         entity.setName(dto.getName());
@@ -22,29 +21,15 @@ public class UserMapper {
         return entity;
     }
 
-    public static UserEntity convert(SignUpEntity signUp, UserEntity entity) {
-        if (entity == null) {
-            entity = new UserEntity();
-        }
-        entity.setEmail(signUp.getEmail());
-        entity.setName(signUp.getName());
-        entity.setUserType(signUp.getUserType());
-        entity.setMobilePhone(signUp.getMobilePhone());
-        entity.setUsername(signUp.getUsername());
-        return entity;
-    }
-
-    public static UserDTO convert(UserEntity entity, UserDTO dto) {
+    public static UserDTO convert(SignUpEntity entity, UserDTO dto) {
         if (dto == null) {
             dto = new UserDTO();
         }
         dto.setId(entity.getId());
-        dto.setSeq(entity.getSeq());
         dto.setName(entity.getName());
         dto.setUsername(entity.getUsername());
         dto.setEmail(entity.getEmail());
         dto.setUserType(entity.getUserType() != null ? entity.getUserType().getCode() : null);
-        dto.setUserStatus(entity.getUserStatus() != null ? entity.getUserStatus().getCode() : null);
         dto.setMobilePhone(entity.getMobilePhone());
         return dto;
     }

@@ -42,7 +42,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   sql:
     init:
@@ -78,3 +78,6 @@ logging:
     com:
       kduytran:
         userservice: DEBUG
+
+verification:
+  expired-time: "3000"

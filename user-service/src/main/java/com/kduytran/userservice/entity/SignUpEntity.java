@@ -6,43 +6,44 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(name = "userdata")
+@Entity(name = "sign_up")
 @Getter
 @Setter
-@AllArgsConstructor @NoArgsConstructor
-public class UserEntity extends BaseEntity {
-
-    @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long seq;
+@NoArgsConstructor
+@AllArgsConstructor
+public class SignUpEntity {
 
     @Id
-    @Column
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(unique = true)
+    @Column
     private String username;
 
     @Column
     private String name;
 
-    @Column(unique = true)
+    @Column
     private String email;
 
-    @Column(unique = true)
+    @Column
     private String mobilePhone;
 
     @Column
     private UserType userType;
 
     @Column
-    private UserStatus userStatus;
+    private LocalDateTime createdAt;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-    private SignUpEntity signUp;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "signUp", cascade = CascadeType.PERSIST)
+    private List<UserVerificationEntity> userVerifications;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
 }

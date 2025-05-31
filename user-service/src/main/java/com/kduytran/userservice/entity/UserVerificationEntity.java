@@ -22,7 +22,7 @@ public class UserVerificationEntity {
     private boolean checked;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    @JoinColumn(name = "sign_up_id")
+    private SignUpEntity signUp;
 
 }

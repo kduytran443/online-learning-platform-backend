@@ -30,8 +30,8 @@ public class RegistrationDTO {
     )
     private String password;
 
-    @NotEmpty(message = "Name can not be null or empty")
-    @Pattern(regexp = "^[a-z0-9]+[a-z0-9_]{3,15}$", message = "Password is not valid")
+    @NotEmpty(message = "Name of user can not be null or empty")
+    @Pattern(regexp = "^[a-z0-9]+[a-z0-9_]{3,15}$", message = "Name of user is not valid")
     @Schema(
             description = "Name of user", example = "Duy Tran"
     )

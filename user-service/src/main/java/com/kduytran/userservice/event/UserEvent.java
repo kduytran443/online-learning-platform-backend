@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class UserEvent {
-    private String transactionId;
-    private String action;
+    private String correlationId;
+    private EventType type;
     private String id;
     private String username;
     private String name;
