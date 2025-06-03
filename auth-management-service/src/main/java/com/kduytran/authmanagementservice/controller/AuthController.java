@@ -1,19 +1,17 @@
 package com.kduytran.authmanagementservice.controller;
 
-import com.kduytran.authmanagementservice.constant.ResponseConstant;
-import com.kduytran.authmanagementservice.dto.RegistrationDTO;
-import com.kduytran.authmanagementservice.dto.ResponseDTO;
+import com.kduytran.authmanagementservice.dto.LoginRequestDTO;
 import com.kduytran.authmanagementservice.service.AuthService;
-import jakarta.websocket.server.PathParam;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@Validated
 @RestController
 @RequestMapping(
         path = "/api/v1/auth",
@@ -25,23 +23,20 @@ class AuthController {
     private final AuthService authService;
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/registration")
-    ResponseDTO registerUser(@RequestBody RegistrationDTO registrationDTO) {
-        authService.signup(registrationDTO);
-        return ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200);
+    @PostMapping("/login")
+    AccessTokenResponse login(@Valid @RequestBody LoginRequestDTO dto) {
+        return authService.login(dto.username(), dto.password());
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/verification")
-    ResponseDTO verifyUser(@PathParam("token") String token) {
-        authService.verifyUserRegistration(token);
-        return ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200);
+    @PostMapping("/logout")
+    void logout(@NotBlank @RequestParam String refreshToken) {
+        authService.logout(refreshToken);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/refresh-verification")
-    ResponseDTO refreshUserVerification(@PathParam("username") String username) {
-        authService.refreshUserVerification(username);
-        return ResponseDTO.of(ResponseConstant.STATUS_200, ResponseConstant.MESSAGE_200);
+    @PostMapping("/refresh-token")
+    AccessTokenResponse refreshToken(@NotBlank @RequestParam String refreshToken) {
+        return authService.refreshToken(refreshToken);
     }
 }

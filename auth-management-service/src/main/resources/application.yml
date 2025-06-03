@@ -102,3 +102,28 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: "http://localhost:8070/eureka/"
+
+keycloak:
+  auth-server-url: "http://localhost:8180"
+  realm: online-learning-platform-dev
+  resource: olp-microservices
+  secret: ${KEYCLOAK_CLIENT_SECRET}
+
+---
+spring:
+  profiles:
+    active: "TEMPDB"
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

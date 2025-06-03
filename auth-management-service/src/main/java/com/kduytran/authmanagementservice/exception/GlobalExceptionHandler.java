@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = {SignUpNotValidException.class})
+    @ExceptionHandler(value = {SignUpNotValidException.class, KeyCloakException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponseDTO handleBadRequestException(RuntimeException ex, WebRequest request) {
         log.error("Bad request: {}", ex.getMessage(), ex);

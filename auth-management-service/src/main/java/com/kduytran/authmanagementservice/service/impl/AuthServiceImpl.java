@@ -1,100 +1,62 @@
 package com.kduytran.authmanagementservice.service.impl;
 
-import com.kduytran.authmanagementservice.dto.RegistrationDTO;
-import com.kduytran.authmanagementservice.entity.SignUpEntity;
-import com.kduytran.authmanagementservice.entity.SignUpStatus;
-import com.kduytran.authmanagementservice.exception.SignUpNotValidException;
-import com.kduytran.authmanagementservice.mapper.RegistrationMapper;
-import com.kduytran.authmanagementservice.repository.SignUpRepository;
+import com.kduytran.authmanagementservice.exception.KeyCloakException;
+import com.kduytran.authmanagementservice.properties.KeyCloakProps;
 import com.kduytran.authmanagementservice.service.AuthService;
-import com.kduytran.authmanagementservice.utils.TimeUtils;
-import jakarta.transaction.Transactional;
+import com.kduytran.authmanagementservice.service.client.KeyCloakClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.token.TokenManager;
+import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.kduytran.authmanagementservice.config.KeyCloakClientConfig.getKeycloakWithPasswordGrantType;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+class AuthServiceImpl implements AuthService {
 
-    private final RegistrationMapper registrationMapper;
-    private final SignUpRepository signUpRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public void login(String username, String password) {
-
-    }
+    private final KeyCloakClient keyCloakClient;
+    private final KeyCloakProps keyCloakProps;
 
     @Override
-    public void logout() {
-
+    public AccessTokenResponse login(String username, String password) {
+        Keycloak client = getKeycloakWithPasswordGrantType(keyCloakProps, username, password);
+        TokenManager tokenmanager = client.tokenManager();
+        return tokenmanager.getAccessToken();
     }
 
     @Override
-    public void signup(RegistrationDTO registrationDTO) {
-        checkExistingSignUpUser(registrationDTO);
-        SignUpEntity signUpEntity = registrationMapper.map(registrationDTO, new SignUpEntity());
-        signUpEntity.setCreatedAt(LocalDateTime.now());
-        signUpEntity.setStatus(SignUpStatus.PENDING);
-        signUpEntity.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
-
-        assignNewToken(signUpEntity);
-
-        signUpRepository.save(signUpEntity);
+    public void logout(String refreshToken) {
+        Map<String, String> form = new HashMap<>();
+        form.put(OAuth2Constants.CLIENT_ID, keyCloakProps.getResource());
+        form.put(OAuth2Constants.CLIENT_SECRET, keyCloakProps.getSecret());
+        form.put(OAuth2Constants.REFRESH_TOKEN, refreshToken);
+        try {
+            var response = keyCloakClient.logout(keyCloakProps.getRealm(), form);
+            log.info("Logout response status: {}", response.getStatusCode());
+        } catch (Exception e) {
+            throw new KeyCloakException("Cannot logout");
+        }
     }
 
     @Override
-    public void verifyUserRegistration(String token) {
-        SignUpEntity signUpEntity = signUpRepository.findByCurrentVerificationTokenAndStatusIn(token,
-                        List.of(SignUpStatus.PENDING))
-                .orElseThrow(() -> new SignUpNotValidException("Token is not valid: " + token));
-        if (signUpEntity.getExpiredVerificationTokenDate() == null) {
-            throw new SignUpNotValidException("Token is not valid: " + token);
+    public AccessTokenResponse refreshToken(String refreshToken) {
+        Map<String, String> form = new HashMap<>();
+        form.put(OAuth2Constants.GRANT_TYPE, OAuth2Constants.REFRESH_TOKEN);
+        form.put(OAuth2Constants.REFRESH_TOKEN, refreshToken);
+        form.put(OAuth2Constants.CLIENT_ID, keyCloakProps.getResource());
+        form.put(OAuth2Constants.CLIENT_SECRET, keyCloakProps.getSecret());
+        try {
+            return keyCloakClient.refreshToken(keyCloakProps.getRealm(), form);
+        } catch (Exception e) {
+            throw new KeyCloakException("Cannot refresh token");
         }
-        if (LocalDateTime.now().isAfter(signUpEntity.getExpiredVerificationTokenDate())) {
-            throw new SignUpNotValidException("Token is expired: " + token);
-        }
-        signUpEntity.setStatus(SignUpStatus.SUCCESS);
-        signUpRepository.save(signUpEntity);
-    }
-
-    @Override
-    public void refreshUserVerification(String username) {
-        SignUpEntity signUpEntity = signUpRepository.findByUsernameAndStatusIn(username,
-                        List.of(SignUpStatus.PENDING))
-                .orElseThrow(() -> new SignUpNotValidException("Username is not found: " + username));
-        assignNewToken(signUpEntity);
-        signUpRepository.save(signUpEntity);
-    }
-
-    private void checkExistingSignUpUser(RegistrationDTO dto) {
-        List<SignUpStatus> validStatuses = List.of(SignUpStatus.PENDING, SignUpStatus.SUCCESS);
-
-        if (signUpRepository.existsByUsernameAndStatusIn(dto.getUsername(), validStatuses)) {
-            throw new SignUpNotValidException("Username already exists");
-        }
-
-        if (signUpRepository.existsByEmailAndStatusIn(dto.getEmail(), validStatuses)) {
-            throw new SignUpNotValidException("Email already registered");
-        }
-
-        if (signUpRepository.existsByMobilePhoneAndStatusIn(dto.getMobilePhone(), validStatuses)) {
-            throw new SignUpNotValidException("Phone number already used");
-        }
-    }
-
-    private void assignNewToken(SignUpEntity signUpEntity) {
-        final String token = UUID.randomUUID().toString();
-        signUpEntity.setCurrentVerificationToken(token);
-        signUpEntity.setExpiredVerificationTokenDate(TimeUtils.getExpiredTime(300)); // 300s
-        log.debug("Assign new token {} for user {}", token, signUpEntity.getName());
     }
 }

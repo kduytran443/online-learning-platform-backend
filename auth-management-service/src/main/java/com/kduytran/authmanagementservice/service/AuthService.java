@@ -1,16 +1,12 @@
 package com.kduytran.authmanagementservice.service;
 
-import com.kduytran.authmanagementservice.dto.RegistrationDTO;
+import org.keycloak.representations.AccessTokenResponse;
 
 public interface AuthService {
 
-    void login(String username, String password);
+    AccessTokenResponse login(String username, String password);
 
-    void logout();
+    void logout(String refreshToken);
 
-    void signup(RegistrationDTO registrationDTO);
-
-    void verifyUserRegistration(String token);
-
-    void refreshUserVerification(String username);
+    AccessTokenResponse refreshToken(String refreshToken);
 }

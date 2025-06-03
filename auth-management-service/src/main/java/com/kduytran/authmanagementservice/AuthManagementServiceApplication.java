@@ -1,11 +1,15 @@
 package com.kduytran.authmanagementservice;
 
+import com.kduytran.authmanagementservice.properties.KeyCloakProps;
 import com.kduytran.authmanagementservice.properties.OlpSecurityProperties;
+import com.kduytran.authmanagementservice.service.client.KeyCloakClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@EnableConfigurationProperties(value = {OlpSecurityProperties.class})
+@EnableFeignClients(clients = {KeyCloakClient.class})
+@EnableConfigurationProperties(value = {OlpSecurityProperties.class, KeyCloakProps.class})
 @SpringBootApplication
 public class AuthManagementServiceApplication {
 
