@@ -25,9 +25,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtKeyService jwtKeyService;
 
-    @Value("${olp.frontend-login-success-url}")
-    private String frontendLoginSuccessUrl;
-
     @Value("${olp.secured-token}")
     private String securedToken;
 
@@ -46,9 +43,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         response.addCookie(makeAccessTokenCookie(user));
         response.addCookie(makeRefreshTokenCookie(user));
-        response.sendRedirect(frontendLoginSuccessUrl);
-
-        super.onAuthenticationSuccess(request, response, authentication);
+        response.sendRedirect("/login-success");
     }
 
     private Cookie makeAccessTokenCookie(UserEntity user) {

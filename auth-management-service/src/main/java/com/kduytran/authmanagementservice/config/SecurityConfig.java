@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -53,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/**", "/oauth2/**",
                                 "/api/v1/jwt-key/**", "/api/v1/jwt-key/**",
-                                "/login/oauth2/code/google"
+                                "/login/oauth2/code/google", "/success-login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -68,8 +67,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // generate token or redirect
                         .failureHandler(customAuthenticationFailureHandler)
-                )
-                .httpBasic(Customizer.withDefaults());
+                );
         return http.build();
     }
 
