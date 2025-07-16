@@ -1,6 +1,6 @@
 spring:
   application:
-    name: 'auth-management-service'
+    name: 'auth-management'
   config:
     import: "optional:configserver:http://localhost:8071/"
   jpa:

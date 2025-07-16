@@ -1,16 +1,21 @@
 package com.kduytran.authmanagementservice.service.impl;
 
+import com.kduytran.authmanagementservice.dto.UserDTO;
 import com.kduytran.authmanagementservice.entity.PermissionEntity;
 import com.kduytran.authmanagementservice.entity.RoleEntity;
 import com.kduytran.authmanagementservice.entity.UserEntity;
 import com.kduytran.authmanagementservice.service.JwtKeyService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

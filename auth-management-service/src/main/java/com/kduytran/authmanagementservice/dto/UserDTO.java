@@ -1,11 +1,15 @@
 package com.kduytran.authmanagementservice.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
+@Builder
 public class UserDTO {
-    private String id;
-    private String userName;
-    private String email;
-    private String fullName;
+    private String sub;
+    private String username;
+    private List<String> roles;
+    private List<String> permissions;
 }
