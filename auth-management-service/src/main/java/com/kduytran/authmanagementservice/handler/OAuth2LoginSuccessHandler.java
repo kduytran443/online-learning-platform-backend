@@ -36,7 +36,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
         String username = authentication.getName();
         UserEntity user = userRepository.findByUsername(username).orElseThrow(
                 () -> new ResourceNotFoundException("User with username [%s] not found".formatted(username)));

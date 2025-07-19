@@ -57,6 +57,8 @@ public class JwtKeyServiceImpl implements JwtKeyService {
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("username", user.getUsername())
+                .claim("name", user.getName())
+                .claim("picture", user.getPicture())
                 .claim("roles", getRoles(user))
                 .claim("permissions", getPermissions(user))
                 .setIssuedAt(Date.from(now))

@@ -9,6 +9,8 @@ import java.util.List;
 @Builder
 public class UserDTO {
     private String sub;
+    private String name;
+    private String picture;
     private String username;
     private List<String> roles;
     private List<String> permissions;

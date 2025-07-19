@@ -37,6 +37,8 @@ public class UserServiceImpl implements UserService {
                 .username(claims.get("username", String.class))
                 .roles(claims.get("roles", List.class))
                 .permissions(claims.get("permissions", List.class))
+                .name(claims.get("name", String.class))
+                .picture(claims.get("picture", String.class))
                 .build();
     }
 }
