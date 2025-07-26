@@ -25,9 +25,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtKeyService jwtKeyService;
 
-    @Value("${olp.frontend-login-success-url}")
-    private String frontendLoginSuccessUrl;
-
     @Value("${olp.secured-token}")
     private String securedToken;
 
@@ -39,16 +36,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
         String username = authentication.getName();
         UserEntity user = userRepository.findByUsername(username).orElseThrow(
                 () -> new ResourceNotFoundException("User with username [%s] not found".formatted(username)));
 
         response.addCookie(makeAccessTokenCookie(user));
         response.addCookie(makeRefreshTokenCookie(user));
-        response.sendRedirect(frontendLoginSuccessUrl);
-
-        super.onAuthenticationSuccess(request, response, authentication);
+        response.sendRedirect("/login-success");
     }
 
     private Cookie makeAccessTokenCookie(UserEntity user) {

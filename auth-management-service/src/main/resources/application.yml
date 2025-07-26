@@ -1,6 +1,6 @@
 spring:
   application:
-    name: 'auth-management-service'
+    name: 'auth-management'
   config:
     import: "optional:configserver:http://localhost:8071/"
   jpa:
@@ -35,7 +35,7 @@ olp:
     refresh-token-exp: P7D
     public-key-path: <PUBLIC-KEY>
     private-key-path: <PRIVATE-KEY>
-  frontend-login-success-url: "http://localhost:8160"
+  frontend-login-success-url: "http://localhost:3000"
   security:
     roles:
       - name: ADMIN
