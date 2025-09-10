@@ -1,4 +1,16 @@
 services:
+  test_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test_db
+    volumes:
+      - test_db:/var/lib/postgresql/data
+    networks:
+      - "test-env"
+    ports:
+      - "5432:5432"
   redis:
     container_name: redis
     image: redis:7.4.1-alpine
@@ -22,7 +34,7 @@ services:
       # - JAVA_OPTS=-Xms128m -Xmx128m -XX:+ExitOnOutOfMemoryError
     ports:
       # Port used for the Zipkin UI and HTTP Api
-      - 9411:9411
+      - "9411:9411"
   prometheus:
     image: prom/prometheus
     restart: always

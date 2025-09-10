@@ -6,15 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
-@Entity(name = "class")
+@Entity(name = "olp_class")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClassEntity {
+public class ClassEntity extends BaseEntity {
 
     @Id
     @Column
@@ -25,25 +25,20 @@ public class ClassEntity {
     private String name;
 
     @Column
-    private String image;
-
-    @Column
     private String password;
 
     @Column
-    private LocalDateTime startAt;
+    private String thumbnailImageKey;
 
     @Column
-    private LocalDateTime endAt;
+    private String bannerImageKey;
 
     @Column
-    private EntityStatus status;
+    @Enumerated(EnumType.STRING)
+    private Accessibility accessibility;
 
     @Column
     private UUID categoryId;
-
-    @Column
-    private OwnerType ownerType;
 
     @Column(name = "owner_id")
     private UUID ownerId;
@@ -51,7 +46,10 @@ public class ClassEntity {
     @Column(name = "owner_name")
     private String ownerName;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "aClass")
-    private ClassDescriptionEntity classDescription;
+    @Column(name = "archived_at")
+    private Instant archivedAt;
 
+    @OneToOne(fetch =  FetchType.LAZY)
+    @JoinColumn(name = "class_description_id")
+    private ClassDescriptionEntity classDescription;
 }

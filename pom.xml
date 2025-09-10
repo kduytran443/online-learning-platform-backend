@@ -141,7 +141,14 @@
 				<version>${jackson-datatype-jsr310.version}</version>
 			</dependency>
 
-			<!-- Mapstruct -->
+            <!-- AWS Services -->
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>1.12.770</version>
+            </dependency>
+
+            <!-- Mapstruct -->
 			<dependency>
 				<groupId>org.mapstruct</groupId>
 				<artifactId>mapstruct</artifactId>

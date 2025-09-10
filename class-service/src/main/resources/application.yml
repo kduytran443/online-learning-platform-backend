@@ -65,6 +65,17 @@ management:
     shutdown:
       enabled: true
 
+# AWS Services
+cloud:
+  aws:
+    region:
+      static: ${AWS_REGION:ap-southeast-1}
+    stack:
+      auto: false
+s3:
+  bucket: ${S3_BUCKET:olp-test-bucket}
+  cloud-front: ${S3_CLOUD_FRONT:dys14b68hnb52.cloudfront.net}
+
 info:
   app:
     name: "class"
