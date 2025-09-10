@@ -2,18 +2,14 @@ spring:
   application:
     name: "class"
   datasource:
-    url: jdbc:postgresql://localhost:5435/class_db
-    username: user
-    password: password
+    url: jdbc:postgresql://localhost:5436/olp_test_db
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:/schema.sql
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   config:
     import: "optional:configserver:http://localhost:8071/"

@@ -1,29 +1,29 @@
 package com.kduytran.classservice.service.impl;
 
+import com.kduytran.classservice.entity.ClassEntity;
 import com.kduytran.classservice.dto.ClassDetailsDTO;
 import com.kduytran.classservice.dto.SaveClassDTO;
-import com.kduytran.classservice.entity.ClassEntity;
 import com.kduytran.classservice.exception.ResourceNotFoundException;
 import com.kduytran.classservice.mapper.ClassMapper;
-import com.kduytran.classservice.repository.ClassRepository;
 import com.kduytran.classservice.service.ClassService;
 import com.kduytran.classservice.service.S3Service;
+import com.kduytran.classservice.repository.ClassRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.UUID;
+import java.time.Instant;
 
-@Service
 @Transactional
+@Service
 @RequiredArgsConstructor
-public class ClassServiceImpl implements ClassService {
+class ClassServiceImpl implements ClassService {
 
-    private final ClassRepository classRepository;
     private final ClassMapper classMapper;
     private final S3Service s3Service;
+    private final ClassRepository classRepository;
 
     /**
      * Creates a new class based on the provided data.
@@ -31,6 +31,8 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public UUID create(SaveClassDTO saveClassDTO, MultipartFile thumbnail, MultipartFile banner) {
         ClassEntity classEntity = classMapper.toEntity(saveClassDTO);
+
+        // Use S3 to store files
         String thumbnailKey = s3Service.uploadFile(thumbnail);
         String bannerKey = s3Service.uploadFile(banner);
 

@@ -25,9 +25,6 @@ public class ClassEntity extends BaseEntity {
     private String name;
 
     @Column
-    private String password;
-
-    @Column
     private String thumbnailImageKey;
 
     @Column
@@ -42,9 +39,6 @@ public class ClassEntity extends BaseEntity {
 
     @Column(name = "owner_id")
     private UUID ownerId;
-
-    @Column(name = "owner_name")
-    private String ownerName;
 
     @Column(name = "archived_at")
     private Instant archivedAt;

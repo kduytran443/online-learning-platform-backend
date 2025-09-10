@@ -38,7 +38,7 @@
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
 		<jwt.version>0.11.5</jwt.version>
-		<kafka.version>3.1.1</kafka.version>
+		<kafka.version>3.3.2</kafka.version>
 		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
