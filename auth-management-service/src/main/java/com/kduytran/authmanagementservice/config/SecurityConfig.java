@@ -4,6 +4,7 @@ import com.kduytran.authmanagementservice.handler.CustomAuthenticationFailureHan
 import com.kduytran.authmanagementservice.handler.OAuth2LoginSuccessHandler;
 import com.kduytran.authmanagementservice.service.CustomOAuth2UserService;
 import com.kduytran.authmanagementservice.service.JwtKeyService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,14 +60,31 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter())))
+
+                // Resource server for JWT API
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(customJwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
+                )
+
+                // OAuth2 login used for web redirect
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService) // mapping oauth2 info to user in db
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // generate token or redirect
                         .failureHandler(customAuthenticationFailureHandler)
+                )
+
+                // Default entry point for returning API JSON
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        })
                 );
         return http.build();
     }

@@ -48,6 +48,17 @@
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>com.kduytran</groupId>
+            <artifactId>olp-common</artifactId>
+        </dependency>
+
+        <!-- UUID v7 -->
+        <dependency>
+            <groupId>com.github.f4b6a3</groupId>
+            <artifactId>uuid-creator</artifactId>
+        </dependency>
+
         <!-- Mapper -->
         <dependency>
             <groupId>org.mapstruct</groupId>

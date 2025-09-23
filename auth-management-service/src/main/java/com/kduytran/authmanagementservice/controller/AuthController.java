@@ -11,13 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
 @Slf4j
-@Validated
 @RestController
 @RequestMapping(
         produces = {MediaType.APPLICATION_JSON_VALUE}
@@ -51,7 +49,7 @@ class AuthController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/login-success")
     void loginSuccess(HttpServletResponse response,
-                      @Value("${olp.frontend-login-success-url}")
+                      @Value("${olp.frontend-url}")
                       String frontendLoginSuccessUrl) throws IOException {
         response.sendRedirect(frontendLoginSuccessUrl + "/login-success");
     }

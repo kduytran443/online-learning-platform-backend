@@ -6,20 +6,20 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
   datasource:
-    url: jdbc:postgresql://localhost:5443/auth_db
-    username: user
-    password: password
+    url: jdbc:postgresql://localhost:5436/olp_test_db
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: <CLIENT_ID>
-            client-secret: <CLIENT_SECRET>
+            client-id: ${CLIENT_ID:CLIENT-ID}
+            client-secret: ${CLIENT_SECRET:CLIENT-SECRET}
             scope:
               - email
               - profile
@@ -33,9 +33,9 @@ olp:
   jwt:
     token-exp: PT10M
     refresh-token-exp: P7D
-    public-key-path: <PUBLIC-KEY>
-    private-key-path: <PRIVATE-KEY>
-  frontend-login-success-url: "http://localhost:3000"
+    public-key-path: ${PUBLIC_KEY:PUBLIC-KEY}
+    private-key-path: ${PRIVATE_KEY:PRIVATE-KEY}
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
   security:
     roles:
       - name: ADMIN

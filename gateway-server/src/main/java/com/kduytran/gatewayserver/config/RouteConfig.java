@@ -78,6 +78,18 @@ public class RouteConfig {
                         )
                         .uri(PathUtils.getUri(ServiceConstant.CLASS_RESOURCE_NAME))
                 )
+                .route(p -> p
+                        // Match all requests starting with /AUTH-MANAGEMENT
+                        .path("/auth-management/**")
+                        .filters(f -> f
+                                // Remove /AUTH-MANAGEMENT from the path before forwarding to downstream service
+                                .rewritePath("/auth-management/(?<remaining>.*)", "/${remaining}")
+                                // Add a response header as an example
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        // Destination service (registered with service discovery / load balancer)
+                        .uri("lb://AUTH-MANAGEMENT")
+                )
                 .build();
     }
 

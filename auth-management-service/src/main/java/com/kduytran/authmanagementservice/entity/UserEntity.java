@@ -1,5 +1,6 @@
 package com.kduytran.authmanagementservice.entity;
 
+import com.kduytran.olpcommon.uuidv7.UUIDv7;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @UUIDv7
     private UUID id;
 
     @Column

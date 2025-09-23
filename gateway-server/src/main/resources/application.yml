@@ -36,6 +36,8 @@ info:
 server:
   port: 8072
 
+olp:
+  front-end-urls: "http://localhost:5173"
 
 eureka:
   instance:
