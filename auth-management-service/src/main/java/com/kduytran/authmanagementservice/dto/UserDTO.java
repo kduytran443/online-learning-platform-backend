@@ -10,7 +10,7 @@ import java.util.List;
 public class UserDTO {
     private String sub;
     private String name;
-    private String picture;
+    private String avatar;
     private String username;
     private List<String> roles;
     private List<String> permissions;

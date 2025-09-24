@@ -1,15 +1,13 @@
 package com.kduytran.authmanagementservice.handler;
 
-import com.kduytran.authmanagementservice.entity.UserEntity;
-import com.kduytran.authmanagementservice.exception.ResourceNotFoundException;
-import com.kduytran.authmanagementservice.repository.UserRepository;
+import com.kduytran.authmanagementservice.dto.JwtPairDTO;
 import com.kduytran.authmanagementservice.service.JwtKeyService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -17,11 +15,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.Duration;
 
+import static com.kduytran.authmanagementservice.constant.ApiPathConstant.V1_LOGIN_SUCCESS;
+
 @Component
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-    private final UserRepository userRepository;
 
     private final JwtKeyService jwtKeyService;
 
@@ -38,32 +36,25 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         String username = authentication.getName();
-        UserEntity user = userRepository.findByUsername(username).orElseThrow(
-                () -> new ResourceNotFoundException("User with username [%s] not found".formatted(username)));
+        Duration accessTokenDuration = Duration.parse(tokenExp);
+        Duration refreshTokenDuration = Duration.parse(refreshTokenExp);
+        JwtPairDTO jwtPair = jwtKeyService.getJwtPair(username, accessTokenDuration, refreshTokenDuration);
 
-        response.addCookie(makeAccessTokenCookie(user));
-        response.addCookie(makeRefreshTokenCookie(user));
-        response.sendRedirect("/login-success");
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                makeCookie("accessToken", jwtPair.accessToken(), accessTokenDuration.getSeconds()).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                makeCookie("refreshToken", jwtPair.refreshToken(), refreshTokenDuration.getSeconds()).toString());
+
+        response.sendRedirect(V1_LOGIN_SUCCESS);
     }
 
-    private Cookie makeAccessTokenCookie(UserEntity user) {
-        Duration duration = Duration.parse(tokenExp);
-        String token = jwtKeyService.generateToken(user, duration);
-        return makeCookie("accessToken", token, duration.getSeconds());
-    }
-
-    private Cookie makeRefreshTokenCookie(UserEntity user) {
-        Duration duration = Duration.parse(refreshTokenExp);
-        String refreshToken = jwtKeyService.generateRefreshToken(user, duration);
-        return makeCookie("refreshToken", refreshToken, duration.getSeconds());
-    }
-
-    private Cookie makeCookie(String name, String value, long maxAge) {
-        Cookie accessTokenCookie = new Cookie(name, value);
-        accessTokenCookie.setSecure(Boolean.parseBoolean(securedToken)); // true in production
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) maxAge);
-        return accessTokenCookie;
+    private ResponseCookie makeCookie(String name, String value, long maxAge) {
+        return ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(Boolean.parseBoolean(securedToken)) // true in production
+                .path("/")
+                .maxAge(maxAge)
+                .sameSite("Lax")
+                .build();
     }
 }

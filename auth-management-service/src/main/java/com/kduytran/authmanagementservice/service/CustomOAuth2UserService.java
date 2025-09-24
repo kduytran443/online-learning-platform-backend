@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -25,6 +26,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    @Transactional
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oauth2User = delegate.loadUser(userRequest);
@@ -35,12 +37,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
             String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
-
             return userRepository.save(UserEntity.builder()
                     .email(email)
                     .username(email)
                     .name(oauth2User.getAttribute("name"))
-                    .picture(oauth2User.getAttribute("picture"))
+                    .avatar(oauth2User.getAttribute("picture"))
                     .roles(Set.of(role))
                     .oauthId(registrationId)
                     .build());

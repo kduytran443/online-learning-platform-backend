@@ -36,12 +36,12 @@ public class UserEntity {
     private String name;
 
     @Column
-    private String picture;
+    private String avatar;
 
-    @Column(nullable = true)
+    @Column
     private String oauthId;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

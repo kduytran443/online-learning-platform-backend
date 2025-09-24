@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Schema(
         name = "Error Response",
@@ -35,5 +35,5 @@ public class ErrorResponseDTO {
     @Schema(
             description = "Time representing when the error happened"
     )
-    private LocalDateTime errorTime;
+    private Instant errorTime;
 }

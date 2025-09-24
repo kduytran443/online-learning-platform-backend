@@ -1,7 +1,6 @@
 package com.kduytran.authmanagementservice.service.impl;
 
 import com.kduytran.authmanagementservice.dto.UserDTO;
-import com.kduytran.authmanagementservice.repository.UserRepository;
 import com.kduytran.authmanagementservice.service.JwtKeyService;
 import com.kduytran.authmanagementservice.service.UserService;
 import io.jsonwebtoken.Claims;
@@ -21,7 +20,6 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final JwtKeyService jwtKeyService;
-    private final UserRepository userRepository;
 
     @Override
     public UserDTO getUserFromAccessToken(String token) {
@@ -42,7 +40,7 @@ public class UserServiceImpl implements UserService {
                 .roles(claims.get("roles", List.class))
                 .permissions(claims.get("permissions", List.class))
                 .name(claims.get("name", String.class))
-                .picture(claims.get("picture", String.class))
+                .avatar(claims.get("avatar", String.class))
                 .build();
     }
 }

@@ -6,7 +6,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   datasource:
     url: jdbc:postgresql://localhost:5436/olp_test_db
@@ -36,6 +36,7 @@ olp:
     public-key-path: ${PUBLIC_KEY:PUBLIC-KEY}
     private-key-path: ${PRIVATE_KEY:PRIVATE-KEY}
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  frontend-login-success-path: ${FRONTEND_LOGIN_SUCCESS_PATH:login-success}
   security:
     roles:
       - name: ADMIN

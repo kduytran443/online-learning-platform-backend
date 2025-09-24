@@ -53,7 +53,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/**", "/oauth2/**",
                                 "/api/v1/jwt-key/**", "/api/v1/jwt-key/**",
-                                "/login/oauth2/code/google", "/login-success", "/api/my-info"
+                                "/login/oauth2/code/google", "/api/v1/login-success", "/api/my-info"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

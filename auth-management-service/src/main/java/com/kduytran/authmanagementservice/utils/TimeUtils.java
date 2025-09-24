@@ -2,20 +2,12 @@ package com.kduytran.authmanagementservice.utils;
 
 import lombok.experimental.UtilityClass;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @UtilityClass
 public class TimeUtils {
 
-    public static boolean isExpired(LocalDateTime expiredDate) {
-        if (expiredDate == null) {
-            return false;
-        }
-        return LocalDateTime.now().isAfter(expiredDate);
+    public static Instant getExpiredTime(long second) {
+        return Instant.now().plusSeconds(second);
     }
-
-    public static LocalDateTime getExpiredTime(long second) {
-        return LocalDateTime.now().plusSeconds(second);
-    }
-
 }

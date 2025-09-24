@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity(name = "auth_sign_up")
@@ -36,7 +36,7 @@ public class SignUpEntity {
     private String mobilePhone;
 
     @Column
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -46,5 +46,5 @@ public class SignUpEntity {
     private String currentVerificationToken;
 
     @Column
-    private LocalDateTime expiredVerificationTokenDate;
+    private Instant expiredVerificationTokenDate;
 }
