@@ -1,5 +1,6 @@
 package com.kduytran.authmanagementservice.service;
 
+import com.kduytran.authmanagementservice.dto.JwtPairDTO;
 import com.kduytran.authmanagementservice.entity.UserEntity;
 
 import java.security.PublicKey;
@@ -14,4 +15,6 @@ public interface JwtKeyService {
     String generateRefreshToken(UserEntity user, Duration expiry);
 
     PublicKey getPublicKey();
+
+    JwtPairDTO getJwtPair(String username, Duration accessTokenDuration, Duration refreshTokenDuration);
 }

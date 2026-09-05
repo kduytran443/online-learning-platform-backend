@@ -1,9 +1,12 @@
 package com.kduytran.authmanagementservice.service.impl;
 
+import com.kduytran.authmanagementservice.dto.JwtPairDTO;
 import com.kduytran.authmanagementservice.dto.UserDTO;
 import com.kduytran.authmanagementservice.entity.PermissionEntity;
 import com.kduytran.authmanagementservice.entity.RoleEntity;
 import com.kduytran.authmanagementservice.entity.UserEntity;
+import com.kduytran.authmanagementservice.exception.ResourceNotFoundException;
+import com.kduytran.authmanagementservice.repository.UserRepository;
 import com.kduytran.authmanagementservice.service.JwtKeyService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -36,6 +39,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtKeyServiceImpl implements JwtKeyService {
 
+    private final UserRepository userRepository;
+
     @Value("${olp.jwt.public-key-path}")
     private String publicKeyPath;
 
@@ -58,7 +63,7 @@ public class JwtKeyServiceImpl implements JwtKeyService {
                 .setSubject(user.getUsername())
                 .claim("username", user.getUsername())
                 .claim("name", user.getName())
-                .claim("picture", user.getPicture())
+                .claim("avatar", user.getAvatar())
                 .claim("roles", getRoles(user))
                 .claim("permissions", getPermissions(user))
                 .setIssuedAt(Date.from(now))
@@ -82,6 +87,15 @@ public class JwtKeyServiceImpl implements JwtKeyService {
     @Override
     public PublicKey getPublicKey() {
         return publicKey;
+    }
+
+    @Override
+    public JwtPairDTO getJwtPair(String username, Duration accessTokenDuration, Duration refreshTokenDuration) {
+        UserEntity user = userRepository.findByUsername(username).orElseThrow(
+                () -> new ResourceNotFoundException("User with username [%s] not found".formatted(username)));
+        String token = generateToken(user, accessTokenDuration);
+        String refreshToken = generateRefreshToken(user, refreshTokenDuration);
+        return new JwtPairDTO(token, refreshToken);
     }
 
     private List<String> getRoles(UserEntity user) {

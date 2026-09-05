@@ -38,7 +38,7 @@
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
 		<jwt.version>0.11.5</jwt.version>
-		<kafka.version>3.1.1</kafka.version>
+		<kafka.version>3.3.2</kafka.version>
 		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
@@ -55,7 +55,7 @@
 		<kafka-streams.version>3.7.1</kafka-streams.version>
 		<rest-api-sdk.version>1.4.2</rest-api-sdk.version>
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-
+        <uuid-creator.version>5.3.5</uuid-creator.version>
 		<sonar.organization>kduytran443</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
@@ -141,7 +141,21 @@
 				<version>${jackson-datatype-jsr310.version}</version>
 			</dependency>
 
-			<!-- Mapstruct -->
+            <!-- AWS Services -->
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>1.12.770</version>
+            </dependency>
+
+            <!-- UUID v7 -->
+            <dependency>
+                <groupId>com.github.f4b6a3</groupId>
+                <artifactId>uuid-creator</artifactId>
+                <version>${uuid-creator.version}</version>
+            </dependency>
+
+            <!-- Mapstruct -->
 			<dependency>
 				<groupId>org.mapstruct</groupId>
 				<artifactId>mapstruct</artifactId>

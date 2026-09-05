@@ -1,5 +1,6 @@
 package com.kduytran.authmanagementservice.entity;
 
+import com.kduytran.olpcommon.uuidv7.UUIDv7;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @UUIDv7
     private UUID id;
 
     @Column
@@ -35,12 +36,12 @@ public class UserEntity {
     private String name;
 
     @Column
-    private String picture;
+    private String avatar;
 
-    @Column(nullable = true)
+    @Column
     private String oauthId;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

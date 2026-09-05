@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Entity(name = "class_description")
+@Entity(name = "olp_class_description")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,8 +22,4 @@ public class ClassDescriptionEntity {
 
     @Column
     private String content;
-
-    @OneToOne
-    @JoinColumn(name = "aClass")
-    private ClassEntity aClass;
 }

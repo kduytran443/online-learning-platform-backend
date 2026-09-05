@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -16,7 +16,7 @@ public class UserVerificationEntity {
     private String token;
 
     @Column(updatable = false)
-    private LocalDateTime expiredDate;
+    private Instant expiredDate;
 
     @Column
     private boolean checked;

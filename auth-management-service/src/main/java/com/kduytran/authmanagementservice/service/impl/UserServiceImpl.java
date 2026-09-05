@@ -9,11 +9,13 @@ import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -38,7 +40,7 @@ public class UserServiceImpl implements UserService {
                 .roles(claims.get("roles", List.class))
                 .permissions(claims.get("permissions", List.class))
                 .name(claims.get("name", String.class))
-                .picture(claims.get("picture", String.class))
+                .avatar(claims.get("avatar", String.class))
                 .build();
     }
 }
