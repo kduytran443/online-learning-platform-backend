@@ -2,16 +2,16 @@ spring:
   application:
     name: 'auth-management-service'
   config:
-    import: "optional:configserver:http://localhost:8071/"
+    import: optional:configserver:${CONFIG_SERVICE_URL:http://localhost:8071/}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: create
     show-sql: true
   datasource:
-    url: jdbc:postgresql://localhost:5443/auth_db
-    username: user
-    password: password
+    url: jdbc:postgresql://${DATASOURCE_URL:localhost:5443/auth_db}
+    username: ${DATASOURCE_USERNAME:user}
+    password: ${DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   security:
     oauth2:
@@ -28,36 +28,7 @@ server:
   port: 8160
 
 olp:
-  dummy-topic: "dummy-value"
-  secured-token: false
-  jwt:
-    token-exp: PT10M
-    refresh-token-exp: P7D
-    public-key-path: <PUBLIC-KEY>
-    private-key-path: <PRIVATE-KEY>
-  frontend-login-success-url: "http://localhost:8160"
-  security:
-    roles:
-      - name: ADMIN
-        permissions:
-          - LESSON_READ
-          - LESSON_CREATE
-          - LESSON_UPDATE
-          - LESSON_DELETE
-          - TOPIC_READ
-          - TOPIC_CREATE
-          - TOPIC_UPDATE
-          - TOPIC_DELETE
-      - name: USER
-        permissions:
-          - LESSON_READ
-          - LESSON_CREATE
-          - LESSON_UPDATE
-          - LESSON_DELETE
-          - TOPIC_READ
-          - TOPIC_CREATE
-          - TOPIC_UPDATE
-          - TOPIC_DELETE
+  frontend-redirect-uri: ${FE_REDIRECT_URL}
 
 management:
   info:
@@ -101,12 +72,12 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: "http://localhost:8070/eureka/"
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8070/eureka/}
 
 keycloak:
-  auth-server-url: "http://localhost:8180"
-  realm: online-learning-platform-dev
-  resource: olp-microservices
+  auth-server-url: ${KEYCLOAK_URL:http://localhost:8180}
+  realm: OLP
+  resource: auth-management-service
   secret: ${KEYCLOAK_CLIENT_SECRET}
 
 ---

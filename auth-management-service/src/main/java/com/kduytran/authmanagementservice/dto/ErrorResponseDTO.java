@@ -25,7 +25,7 @@ public class ErrorResponseDTO {
     @Schema(
             description = "Error code representing the error happened"
     )
-    private HttpStatus errorCode;
+    private String errorCode;
 
     @Schema(
             description = "Error message representing the error happened"

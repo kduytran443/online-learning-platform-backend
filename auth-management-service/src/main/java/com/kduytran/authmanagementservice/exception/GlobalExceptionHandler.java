@@ -14,6 +14,17 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
+    @ExceptionHandler(value = { LoginFailedException.class })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorResponseDTO handleLoginFailedException(LoginFailedException ex, WebRequest webRequest) {
+        log.warn(ex.getMessage(), ex);
+        return ErrorResponseDTO.builder()
+                .apiPath(webRequest.getDescription(false))
+                .errorMessage(ex.getMessage())
+                .errorCode(LoginFailedException.USERNAME_OR_PASSWORD_INCORRECT)
+                .build();
+    }
+
     @ExceptionHandler(value = {SignUpNotValidException.class, KeyCloakException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponseDTO handleBadRequestException(RuntimeException ex, WebRequest request) {
@@ -22,7 +33,7 @@ class GlobalExceptionHandler {
                 .apiPath(request.getDescription(false))
                 .errorMessage(ex.getMessage())
                 .errorTime(LocalDateTime.now())
-                .errorCode(HttpStatus.BAD_REQUEST)
+                .errorCode(HttpStatus.BAD_REQUEST.toString())
                 .build();
     }
 
@@ -34,7 +45,7 @@ class GlobalExceptionHandler {
                 .apiPath(request.getDescription(false))
                 .errorMessage(ex.getMessage())
                 .errorTime(LocalDateTime.now())
-                .errorCode(HttpStatus.NOT_FOUND)
+                .errorCode(HttpStatus.NOT_FOUND.toString())
                 .build();
     }
 }

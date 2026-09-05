@@ -1,6 +1,7 @@
 package com.kduytran.authmanagementservice.service.impl;
 
 import com.kduytran.authmanagementservice.exception.KeyCloakException;
+import com.kduytran.authmanagementservice.exception.LoginFailedException;
 import com.kduytran.authmanagementservice.properties.KeyCloakProps;
 import com.kduytran.authmanagementservice.service.AuthService;
 import com.kduytran.authmanagementservice.service.client.KeyCloakClient;
@@ -12,6 +13,7 @@ import org.keycloak.admin.client.token.TokenManager;
 import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.NotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +31,15 @@ class AuthServiceImpl implements AuthService {
     public AccessTokenResponse login(String username, String password) {
         Keycloak client = getKeycloakWithPasswordGrantType(keyCloakProps, username, password);
         TokenManager tokenmanager = client.tokenManager();
-        return tokenmanager.getAccessToken();
+        try {
+            return tokenmanager.getAccessToken();
+        } catch (NotFoundException e) {
+            log.warn(e.getMessage(), e);
+            throw new LoginFailedException("Username or password is incorrect");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new KeyCloakException("KeyCloak Exception");
+        }
     }
 
     @Override
