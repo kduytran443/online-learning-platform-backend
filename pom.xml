@@ -205,7 +205,15 @@
 				<artifactId>rest-api-sdk</artifactId>
 				<version>${rest-api-sdk.version}</version>
 			</dependency>
-		</dependencies>
+
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>2.31.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
 	</dependencyManagement>
 
 	<build>
