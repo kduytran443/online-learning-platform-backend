@@ -22,6 +22,8 @@ target/
 *.iws
 *.iml
 *.ipr
+.idea/
+**/.idea/
 
 ### NetBeans ###
 /nbproject/private/
@@ -36,3 +38,13 @@ build/
 ### IDE ###
 .vscode/
 /.idea/
+
+### Docker ###
+**/volume/
+**/volumes/
+**/data/
+
+### Environment ###
+**/env
+**/env.*
+!**/env.example
