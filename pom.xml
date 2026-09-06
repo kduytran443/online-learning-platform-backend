@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.2</version>
+		<version>3.5.16</version>
 	</parent>
 	<groupId>com.kduytran</groupId>
 	<artifactId>olp-microservices</artifactId>
@@ -36,7 +36,7 @@
 	<properties>
 		<revision>1.0.0-SNAPSHOT</revision>
 		<java.version>17</java.version>
-		<spring-cloud.version>2023.0.3</spring-cloud.version>
+		<spring-cloud.version>2025.0.3</spring-cloud.version>
 		<jwt.version>0.11.5</jwt.version>
 		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<maven.compiler.source>17</maven.compiler.source>

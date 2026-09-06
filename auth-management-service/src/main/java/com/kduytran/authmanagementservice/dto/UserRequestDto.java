@@ -9,7 +9,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class UserRequestDTO {
+public class UserRequestDto {
 
     @NotEmpty(message = "Username can not be null or empty")
     @Pattern(regexp = "^[a-z0-9]+[a-z0-9_]{3,15}$", message = "Username is not valid")

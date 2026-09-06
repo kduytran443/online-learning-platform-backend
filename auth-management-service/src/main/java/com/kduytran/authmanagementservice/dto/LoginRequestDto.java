@@ -2,7 +2,7 @@ package com.kduytran.authmanagementservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record LoginRequestDTO(
+public record LoginRequestDto(
         @NotBlank String username,
         @NotBlank String password) {
 }

@@ -1,6 +1,6 @@
 package com.kduytran.authmanagementservice.exception;
 
-import com.kduytran.authmanagementservice.dto.ErrorResponseDTO;
+import com.kduytran.authmanagementservice.dto.ErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,9 +16,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(value = { LoginFailedException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ErrorResponseDTO handleLoginFailedException(LoginFailedException ex, WebRequest webRequest) {
+    ErrorResponseDto handleLoginFailedException(LoginFailedException ex, WebRequest webRequest) {
         log.warn(ex.getMessage(), ex);
-        return ErrorResponseDTO.builder()
+        return ErrorResponseDto.builder()
                 .apiPath(webRequest.getDescription(false))
                 .errorMessage(ex.getMessage())
                 .errorCode(LoginFailedException.USERNAME_OR_PASSWORD_INCORRECT)
@@ -27,9 +27,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {SignUpNotValidException.class, KeyCloakException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ErrorResponseDTO handleBadRequestException(RuntimeException ex, WebRequest request) {
+    ErrorResponseDto handleBadRequestException(RuntimeException ex, WebRequest request) {
         log.error("Bad request: {}", ex.getMessage(), ex);
-        return ErrorResponseDTO.builder()
+        return ErrorResponseDto.builder()
                 .apiPath(request.getDescription(false))
                 .errorMessage(ex.getMessage())
                 .errorTime(LocalDateTime.now())
@@ -39,9 +39,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {ResourceNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorResponseDTO handleNotFoundException(RuntimeException ex, WebRequest request) {
+    ErrorResponseDto handleNotFoundException(RuntimeException ex, WebRequest request) {
         log.error("Not found: {}", ex.getMessage(), ex);
-        return ErrorResponseDTO.builder()
+        return ErrorResponseDto.builder()
                 .apiPath(request.getDescription(false))
                 .errorMessage(ex.getMessage())
                 .errorTime(LocalDateTime.now())

@@ -15,14 +15,13 @@ spring:
     driver-class-name: org.postgresql.Driver
   security:
     oauth2:
-      client:
-        registration:
-          google:
-            client-id: <CLIENT_ID>
-            client-secret: <CLIENT_SECRET>
-            scope:
-              - email
-              - profile
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/OLP
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=1m
 
 server:
   port: 8160

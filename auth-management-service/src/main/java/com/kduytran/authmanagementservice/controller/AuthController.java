@@ -1,6 +1,6 @@
 package com.kduytran.authmanagementservice.controller;
 
-import com.kduytran.authmanagementservice.dto.LoginRequestDTO;
+import com.kduytran.authmanagementservice.dto.LoginRequestDto;
 import com.kduytran.authmanagementservice.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -24,7 +24,7 @@ class AuthController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    AccessTokenResponse login(@Valid @RequestBody LoginRequestDTO dto) {
+    AccessTokenResponse login(@Valid @RequestBody LoginRequestDto dto) {
         return authService.login(dto.username(), dto.password());
     }
 
