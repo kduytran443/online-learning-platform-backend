@@ -66,8 +66,11 @@ services:
       - ./volume/grafana/config/dashboards:/var/lib/grafana/dashboards
       - ./volume/grafana/config/datasources:/etc/grafana/datasources
       - ./volume/grafana/config/plugins:/var/lib/grafana/plugins
-      - ./volume/grafana/grafana_data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
 
 networks:
   test-env:
     driver: bridge
+
+volumes:
+  grafana_data:
