@@ -36,4 +36,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [zipkin, otlp/jaeger]
+      exporters: [zipkin]
