@@ -17,6 +17,11 @@ spring:
     show-sql: true
   config:
     import: optional:configserver:${CONFIG_SERVICE_URL:http://localhost:8071/}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/OLP
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
