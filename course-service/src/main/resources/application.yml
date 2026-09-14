@@ -6,10 +6,10 @@ spring:
     username: user
     password: password
     driver-class-name: org.postgresql.Driver
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:/schema.sql
+#  sql:
+#    init:
+#      mode: always
+#      schema-locations: classpath:/schema.sql
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

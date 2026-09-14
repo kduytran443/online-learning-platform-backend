@@ -104,6 +104,12 @@ public class CourseEntity {
     @Builder.Default
     private Set<CourseCategoryEntity> courseCategories = new LinkedHashSet<>();
 
+    @OneToMany(
+            mappedBy = "course",
+            fetch = FetchType.LAZY
+    )
+    private Set<ClassEntity> classes = new LinkedHashSet<>();
+
     @PrePersist
     protected void onCreate() {
         Instant now = Instant.now();

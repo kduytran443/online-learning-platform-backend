@@ -164,6 +164,7 @@ CREATE INDEX IF NOT EXISTS idx_course_category_category_id
 -- =========================================================
 
 INSERT INTO category (
+    id,
     name,
     slug,
     description,
@@ -171,25 +172,27 @@ INSERT INTO category (
 )
 VALUES
     (
+        '00000000-0000-0000-0000-000000000001',
         'Backend Development',
         'backend-development',
         'Backend development courses',
         'PUBLIC'
     ),
     (
+        '00000000-0000-0000-0000-000000000002',
         'Java',
         'java',
         'Java programming courses',
         'PUBLIC'
     ),
     (
+        '00000000-0000-0000-0000-000000000003',
         'Software Engineering',
         'software-engineering',
         'Software engineering courses',
         'PUBLIC'
     )
     ON CONFLICT (slug) DO NOTHING;
-
 
 -- =========================================================
 -- SEED DATA - COURSE
