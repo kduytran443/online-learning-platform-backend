@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: bitnami/kafka:latest
+    image: soldevelo/kafka:latest
     container_name: kafka
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker,controller
@@ -23,7 +23,7 @@ services:
     networks:
       - test-env
   olp_test_db:
-    image: bitnami/postgresql:17
+    image: soldevelo/postgresql:17
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
